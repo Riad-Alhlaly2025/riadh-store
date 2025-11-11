@@ -1,12 +1,48 @@
 /* 🟦 الخطوط والألوان العامة */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #00c6ff, #0072ff);
+    --secondary-gradient: linear-gradient(135deg, #0072ff, #00c6ff);
+    --accent-gradient: linear-gradient(135deg, #ff7e5f, #feb47b);
+    --success-gradient: linear-gradient(135deg, #56ab2f, #a8e063);
+    --warning-gradient: linear-gradient(135deg, #f7971e, #ffd200);
+    --danger-gradient: linear-gradient(135deg, #ff416c, #ff4b2b);
+    --dark-gradient: linear-gradient(135deg, #232526, #414345);
+    --light-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    --transition-all: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    /* New variables for modern design */
+    --primary-color: #0072ff;
+    --secondary-color: #00c6ff;
+    --accent-color: #ff7e5f;
+    --text-primary: #111827;
+    --text-secondary: #666;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --border-radius: 12px;
+    --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* 🌞 الوضع المشرق */
+body.theme-light {
+    background-color: #ffffff;
+    color: #111827;
+}
+
+/* 🌙 الوضع الداكن */
+body.theme-dark {
+    background-color: #0f1115;
+    color: #f5f5f7;
+}
 
 body {
     font-family: "Cairo", sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f5f7fa;
-    color: #333;
+    line-height: 1.6;
+    transition: background 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* 🟦 شريط التنقل العلوي */
@@ -14,13 +50,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(90deg, #001f3f, #0074D9);
+    background: var(--primary-gradient);
     padding: 15px 0;
     border-bottom: 3px solid #00c3ff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     position: sticky;
     top: 0;
     z-index: 1000;
+    backdrop-filter: blur(10px);
+    background-color: rgba(0, 116, 217, 0.9);
+    /* Modern enhancements */
+    transition: var(--transition-smooth);
 }
 
 .navbar ul {
@@ -29,48 +69,129 @@ body {
     gap: 30px;
     margin: 0;
     padding: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 .navbar a {
     color: #fff;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 18px;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: var(--transition-all);
+    padding: 8px 15px;
+    border-radius: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--secondary-color);
+    transition: var(--transition-smooth);
+    transform: translateX(-50%);
+}
+
+.navbar a:hover::before {
+    width: 80%;
 }
 
 .navbar a:hover {
     color: #00d4ff;
-    transform: scale(1.1);
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .admin-link {
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    background: var(--accent-gradient);
     padding: 8px 15px;
     border-radius: 10px;
     font-weight: 700;
-    box-shadow: 0 0 10px rgba(0,255,255,0.4);
+    box-shadow: 0 0 15px rgba(255, 126, 95, 0.4);
+    transition: var(--transition-all);
+}
+
+.admin-link:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 5px 20px rgba(255, 126, 95, 0.6);
 }
 
 /* 🟦 رأس الصفحة */
 .site-header {
     text-align: center;
-    background: linear-gradient(to right, #00c6ff, #0072ff);
+    background: var(--primary-gradient);
     color: white;
     padding: 60px 20px;
     border-bottom-left-radius: 50px;
     border-bottom-right-radius: 50px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+    /* Modern enhancements */
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.site-header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+}
+
+/* Modern animations */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .site-header span {
     color: #ffdd57;
-    font-weight: bold;
+    font-weight: 800;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .site-header p {
     font-size: 18px;
     opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 /* 🟩 الصفحة الرئيسية */
@@ -78,6 +199,8 @@ body {
     display: flex;
     margin: 30px;
     gap: 25px;
+    /* Modern enhancements */
+    animation: fadeIn 0.8s ease-out;
 }
 
 /* 🟨 الشريط الجانبي للفلاتر */
@@ -86,8 +209,15 @@ body {
     background: white;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: var(--card-shadow);
     height: fit-content;
+    transition: var(--transition-all);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.sidebar:hover {
+    box-shadow: var(--hover-shadow);
+    transform: translateY(-5px);
 }
 
 .sidebar h3 {
@@ -95,6 +225,7 @@ body {
     text-align: center;
     border-bottom: 2px solid #00c3ff;
     padding-bottom: 10px;
+    margin-top: 0;
 }
 
 .sidebar ul {
@@ -109,12 +240,17 @@ body {
 .sidebar a {
     color: #333;
     text-decoration: none;
-    transition: 0.3s;
+    transition: var(--transition-all);
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
 }
 
 .sidebar a:hover {
     color: #0074D9;
-    font-weight: bold;
+    background: rgba(0, 116, 217, 0.1);
+    font-weight: 600;
+    transform: translateX(5px);
 }
 
 /* 🛍️ قسم المنتجات */
@@ -123,25 +259,51 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     gap: 25px;
+    /* Modern enhancements */
+    animation: fadeIn 0.8s ease-out;
 }
 
 .product-card {
     background: white;
     border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: var(--card-shadow);
     overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: var(--transition-all);
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 .product-card:hover {
-    transform: scale(1.04);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    transform: translateY(-10px);
+    box-shadow: var(--hover-shadow);
+}
+
+.product-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+}
+
+.product-card:hover::before {
+    transform: scaleX(1);
 }
 
 .product-card img {
     width: 100%;
     height: 200px;
     object-fit: cover;
+    transition: var(--transition-all);
+}
+
+.product-card:hover img {
+    transform: scale(1.05);
 }
 
 .product-info {
@@ -153,61 +315,217 @@ body {
     margin: 10px 0;
     font-size: 18px;
     color: #0074D9;
+    font-weight: 700;
 }
 
 .product-info p {
     color: #666;
     font-size: 15px;
+    margin: 8px 0;
 }
 
 .product-info .price {
     color: #00aaff;
-    font-weight: bold;
-    font-size: 17px;
+    font-weight: 800;
+    font-size: 19px;
+    margin: 12px 0;
 }
 
 /* 🟧 زر الشراء */
 .buy-btn {
     display: inline-block;
     margin-top: 10px;
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    background: var(--primary-gradient);
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px;
     border-radius: 30px;
     text-decoration: none;
     font-weight: 600;
-    transition: 0.3s;
+    transition: var(--transition-all);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 116, 217, 0.3);
+    position: relative;
+    overflow: hidden;
+    /* Modern enhancements */
+    transform: translateY(0);
+    transition: var(--transition-smooth);
+}
+
+.buy-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
 }
 
 .buy-btn:hover {
-    background: linear-gradient(90deg, #0072ff, #00c6ff);
-    transform: scale(1.05);
+    background: var(--secondary-gradient);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 116, 217, 0.4);
+}
+
+.buy-btn:hover::before {
+    left: 100%;
+}
+
+.buy-btn:active {
+    transform: translateY(0);
 }
 
 /* 🟦 التذييل */
 footer {
     text-align: center;
     padding: 25px;
-    background: #001f3f;
+    background: var(--dark-gradient);
     color: white;
     margin-top: 60px;
     border-top: 3px solid #00c3ff;
     font-size: 14px;
     letter-spacing: 0.5px;
+    position: relative;
+}
+
+footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-gradient);
+}
+
+/* 🛒 سلة التسوق */
+.cart-count {
+    background: var(--danger-gradient);
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 📱 تحسين المظهر للجوال */
 @media (max-width: 768px) {
-.main-container {
-    flex-direction: column;
-    margin: 15px;
+    .main-container {
+        flex-direction: column;
+        margin: 15px;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .products-container {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    
+    .navbar ul {
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .site-header {
+        padding: 30px 15px;
+    }
+    
+    .site-header h1 {
+        font-size: 24px;
+    }
+    
+    .site-header p {
+        font-size: 16px;
+    }
+    
+    .cart-count {
+        padding: 1px 5px;
+        font-size: 10px;
+        top: -3px;
+        right: -3px;
+    }
+    
+    /* Modern mobile enhancements */
+    .product-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:active {
+        transform: scale(0.98);
+    }
 }
 
-.sidebar {
-    width: 100%;
-}
-
-.products-container {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-}
+/* 📱 تحسين المظهر للهواتف الصغيرة */
+@media (max-width: 480px) {
+    .main-container {
+        margin: 10px;
+        gap: 15px;
+    }
+    
+    .products-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-card img {
+        height: 180px;
+    }
+    
+    .navbar {
+        padding: 10px 0;
+    }
+    
+    .navbar a {
+        font-size: 16px;
+        padding: 6px 10px;
+    }
+    
+    .admin-link {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+    
+    footer {
+        padding: 15px;
+        font-size: 12px;
+    }
+    
+    .product-info h4 {
+        font-size: 16px;
+    }
+    
+    .product-info .price {
+        font-size: 17px;
+    }
+    
+    .buy-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    /* Modern small screen enhancements */
+    .site-header {
+        padding: 20px 10px;
+    }
+    
+    .site-header h1 {
+        font-size: 20px;
+    }
+    
+    .site-header p {
+        font-size: 14px;
+    }
 }

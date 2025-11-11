@@ -317,3 +317,30 @@ INFO 2025-11-10 19:42:57,508 basehttp 11056 9472 "GET /track-analytics/?event_ty
 WARNING 2025-11-10 19:42:58,338 log 11056 9472 Not Found: /sw.js
 WARNING 2025-11-10 19:42:58,340 basehttp 11056 9472 "GET /sw.js HTTP/1.1" 404 40830
 WARNING 2025-11-10 19:42:58,464 basehttp 11056 9472 "GET /static/images/logo-192.png HTTP/1.1" 404 1871
+INFO 2025-11-11 19:58:55,822 autoreload 1800 10588 Watching for file changes with StatReloader
+INFO 2025-11-11 19:59:36,167 basehttp 1800 12492 "GET / HTTP/1.1" 200 55267
+INFO 2025-11-11 19:59:36,168 basehttp 1800 12500 "GET / HTTP/1.1" 200 55267
+INFO 2025-11-11 19:59:38,325 basehttp 1800 12500 "GET /static/css/style.css HTTP/1.1" 200 11394
+INFO 2025-11-11 19:59:38,488 basehttp 1800 13060 "GET /static/js/banner-slider.js HTTP/1.1" 200 5791
+INFO 2025-11-11 19:59:38,507 basehttp 1800 13048 "GET /static/js/theme-toggle.js HTTP/1.1" 200 5471
+INFO 2025-11-11 19:59:38,508 basehttp 1800 12492 "GET /static/css/dark.css HTTP/1.1" 200 26615
+INFO 2025-11-11 19:59:38,862 basehttp 1800 13084 "GET /static/images/hero-banner.png HTTP/1.1" 200 58071
+INFO 2025-11-11 19:59:42,954 basehttp 1800 13232 "GET /track-analytics/?event_type=page_view&url=http%3A%2F%2F127.0.0.1%3A8000%2F&referrer= HTTP/1.1" 200 21
+INFO 2025-11-11 20:00:06,762 basehttp 1800 5628 "GET /track-analytics/?event_type=page_view&url=http%3A%2F%2F127.0.0.1%3A8000%2F&referrer= HTTP/1.1" 200 21
+INFO 2025-11-11 20:00:12,013 basehttp 1800 8468 "GET /static/manifest.json HTTP/1.1" 200 676
+WARNING 2025-11-11 20:00:12,802 log 1800 10452 Not Found: /sw.js
+WARNING 2025-11-11 20:00:12,803 basehttp 1800 10452 "GET /sw.js HTTP/1.1" 404 40830
+WARNING 2025-11-11 20:00:16,689 basehttp 1800 10452 "GET /static/images/logo-192.png HTTP/1.1" 404 1871
+INFO 2025-11-11 20:00:31,656 basehttp 1800 12244 "GET /products/ HTTP/1.1" 200 55482
+INFO 2025-11-11 20:00:38,409 basehttp 1800 12928 "GET /track-analytics/?event_type=page_view&url=http%3A%2F%2F127.0.0.1%3A8000%2Fproducts%2F&referrer=http%3A%2F%2F127.0.0.1%3A8000%2F HTTP/1.1" 200 21
+INFO 2025-11-11 20:00:38,419 basehttp 1800 12292 "GET /media/products/%D9%84%D9%82%D8%B7%D8%A9_%D8%A7%D9%84%D8%B4%D8%A7%D8%B4%D8%A9_2025-10-30_224350.png HTTP/1.1" 200 5730
+INFO 2025-11-11 20:00:38,424 basehttp 1800 12868 "GET /static/images/placeholder.png HTTP/1.1" 200 496
+INFO 2025-11-11 20:00:38,425 basehttp 1800 10452 "GET /media/products/%D9%84%D9%82%D8%B7%D8%A9_%D8%A7%D9%84%D8%B4%D8%A7%D8%B4%D8%A9_2.png HTTP/1.1" 200 59296
+WARNING 2025-11-11 20:00:38,503 log 1800 13052 Not Found: /sw.js
+WARNING 2025-11-11 20:00:38,505 basehttp 1800 13052 "GET /sw.js HTTP/1.1" 404 40830
+WARNING 2025-11-11 20:00:41,581 basehttp 1800 13052 "GET /static/images/logo-192.png HTTP/1.1" 404 1871
+INFO 2025-11-11 20:00:50,607 basehttp 1800 4000 "GET /products/?q=&category=&min_price=&max_price= HTTP/1.1" 200 55576
+INFO 2025-11-11 20:00:53,510 basehttp 1800 4000 "GET /track-analytics/?event_type=page_view&url=http%3A%2F%2F127.0.0.1%3A8000%2Fproducts%2F%3Fq%3D%26category%3D%26min_price%3D%26max_price%3D&referrer=http%3A%2F%2F127.0.0.1%3A8000%2Fproducts%2F HTTP/1.1" 200 21
+WARNING 2025-11-11 20:00:55,843 log 1800 4000 Not Found: /sw.js
+WARNING 2025-11-11 20:00:55,844 basehttp 1800 4000 "GET /sw.js HTTP/1.1" 404 40830
+WARNING 2025-11-11 20:00:56,745 basehttp 1800 12672 "GET /static/images/logo-192.png HTTP/1.1" 404 1871

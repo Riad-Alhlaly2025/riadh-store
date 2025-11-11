@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تسجيل الخروج - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h2>تسجيل الخروج</h2>
+        
+        <div class="success-message">
+            <p>لقد تم تسجيل خروجك بنجاح.</p>
+        </div>
+        
+        <div class="auth-links">
+            <p><a href="{% url 'login' %}">تسجيل الدخول مرة أخرى</a></p>
+            <p><a href="{% url 'home' %}">العودة إلى الصفحة الرئيسية</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+    
+    .auth-form {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .auth-form h2 {
+        color: #0074D9;
+        margin-bottom: 30px;
+    }
+    
+    .success-message {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .auth-links {
+        margin-top: 20px;
+    }
+    
+    .auth-links a {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 20px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-links a:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تسجيل الدخول - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h2>تسجيل الدخول</h2>
+        
+        {% if form.errors %}
+            <div class="error-message">
+                <p>اسم المستخدم أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.</p>
+            </div>
+        {% endif %}
+        
+        {% if next %}
+            {% if user.is_authenticated %}
+                <p class="error-message">حسابك لا يملك الصلاحيات للوصول إلى هذه الصفحة. للاستمرار، يرجى تسجيل الدخول بحساب يملك الصلاحيات.</p>
+            {% else %}
+                <p class="info-message">يجب تسجيل الدخول للوصول إلى الصفحة المطلوبة.</p>
+            {% endif %}
+        {% endif %}
+        
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">اسم المستخدم:</label>
+                {{ form.username }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">كلمة المرور:</label>
+                {{ form.password }}
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="تسجيل الدخول" class="btn-primary">
+                <input type="hidden" name="next" value="{{ next }}">
+            </div>
+        </form>
+        
+        <div class="auth-links">
+            <p>ليس لديك حساب؟ <a href="{% url 'signup' %}">إنشاء حساب جديد</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+    
+    .auth-form {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .auth-form h2 {
+        text-align: center;
+        color: #0074D9;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: "Cairo", sans-serif;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-family: "Cairo", sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    
+    .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .info-message {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .auth-links {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .auth-links a {
+        color: #0074D9;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .auth-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

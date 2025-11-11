@@ -1,0 +1,122 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}إدارة صفحات الهبوط{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>إدارة صفحات الهبوط</h2>
+        <a href="{% url 'landing_page_create' %}" class="btn btn-primary">صفحة هبوط جديدة</a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">بحث</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">الحالة</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">الكل</option>
+                        <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>مسودة</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>مفعلة</option>
+                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>غير مفعلة</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="campaign" class="form-label">الحملة</label>
+                    <input type="text" class="form-control" id="campaign" name="campaign" value="{{ campaign_filter }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">تصفية</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Landing Pages Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>العنوان</th>
+                            <th>الحملة</th>
+                            <th>الحالة</th>
+                            <th>تاريخ الإنشاء</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for landing_page in page_obj %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'landing_page_detail' landing_page.slug %}">{{ landing_page.name }}</a>
+                            </td>
+                            <td>{{ landing_page.title }}</td>
+                            <td>{{ landing_page.campaign_name|default:'-' }}</td>
+                            <td>
+                                {% if landing_page.status == 'draft' %}
+                                <span class="badge bg-secondary">مسودة</span>
+                                {% elif landing_page.status == 'active' %}
+                                <span class="badge bg-success">مفعلة</span>
+                                {% elif landing_page.status == 'inactive' %}
+                                <span class="badge bg-warning">غير مفعلة</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ landing_page.created_at|date:"d/m/Y" }}</td>
+                            <td>
+                                <a href="{% url 'landing_page_edit' landing_page.slug %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                                <a href="{% url 'landing_page_delete' landing_page.slug %}" class="btn btn-sm btn-outline-danger">حذف</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">لا توجد صفحات هبوط</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if campaign_filter %}&campaign={{ campaign_filter }}{% endif %}">السابق</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if campaign_filter %}&campaign={{ campaign_filter }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if campaign_filter %}&campaign={{ campaign_filter }}{% endif %}">التالي</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <p class="text-center">لا توجد صفحات هبوط</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

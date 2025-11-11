@@ -1,0 +1,267 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}التقارير المالية - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="financial-reports-container">
+    <h1>التقارير المالية الشاملة</h1>
+    
+    <!-- Financial Summary -->
+    <div class="info-section">
+        <h3>ملخص مالي</h3>
+        <div class="financial-summary">
+            <div class="summary-item">
+                <span>إجمالي الإيرادات</span>
+                <span class="amount">{{ total_revenue|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="summary-item">
+                <span>الإيرادات آخر 30 يوم</span>
+                <span class="amount">{{ revenue_30_days|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="summary-item">
+                <span>الإيرادات آخر 90 يوم</span>
+                <span class="amount">{{ revenue_90_days|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="summary-item">
+                <span>الإيرادات السنوية</span>
+                <span class="amount">{{ revenue_12_months|floatformat:2 }} ر.س</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profitability Metrics -->
+    <div class="info-section">
+        <h3>مؤشرات الربحية</h3>
+        <div class="profitability-metrics">
+            <div class="metric-item">
+                <span>تكلفة البضائع المباعة (مقدرة)</span>
+                <span class="amount">{{ estimated_cogs|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="metric-item">
+                <span>الربح الإجمالي</span>
+                <span class="amount">{{ gross_profit|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="metric-item">
+                <span>هامش الربح الإجمالي</span>
+                <span class="percentage">{{ gross_profit_margin }}%</span>
+            </div>
+            <div class="metric-item">
+                <span>الربح الصافي</span>
+                <span class="amount">{{ net_profit|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="metric-item">
+                <span>هامش الربح الصافي</span>
+                <span class="percentage">{{ net_profit_margin }}%</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expense Breakdown -->
+    <div class="info-section">
+        <h3>تحليل المصروفات</h3>
+        <div class="expense-breakdown">
+            <div class="expense-item">
+                <span>إجمالي العمولات</span>
+                <span class="amount">{{ total_commission_amount|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="expense-item">
+                <span>العمولات المدفوعة</span>
+                <span class="amount paid">{{ paid_commissions|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="expense-item">
+                <span>العمولات المعلقة</span>
+                <span class="amount pending">{{ pending_commissions|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="expense-item">
+                <span>رسوم معالجة الدفع (مقدرة)</span>
+                <span class="amount">{{ estimated_payment_fees|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="expense-item">
+                <span>إجمالي المصروفات</span>
+                <span class="amount total">{{ total_expenses|floatformat:2 }} ر.س</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Customer Metrics -->
+    <div class="info-section">
+        <h3>مؤشرات العملاء</h3>
+        <div class="customer-metrics">
+            <div class="metric-item">
+                <span>إجمالي العملاء</span>
+                <span class="count">{{ total_customers }}</span>
+            </div>
+            <div class="metric-item">
+                <span>متوسط قيمة الطلب</span>
+                <span class="amount">{{ avg_order_value|floatformat:2 }} ر.س</span>
+            </div>
+            <div class="metric-item">
+                <span>القيمة المتوقعة لحياة العميل</span>
+                <span class="amount">{{ customer_lifetime_value|floatformat:2 }} ر.س</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Returns and Refunds -->
+    <div class="info-section">
+        <h3>الإرجاعات والاستردادات</h3>
+        <div class="returns-refunds">
+            <div class="return-item">
+                <span>عدد الطلبات الملغاة</span>
+                <span class="count">{{ refund_count }}</span>
+            </div>
+            <div class="return-item">
+                <span>إجمالي المبالغ المستردة</span>
+                <span class="amount">{{ refund_amount|floatformat:2 }} ر.س</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Revenue by Payment Method -->
+    {% if payment_method_revenue %}
+    <div class="info-section">
+        <h3>الإيرادات حسب طريقة الدفع</h3>
+        <div class="payment-method-revenue">
+            {% for method in payment_method_revenue %}
+            <div class="method-item">
+                <span>
+                    {% if method.payment_method == 'stripe' %}Stripe
+                    {% elif method.payment_method == 'paypal' %}PayPal
+                    {% else %}{{ method.payment_method }}
+                    {% endif %}
+                </span>
+                <span class="amount">{{ method.total|floatformat:2 }} ر.س</span>
+                <span class="count">({{ method.count }} طلب)</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Top Selling Products -->
+    {% if product_revenue %}
+    <div class="info-section">
+        <h3>أكثر المنتجات مبيعاً</h3>
+        <div class="top-products">
+            {% for product in product_revenue %}
+            <div class="product-item">
+                <span class="product-name">{{ product.product__name }}</span>
+                <span class="quantity">{{ product.total_quantity }} وحدة</span>
+                <span class="amount">{{ product.total_revenue|floatformat:2 }} ر.س</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Sales by Category -->
+    {% if category_revenue %}
+    <div class="info-section">
+        <h3>المبيعات حسب الفئة</h3>
+        <div class="category-sales">
+            {% for category in category_revenue %}
+            <div class="category-item">
+                <span class="category-name">
+                    {% if category.product__category == 'phones' %}هواتف
+                    {% elif category.product__category == 'computers' %}أجهزة كمبيوتر
+                    {% elif category.product__category == 'accessories' %}إكسسوارات
+                    {% else %}غير مصنف
+                    {% endif %}
+                </span>
+                <span class="quantity">{{ category.total_quantity }} وحدة</span>
+                <span class="amount">{{ category.total_revenue|floatformat:2 }} ر.س</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .financial-reports-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .financial-reports-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .info-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .info-section h3 {
+        color: #0074D9;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .financial-summary, .profitability-metrics, .expense-breakdown, .customer-metrics, 
+    .returns-refunds, .payment-method-revenue, .top-products, .category-sales {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .summary-item, .metric-item, .expense-item, .return-item, .method-item, 
+    .product-item, .category-item {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .amount, .percentage, .count {
+        font-weight: bold;
+        color: #0074D9;
+    }
+    
+    .amount.paid {
+        color: #28a745;
+    }
+    
+    .amount.pending {
+        color: #ffc107;
+    }
+    
+    .amount.total {
+        color: #dc3545;
+        font-size: 1.1em;
+    }
+    
+    .product-item, .category-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .product-name, .category-name {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .quantity {
+        color: #666;
+    }
+    
+    @media (max-width: 768px) {
+        .financial-summary, .profitability-metrics, .expense-breakdown, .customer-metrics, 
+        .returns-refunds, .payment-method-revenue, .top-products, .category-sales {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

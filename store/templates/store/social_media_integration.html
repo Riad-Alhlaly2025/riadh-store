@@ -1,0 +1,105 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تكامل وسائل التواصل الاجتماعي{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>تكامل وسائل التواصل الاجتماعي</h2>
+            
+            <!-- Create Integration Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>إنشاء تكامل جديد</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="product_id">المنتج:</label>
+                                    <select class="form-control" id="product_id" name="product_id" required>
+                                        <option value="">اختر المنتج</option>
+                                        {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="platform">المنصة:</label>
+                                    <select class="form-control" id="platform" name="platform" required>
+                                        <option value="">اختر المنصة</option>
+                                        <option value="facebook">فيسبوك</option>
+                                        <option value="twitter">تويتر</option>
+                                        <option value="instagram">إنستغرام</option>
+                                        <option value="linkedin">لينكدإن</option>
+                                        <option value="pinterest">بينتيريست</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">إنشاء التكامل</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Integrations List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>التكاملات الحالية</h5>
+                </div>
+                <div class="card-body">
+                    {% if integrations %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>المنتج</th>
+                                    <th>المنصة</th>
+                                    <th>حالة النشر</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for integration in integrations %}
+                                <tr>
+                                    <td>{{ integration.product.name }}</td>
+                                    <td>{{ integration.get_platform_display }}</td>
+                                    <td>
+                                        {% if integration.status == 'pending' %}
+                                            <span class="badge badge-warning">قيد الانتظار</span>
+                                        {% elif integration.status == 'posted' %}
+                                            <span class="badge badge-success">تم النشر</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">غير معروف</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ integration.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'delete_social_media_integration' integration.id %}" 
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('هل أنت متأكد من حذف هذا التكامل؟')">
+                                            حذف
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>لا توجد تكاملات حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

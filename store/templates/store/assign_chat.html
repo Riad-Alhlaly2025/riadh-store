@@ -1,0 +1,38 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}تعيين دردشة{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>تعيين دردشة: {{ chat_session.topic }}</h4>
+            </div>
+            
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>العميل:</strong> {{ chat_session.customer.username }}</p>
+                    <p><strong>الموضوع:</strong> {{ chat_session.topic }}</p>
+                    <p><strong>تاريخ الإنشاء:</strong> {{ chat_session.created_at|date:"d/m/Y H:i" }}</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="alert alert-warning">
+                        <p>هل تريد تعيين هذه الدردشة لنفسك؟</p>
+                        <p>بتعيين هذه الدردشة لنفسك، ستكون مسؤولًا عن التعامل مع هذا العميل.</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'agent_chat_list' %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-check"></i> نعم، عيّنها لي
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

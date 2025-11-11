@@ -1,0 +1,102 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}إدارة فئات الأسئلة الشائعة{% endblock %}
+
+{% block support_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>إدارة فئات الأسئلة الشائعة</h4>
+        <a href="{% url 'faq_category_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> فئة جديدة
+        </a>
+    </div>
+    
+    <div class="card-body">
+        <!-- Search Form -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="ابحث في الفئات...">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fas fa-search"></i> بحث
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Categories Table -->
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>الوصف</th>
+                        <th>الترتيب</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in page_obj %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.description|truncatewords:10 }}</td>
+                        <td>{{ category.order }}</td>
+                        <td>
+                            {% if category.is_active %}
+                            <span class="badge bg-success">مفعل</span>
+                            {% else %}
+                            <span class="badge bg-secondary">غير مفعل</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'faq_category_edit' category.id %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                            <a href="{% url 'faq_category_delete' category.id %}" class="btn btn-sm btn-outline-danger">حذف</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">لا توجد فئات</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">السابق</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">التالي</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p class="text-center">لا توجد فئات</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

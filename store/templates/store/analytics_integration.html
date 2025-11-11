@@ -1,0 +1,127 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تكامل أدوات التحليل{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>تكامل أدوات التحليل</h2>
+            
+            <!-- Analytics Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>ملخص التحليلات</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="alert alert-info text-center">
+                                <h3>{{ total_events }}</h3>
+                                <p>إجمالي الأحداث</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-success text-center">
+                                <h3>{{ event_types|length }}</h3>
+                                <p>أنواع الأحداث</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-warning text-center">
+                                <h3>{{ analytics_events|length }}</h3>
+                                <p>الأحداث الحديثة</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Event Types Chart -->
+                    <h5>توزيع الأحداث حسب النوع</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>نوع الحدث</th>
+                                    <th>العدد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event_type in event_types %}
+                                <tr>
+                                    <td>{{ event_type.event_type }}</td>
+                                    <td>{{ event_type.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Events -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>أحدث الأحداث</h5>
+                </div>
+                <div class="card-body">
+                    {% if analytics_events %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>المستخدم</th>
+                                    <th>نوع الحدث</th>
+                                    <th>المنتج</th>
+                                    <th>الطلب</th>
+                                    <th>الرابط</th>
+                                    <th>الطابع الزمني</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in analytics_events %}
+                                <tr>
+                                    <td>
+                                        {% if event.user %}
+                                            {{ event.user.username }}
+                                        {% else %}
+                                            زائر
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ event.get_event_type_display }}</td>
+                                    <td>
+                                        {% if event.product %}
+                                            {{ event.product.name }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if event.order %}
+                                            طلب #{{ event.order.id }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if event.url %}
+                                            <a href="{{ event.url }}" target="_blank">عرض</a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ event.timestamp|date:"Y-m-d H:i:s" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>لا توجد أحداث تحليلية حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}تعيين تذكرة دعم{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>تعيين تذكرة دعم #{{ ticket.id }}</h4>
+            </div>
+            
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>الموضوع:</strong> {{ ticket.subject }}</p>
+                    <p><strong>العميل:</strong> {{ ticket.customer.username }}</p>
+                    <p><strong>الفئة:</strong> 
+                        {% if ticket.category == 'technical' %}تقني
+                        {% elif ticket.category == 'billing' %}فوترة
+                        {% elif ticket.category == 'account' %}حساب
+                        {% elif ticket.category == 'product' %}منتج
+                        {% elif ticket.category == 'order' %}طلب
+                        {% elif ticket.category == 'other' %}أخرى
+                        {% endif %}
+                    </p>
+                    <p><strong>الأولوية:</strong> 
+                        {% if ticket.priority == 'low' %}
+                        <span class="badge bg-success">منخفض</span>
+                        {% elif ticket.priority == 'medium' %}
+                        <span class="badge bg-warning">متوسط</span>
+                        {% elif ticket.priority == 'high' %}
+                        <span class="badge bg-danger">عالي</span>
+                        {% elif ticket.priority == 'urgent' %}
+                        <span class="badge bg-danger">عاجل</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="agent" class="form-label">تعيين إلى وكيل دعم</label>
+                        <select class="form-select" id="agent" name="agent" required>
+                            <option value="">اختر وكيل دعم</option>
+                            {% for agent in agents %}
+                            <option value="{{ agent.id }}">{{ agent.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'agent_ticket_list' %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-check"></i> تعيين التذكرة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

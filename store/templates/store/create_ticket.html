@@ -1,0 +1,62 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}إنشاء تذكرة دعم{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>إنشاء تذكرة دعم</h4>
+            </div>
+            
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">الموضوع *</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">الفئة</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="technical">تقني</option>
+                                <option value="billing">فوترة</option>
+                                <option value="account">حساب</option>
+                                <option value="product">منتج</option>
+                                <option value="order">طلب</option>
+                                <option value="other" selected>أخرى</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label">الأولوية</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">منخفض</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="high">عالي</option>
+                                <option value="urgent">عاجل</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">الوصف *</label>
+                        <textarea class="form-control" id="description" name="description" rows="6" required></textarea>
+                        <div class="form-text">يرجى تقديم تفاصيل尽可能 مفصلة حول مشكلتك أو استفسارك.</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'ticket_list' %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-ticket-alt"></i> إنشاء التذكرة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

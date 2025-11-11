@@ -1,0 +1,26 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}حذف الصفحة{% endblock %}
+
+{% block cms_content %}
+<div class="card">
+  <div class="card-header">
+    <h2>تأكيد حذف الصفحة</h2>
+  </div>
+  <div class="card-body">
+    <p>هل أنت متأكد أنك تريد حذف الصفحة التالية؟</p>
+    
+    <div class="alert alert-warning">
+      <h5>{{ page.title }}</h5>
+      <p>{{ page.excerpt|truncatewords:20|default:"لا يوجد ملخص" }}</p>
+      <small class="text-muted">تاريخ الإنشاء: {{ page.created_at|date:"d F Y" }}</small>
+    </div>
+    
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">نعم، احذف الصفحة</button>
+      <a href="{% url 'page_list' %}" class="btn btn-secondary">إلغاء</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

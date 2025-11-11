@@ -1,0 +1,92 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}تفاصيل الدردشة - {{ chat_session.topic }}{% endblock %}
+
+{% block support_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>تفاصيل الدردشة: {{ chat_session.topic }}</h4>
+        {% if chat_session.status == 'active' or chat_session.status == 'pending' %}
+        <a href="{% url 'close_chat' chat_session.id %}" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-times"></i> إغلاق الدردشة
+        </a>
+        {% endif %}
+    </div>
+    
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>العميل:</strong> {{ chat_session.customer.username }}</p>
+            </div>
+            <div class="col-md-6">
+                {% if chat_session.support_agent %}
+                <p><strong>وكيل الدعم:</strong> {{ chat_session.support_agent.username }}</p>
+                {% else %}
+                <p><strong>وكيل الدعم:</strong> <span class="text-muted">لم يتم تعيين وكيل</span></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>الحالة:</strong> 
+                    {% if chat_session.status == 'active' %}
+                    <span class="badge bg-success">نشط</span>
+                    {% elif chat_session.status == 'pending' %}
+                    <span class="badge bg-warning">قيد الانتظار</span>
+                    {% elif chat_session.status == 'closed' %}
+                    <span class="badge bg-secondary">مغلق</span>
+                    {% elif chat_session.status == 'transferred' %}
+                    <span class="badge bg-info">محول</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>تاريخ الإنشاء:</strong> {{ chat_session.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>الرسائل</h5>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                {% for message in messages_list %}
+                <div class="mb-3 {% if message.sender == user %}text-end{% endif %}">
+                    <div class="d-inline-block p-2 rounded {% if message.sender == user %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 80%;">
+                        <div class="fw-bold">{{ message.sender.username }}</div>
+                        <div>{{ message.message }}</div>
+                        <div class="small {% if message.sender == user %}text-white-50{% else %}text-muted{% endif %}">{{ message.timestamp|date:"H:i" }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">لا توجد رسائل</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Message Form -->
+        {% if chat_session.status == 'active' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="message" class="form-label">رسالة جديدة</label>
+                <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> إرسال
+            </button>
+        </form>
+        {% else %}
+        <div class="alert alert-info">
+            {% if chat_session.status == 'closed' %}
+            هذه الدردشة مغلقة ولا يمكن إرسال رسائل جديدة.
+            {% elif chat_session.status == 'pending' %}
+            هذه الدردشة قيد الانتظار. سيتم تعيين وكيل دعم قريبًا.
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

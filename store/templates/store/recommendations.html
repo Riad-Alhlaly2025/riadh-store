@@ -1,0 +1,42 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}التوصيات{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>توصيات المنتجات</h2>
+            
+            {% if recommendations %}
+            <div class="row">
+                {% for recommendation in recommendations %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if recommendation.product.image %}
+                        <img src="{{ recommendation.product.image.url }}" class="card-img-top" alt="{{ recommendation.product.name }}" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ recommendation.product.name }}</h5>
+                            <p class="card-text">{{ recommendation.product.description|truncatewords:20 }}</p>
+                            <div class="mt-auto">
+                                <p class="card-text">
+                                    <strong>{{ recommendation.product.price }} ر.س</strong>
+                                </p>
+                                <a href="{% url 'product_detail' recommendation.product.pk %}" class="btn btn-primary">عرض التفاصيل</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>لا توجد توصيات متاحة حالياً.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

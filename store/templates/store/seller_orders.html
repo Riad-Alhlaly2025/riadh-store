@@ -1,0 +1,233 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}طلباتي - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h1>طلبات منتجاتي</h1>
+    
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <h3>طلب #{{ order.id }}</h3>
+                <span class="order-status {{ order.status }}">{{ order.get_status_display }}</span>
+            </div>
+            
+            <div class="order-details">
+                <p><strong>تاريخ الطلب:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+                <p><strong>عنوان التوصيل:</strong> {{ order.shipping_address }}</p>
+                <p><strong>رقم الهاتف:</strong> {{ order.phone_number }}</p>
+            </div>
+            
+            <div class="order-items">
+                <h4>المنتجات:</h4>
+                {% for item in order.seller_items.all %}
+                <div class="item">
+                    <span>{{ item.product.name }}</span>
+                    <span>{{ item.quantity }} × {{ item.price }} ر.س</span>
+                    <span class="item-total">{{ item.total_price }} ر.س</span>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="order-total">
+                <strong>إجمالي الطلب:</strong> {{ order.total_amount }} ر.س
+            </div>
+            
+            <div class="order-actions">
+                <a href="{% url 'seller_order_detail' order.id %}" class="btn-view">عرض التفاصيل</a>
+                {% if order.status != 'delivered' and order.status != 'cancelled' %}
+                <a href="{% url 'update_order_status' order.id %}" class="btn-update">تحديث الحالة</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-orders">
+        <p>لا توجد طلبات حالياً.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .orders-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .orders-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .order-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .order-header h3 {
+        color: #333;
+        margin: 0;
+    }
+    
+    .order-status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .order-status.pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .order-status.processing {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .order-status.shipped {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    
+    .order-status.delivered {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .order-status.cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .order-details p {
+        margin: 5px 0;
+        color: #666;
+    }
+    
+    .order-items {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .order-items h4 {
+        margin-top: 0;
+        color: #333;
+    }
+    
+    .item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .item:last-child {
+        border-bottom: none;
+    }
+    
+    .item-total {
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .order-total {
+        text-align: left;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0074D9;
+        margin: 15px 0;
+        padding-top: 15px;
+        border-top: 2px solid #eee;
+    }
+    
+    .order-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-view, .btn-update {
+        padding: 10px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .btn-view {
+        background: #0074D9;
+        color: white;
+        border: 1px solid #0074D9;
+    }
+    
+    .btn-update {
+        background: #28a745;
+        color: white;
+        border: 1px solid #28a745;
+    }
+    
+    .btn-view:hover, .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .no-orders {
+        text-align: center;
+        padding: 50px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .no-orders p {
+        font-size: 1.2rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .item {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .order-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

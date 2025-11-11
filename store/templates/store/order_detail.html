@@ -1,0 +1,213 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تفاصيل الطلب #{{ order.pk }} - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <h1>تفاصيل الطلب #{{ order.pk }}</h1>
+    
+    <div class="order-info">
+        <div class="info-row">
+            <span class="label">تاريخ الطلب:</span>
+            <span class="value">{{ order.created_at|date:"d/m/Y H:i" }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">الحالة:</span>
+            <span class="value status-{{ order.status }}">{{ order.get_status_display }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">عنوان التوصيل:</span>
+            <span class="value">{{ order.shipping_address }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">رقم الهاتف:</span>
+            <span class="value">{{ order.phone_number }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">المبلغ الإجمالي:</span>
+            <span class="value">{{ order.total_amount }} 
+                {% if currency == 'USD' %}USD
+                {% elif currency == 'EUR' %}EUR
+                {% elif currency == 'SAR' %}ر.س
+                {% elif currency == 'AED' %}د.إ
+                {% elif currency == 'EGP' %}ج.م
+                {% elif currency == 'KWD' %}د.ك
+                {% elif currency == 'QAR' %}ر.ق
+                {% elif currency == 'OMR' %}ر.ع.
+                {% elif currency == 'BHD' %}د.ب
+                {% elif currency == 'JOD' %}د.أ
+                {% else %}{{ currency }}
+                {% endif %}
+            </span>
+        </div>
+        
+        {% if payment %}
+        <div class="info-row">
+            <span class="label">حالة الدفع:</span>
+            <span class="value status-{{ payment.status }}">{{ payment.get_status_display }}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">طريقة الدفع:</span>
+            <span class="value">{{ payment.get_payment_method_display }}</span>
+        </div>
+        
+        {% if payment.transaction_id %}
+        <div class="info-row">
+            <span class="label">معرف المعاملة:</span>
+            <span class="value">{{ payment.transaction_id }}</span>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    
+    <h2>عناصر الطلب</h2>
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>المنتج</th>
+                <th>الكمية</th>
+                <th>السعر للوحدة</th>
+                <th>السعر الإجمالي</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price }} 
+                        {% if currency == 'USD' %}USD
+                        {% elif currency == 'EUR' %}EUR
+                        {% elif currency == 'SAR' %}ر.س
+                        {% elif currency == 'AED' %}د.إ
+                        {% elif currency == 'EGP' %}ج.م
+                        {% elif currency == 'KWD' %}د.ك
+                        {% elif currency == 'QAR' %}ر.ق
+                        {% elif currency == 'OMR' %}ر.ع.
+                        {% elif currency == 'BHD' %}د.ب
+                        {% elif currency == 'JOD' %}د.أ
+                        {% else %}{{ currency }}
+                        {% endif %}
+                    </td>
+                    <td>{{ item.total_price }} 
+                        {% if currency == 'USD' %}USD
+                        {% elif currency == 'EUR' %}EUR
+                        {% elif currency == 'SAR' %}ر.س
+                        {% elif currency == 'AED' %}د.إ
+                        {% elif currency == 'EGP' %}ج.م
+                        {% elif currency == 'KWD' %}د.ك
+                        {% elif currency == 'QAR' %}ر.ق
+                        {% elif currency == 'OMR' %}ر.ع.
+                        {% elif currency == 'BHD' %}د.ب
+                        {% elif currency == 'JOD' %}د.أ
+                        {% else %}{{ currency }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="actions">
+        {% if not payment or payment.status != 'completed' %}
+        <a href="{% url 'payment_view' order.pk %}" class="btn">دفع الآن</a>
+        {% endif %}
+        <a href="{% url 'order_history' %}" class="btn">العودة إلى سجل الطلبات</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.order-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.order-info {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dark-mode .order-info {
+    background: #2a2a2a;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.dark-mode .info-row {
+    border-bottom: 1px solid #444;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.label {
+    font-weight: bold;
+    width: 200px;
+}
+
+.value {
+    flex: 1;
+}
+
+.status-pending {
+    color: #ff9800;
+}
+
+.status-processing {
+    color: #2196f3;
+}
+
+.status-shipped {
+    color: #9c27b0;
+}
+
+.status-delivered {
+    color: #4caf50;
+}
+
+.status-cancelled {
+    color: #f44336;
+}
+
+.status-completed {
+    color: #4caf50;
+}
+
+.status-failed {
+    color: #f44336;
+}
+
+.status-refunded {
+    color: #9e9e9e;
+}
+
+.actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.actions .btn {
+    margin: 0 10px;
+}
+</style>
+{% endblock %}

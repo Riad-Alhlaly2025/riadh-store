@@ -1,0 +1,721 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}بحث متقدم - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-search"></i> بحث متقدم
+        </h2>
+        <p class="section-subtitle">ابحث عن المنتجات بدقة باستخدام الفلاتر المتقدمة</p>
+    </div>
+
+    <div class="search-layout">
+        <!-- Search Filters Sidebar -->
+        <aside class="search-filters">
+            <form method="GET" class="filter-form">
+                <div class="filter-group">
+                    <h3><i class="fas fa-keyboard"></i> الكلمات المفتاحية</h3>
+                    <input type="text" name="q" placeholder="اسم المنتج أو العلامة التجارية..." 
+                           value="{{ search_params.q|default:'' }}">
+                </div>
+
+                <div class="filter-group">
+                    <h3><i class="fas fa-tags"></i> التصنيف</h3>
+                    <select name="category">
+                        <option value="">جميع التصنيفات</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.value }}" 
+                                    {% if search_params.category == cat.value %}selected{% endif %}>
+                                {{ cat.display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h3><i class="fas fa-dollar-sign"></i> النطاق السعري</h3>
+                    <div class="price-range">
+                        <input type="number" name="min_price" placeholder="من" 
+                               value="{{ search_params.min_price|default:'' }}">
+                        <span>-</span>
+                        <input type="number" name="max_price" placeholder="إلى" 
+                               value="{{ search_params.max_price|default:'' }}">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h3><i class="fas fa-filter"></i> الفلاتر الإضافية</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="in_stock" value="1" 
+                               {% if search_params.in_stock %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        متوفر فقط
+                    </label>
+                    
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="brand" value="premium" 
+                               {% if search_params.brand %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        علامات تجارية متميزة
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <h3><i class="fas fa-sort"></i> ترتيب النتائج</h3>
+                    <select name="sort_by">
+                        <option value="">الترتيب الافتراضي</option>
+                        <option value="price_low" {% if search_params.sort_by == 'price_low' %}selected{% endif %}>
+                            الأقل سعراً
+                        </option>
+                        <option value="price_high" {% if search_params.sort_by == 'price_high' %}selected{% endif %}>
+                            الأعلى سعراً
+                        </option>
+                        <option value="name" {% if search_params.sort_by == 'name' %}selected{% endif %}>
+                            حسب الاسم
+                        </option>
+                        <option value="newest" {% if search_params.sort_by == 'newest' %}selected{% endif %}>
+                            الأحدث
+                        </option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn-apply">
+                        <i class="fas fa-search"></i> تطبيق الفلاتر
+                    </button>
+                    <a href="{% url 'advanced_search' %}" class="btn-reset">
+                        <i class="fas fa-redo"></i> إعادة تعيين
+                    </a>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Search Results -->
+        <main class="search-results">
+            <div class="results-header">
+                <h3>
+                    {% if products %}
+                        تم العثور على {{ products.count }} منتج
+                    {% else %}
+                        لا توجد نتائج
+                    {% endif %}
+                </h3>
+            </div>
+
+            {% if products %}
+                <div class="product-grid">
+                    {% for product in products %}
+                        <div class="product-card">
+                            <div class="product-img">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                                {% else %}
+                                    <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+                                {% endif %}
+                                {% if product.category == 'phones' %}
+                                    <div class="product-badge phones">هاتف</div>
+                                {% elif product.category == 'computers' %}
+                                    <div class="product-badge computers">كمبيوتر</div>
+                                {% elif product.category == 'accessories' %}
+                                    <div class="product-badge accessories">إكسسوارات</div>
+                                {% endif %}
+                                {% if product.is_low_stock %}
+                                    <div class="product-badge low-stock">كمية محدودة</div>
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <h3>{{ product.name }}</h3>
+                                <p class="product-description">{{ product.description|truncatewords:10 }}</p>
+                                <p class="price">{{ product.price }} 
+                                    {% if product.currency == 'USD' %}USD
+                                    {% elif product.currency == 'EUR' %}EUR
+                                    {% elif product.currency == 'SAR' %}ر.س
+                                    {% elif product.currency == 'AED' %}د.إ
+                                    {% elif product.currency == 'EGP' %}ج.م
+                                    {% elif product.currency == 'KWD' %}د.ك
+                                    {% elif product.currency == 'QAR' %}ر.ق
+                                    {% elif product.currency == 'OMR' %}ر.ع.
+                                    {% elif product.currency == 'BHD' %}د.ب
+                                    {% elif product.currency == 'JOD' %}د.أ
+                                    {% else %}{{ product.currency }}
+                                    {% endif %}
+                                </p>
+                                <div class="product-actions">
+                                    <a href="{% url 'product_detail' product.id %}" class="btn-outline">عرض التفاصيل</a>
+                                    <a href="{% url 'add_to_cart' product.id %}" class="btn-add-to-cart">إضافة إلى السلة</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <i class="fas fa-search-minus" style="font-size: 3rem; margin-bottom: 20px; color: #0074D9;"></i>
+                    <h3>لا توجد نتائج مطابقة</h3>
+                    <p>حاول تعديل معايير البحث أو الفلاتر لتحسين النتائج.</p>
+                    <ul>
+                        <li>تحقق من كتابة الكلمات المفتاحية بشكل صحيح</li>
+                        <li>جرب استخدام كلمات مفتاحية مختلفة</li>
+                        <li>قلل عدد الفلاتر المطبقة</li>
+                    </ul>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<style>
+.search-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-title {
+    color: #0074D9;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    color: #666;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.dark-mode .section-subtitle {
+    color: #a3a3a3;
+}
+
+.search-layout {
+    display: flex;
+    gap: 30px;
+}
+
+.search-filters {
+    flex: 0 0 300px;
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.dark-mode .search-filters {
+    background: #1a1c22;
+}
+
+.filter-group {
+    margin-bottom: 25px;
+}
+
+.filter-group h3 {
+    color: #0074D9;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.dark-mode .filter-group input,
+.dark-mode .filter-group select {
+    background: #2a2d34;
+    border-color: #3a3d44;
+    color: #f5f5f7;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: #0074D9;
+    box-shadow: 0 0 0 3px rgba(0, 116, 217, 0.2);
+}
+
+.dark-mode .filter-group input:focus,
+.dark-mode .filter-group select:focus {
+    border-color: #00c6ff;
+    box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+}
+
+.price-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.price-range input {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.price-range span {
+    font-weight: 600;
+    color: #666;
+}
+
+.dark-mode .price-range span {
+    color: #a3a3a3;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    cursor: pointer;
+    position: relative;
+    padding-left: 30px;
+}
+
+.checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.dark-mode .checkmark {
+    background-color: #3a3d44;
+}
+
+.checkbox-label:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.dark-mode .checkbox-label:hover input ~ .checkmark {
+    background-color: #4a4d54;
+}
+
+.checkbox-label input:checked ~ .checkmark {
+    background-color: #0074D9;
+}
+
+.dark-mode .checkbox-label input:checked ~ .checkmark {
+    background-color: #00c6ff;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-label input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-label .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.filter-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-apply {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 198, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-apply:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 198, 255, 0.4);
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+}
+
+.btn-reset {
+    background: #f8f9fa;
+    color: #333;
+    border: 2px solid #ddd;
+    padding: 15px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dark-mode .btn-reset {
+    background: #2a2d34;
+    color: #f5f5f7;
+    border-color: #3a3d44;
+}
+
+.btn-reset:hover {
+    background: #e9ecef;
+    transform: translateY(-3px);
+}
+
+.dark-mode .btn-reset:hover {
+    background: #3a3d44;
+}
+
+.search-results {
+    flex: 1;
+}
+
+.results-header h3 {
+    color: #0074D9;
+    margin-bottom: 25px;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 30px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.dark-mode .product-card {
+    background: #1a1c22;
+    border: 1px solid #2a2d34;
+}
+
+.product-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.product-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+}
+
+.product-card:hover::before {
+    transform: scaleX(1);
+}
+
+.product-img {
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-img img {
+    transform: scale(1.1);
+}
+
+.product-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+    z-index: 2;
+}
+
+.product-badge.new {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+}
+
+.product-badge.phones {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.product-badge.computers {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.product-badge.accessories {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+
+.product-badge.low-stock {
+    background: linear-gradient(135deg, #ff9a00, #ff6a00);
+    top: auto;
+    bottom: 15px;
+}
+
+.product-info {
+    padding: 25px;
+    text-align: center;
+}
+
+.product-info h3 {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.dark-mode .product-info h3 {
+    color: #f5f5f7;
+}
+
+.product-description {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 10px 0;
+    min-height: 60px;
+}
+
+.dark-mode .product-description {
+    color: #a3a3a3;
+}
+
+.price {
+    color: #0074D9;
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin: 15px 0;
+}
+
+.dark-mode .price {
+    color: #00c6ff;
+}
+
+.product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-outline {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid #0074D9;
+    color: #0074D9;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.dark-mode .btn-outline {
+    border: 2px solid #00c6ff;
+    color: #00c6ff;
+}
+
+.btn-outline:hover {
+    background: #0074D9;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,116,217,0.3);
+}
+
+.dark-mode .btn-outline:hover {
+    background: #00c6ff;
+    color: #0f1115;
+}
+
+.btn-add-to-cart {
+    display: inline-block;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 5px 15px rgba(0,198,255,0.3);
+}
+
+.btn-add-to-cart:hover {
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,198,255,0.4);
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.dark-mode .no-results {
+    background: #1a1c22;
+}
+
+.no-results ul {
+    text-align: right;
+    max-width: 400px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.no-results li {
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.dark-mode .no-results li {
+    color: #a3a3a3;
+}
+
+@media (max-width: 1024px) {
+    .search-layout {
+        gap: 20px;
+    }
+    
+    .search-filters {
+        flex: 0 0 250px;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-layout {
+        flex-direction: column;
+    }
+    
+    .search-filters {
+        flex: 0 0 auto;
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px;
+    }
+    
+    .product-img {
+        height: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-container {
+        padding: 15px;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-info {
+        padding: 20px;
+    }
+    
+    .product-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .price {
+        font-size: 1.3rem;
+    }
+    
+    .filter-group h3 {
+        font-size: 1rem;
+    }
+    
+    .btn-apply,
+    .btn-reset {
+        padding: 12px;
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}

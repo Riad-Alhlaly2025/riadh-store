@@ -1,0 +1,136 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}تذكرة الدعم #{{ ticket.id }}{% endblock %}
+
+{% block support_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>تذكرة الدعم #{{ ticket.id }}: {{ ticket.subject }}</h4>
+        {% if ticket.status == 'open' or ticket.status == 'reopened' %}
+        <span class="badge bg-secondary">مفتوح</span>
+        {% elif ticket.status == 'in_progress' %}
+        <span class="badge bg-primary">قيد المعالجة</span>
+        {% elif ticket.status == 'resolved' %}
+        <span class="badge bg-success">تم الحل</span>
+        {% elif ticket.status == 'closed' %}
+        <span class="badge bg-dark">مغلق</span>
+        {% endif %}
+    </div>
+    
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>العميل:</strong> {{ ticket.customer.username }}</p>
+                <p><strong>الفئة:</strong> 
+                    {% if ticket.category == 'technical' %}تقني
+                    {% elif ticket.category == 'billing' %}فوترة
+                    {% elif ticket.category == 'account' %}حساب
+                    {% elif ticket.category == 'product' %}منتج
+                    {% elif ticket.category == 'order' %}طلب
+                    {% elif ticket.category == 'other' %}أخرى
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>الأولوية:</strong> 
+                    {% if ticket.priority == 'low' %}
+                    <span class="badge bg-success">منخفض</span>
+                    {% elif ticket.priority == 'medium' %}
+                    <span class="badge bg-warning">متوسط</span>
+                    {% elif ticket.priority == 'high' %}
+                    <span class="badge bg-danger">عالي</span>
+                    {% elif ticket.priority == 'urgent' %}
+                    <span class="badge bg-danger">عاجل</span>
+                    {% endif %}
+                </p>
+                {% if ticket.assigned_agent %}
+                <p><strong>الوكيل المعين:</strong> {{ ticket.assigned_agent.username }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>تاريخ الإنشاء:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="col-md-6">
+                {% if ticket.resolved_at %}
+                <p><strong>تاريخ الحل:</strong> {{ ticket.resolved_at|date:"d/m/Y H:i" }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>الوصف</h5>
+            </div>
+            <div class="card-body">
+                {{ ticket.description|linebreaks }}
+            </div>
+        </div>
+        
+        {% if ticket.resolution_notes %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>ملاحظات الحل</h5>
+            </div>
+            <div class="card-body">
+                {{ ticket.resolution_notes|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Replies -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>الردود</h5>
+            </div>
+            <div class="card-body">
+                {% for reply in replies %}
+                <div class="mb-3 border-bottom pb-3">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ reply.author.username }}</strong>
+                        <small class="text-muted">{{ reply.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    {% if reply.is_internal_note %}
+                    <div class="alert alert-secondary mt-2">
+                        <i class="fas fa-lock"></i> <strong>ملاحظة داخلية</strong>
+                        <p class="mb-0">{{ reply.message|linebreaks }}</p>
+                    </div>
+                    {% else %}
+                    <p class="mt-2">{{ reply.message|linebreaks }}</p>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">لا توجد ردود</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Reply Form -->
+        {% if ticket.status != 'closed' %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="card">
+                <div class="card-header">
+                    <h5>إضافة رد</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="message" class="form-label">الرد *</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> إرسال الرد
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-info">
+            هذه التذكرة مغلقة. إذا كنت بحاجة إلى مساعدة إضافية، يمكنك <a href="{% url 'create_ticket' %}">إنشاء تذكرة جديدة</a>.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

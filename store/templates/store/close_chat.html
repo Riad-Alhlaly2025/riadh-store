@@ -1,0 +1,48 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}إغلاق الدردشة{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4>إغلاق الدردشة: {{ chat_session.topic }}</h4>
+            </div>
+            
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>العميل:</strong> {{ chat_session.customer.username }}</p>
+                    <p><strong>الموضوع:</strong> {{ chat_session.topic }}</p>
+                    <p><strong>الحالة الحالية:</strong> 
+                        {% if chat_session.status == 'active' %}
+                        <span class="badge bg-success">نشط</span>
+                        {% elif chat_session.status == 'pending' %}
+                        <span class="badge bg-warning">قيد الانتظار</span>
+                        {% elif chat_session.status == 'closed' %}
+                        <span class="badge bg-secondary">مغلق</span>
+                        {% elif chat_session.status == 'transferred' %}
+                        <span class="badge bg-info">محول</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="alert alert-warning">
+                        <p>هل أنت متأكد أنك تريد إغلاق هذه الدردشة؟</p>
+                        <p>بإغلاق هذه الدردشة، لن يتمكن أي طرف من إرسال رسائل جديدة إلا إذا تم إعادة فتحها.</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'chat_detail' chat_session.id %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-times"></i> إغلاق الدردشة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

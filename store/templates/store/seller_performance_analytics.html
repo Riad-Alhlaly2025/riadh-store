@@ -1,0 +1,220 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تحليلات أداء البائعين - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="seller-performance-container">
+    <h1>تحليلات أداء البائعين</h1>
+    
+    <!-- Summary -->
+    <div class="info-section">
+        <h3>ملخص الأداء</h3>
+        <div class="summary">
+            <div class="summary-item">
+                <span>إجمالي البائعين</span>
+                <span class="count">{{ total_sellers }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Performing Sellers -->
+    {% if top_sellers %}
+    <div class="info-section">
+        <h3>أفضل البائعين أداءً</h3>
+        <div class="sellers-ranking">
+            {% for performance in top_sellers %}
+            <div class="seller-item top">
+                <div class="rank">#{{ performance.rank }}</div>
+                <div class="seller-info">
+                    <span class="seller-name">{{ performance.seller.user.username }}</span>
+                    <span class="business-name">{{ performance.seller.business_name|default:"غير محدد" }}</span>
+                </div>
+                <div class="performance-metrics">
+                    <span class="kpi-score">النتيجة: {{ performance.kpi_score }}</span>
+                    <span class="total-sales">المبيعات: {{ performance.total_sales|floatformat:2 }} ر.س</span>
+                    <span class="total-products">المنتجات: {{ performance.total_products }}</span>
+                    <span class="avg-rating">التقييم: {{ performance.avg_rating }}/5.0 ({{ performance.total_reviews }} تقييم)</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Bottom Performing Sellers -->
+    {% if bottom_sellers %}
+    <div class="info-section">
+        <h3>أدنى البائعين أداءً</h3>
+        <div class="sellers-ranking">
+            {% for performance in bottom_sellers %}
+            <div class="seller-item bottom">
+                <div class="rank">#{{ performance.rank }}</div>
+                <div class="seller-info">
+                    <span class="seller-name">{{ performance.seller.user.username }}</span>
+                    <span class="business-name">{{ performance.seller.business_name|default:"غير محدد" }}</span>
+                </div>
+                <div class="performance-metrics">
+                    <span class="kpi-score">النتيجة: {{ performance.kpi_score }}</span>
+                    <span class="total-sales">المبيعات: {{ performance.total_sales|floatformat:2 }} ر.س</span>
+                    <span class="total-products">المنتجات: {{ performance.total_products }}</span>
+                    <span class="avg-rating">التقييم: {{ performance.avg_rating }}/5.0 ({{ performance.total_reviews }} تقييم)</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Performance Legend -->
+    <div class="info-section">
+        <h3>تفسير مؤشرات الأداء الرئيسية (KPIs)</h3>
+        <div class="legend">
+            <p>يتم احتساب مؤشرات الأداء الرئيسية بناءً على:</p>
+            <ul>
+                <li><strong>حجم المبيعات (30%)</strong>: عدد الوحدات المباعة</li>
+                <li><strong>الإيرادات (30%)</strong>: إجمالي الإيرادات المحققة</li>
+                <li><strong>التقييم (20%)</strong>: متوسط تقييم العملاء</li>
+                <li><strong>معدل الإرجاع (20%)</strong>: نسبة الطلبات الملغاة أو المرتجعة</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    .seller-performance-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .seller-performance-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .info-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .info-section h3 {
+        color: #0074D9;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .summary {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .summary-item {
+        padding: 15px 30px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        text-align: center;
+    }
+    
+    .summary-item .count {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #0074D9;
+        margin-top: 5px;
+    }
+    
+    .sellers-ranking {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .seller-item {
+        padding: 15px;
+        border-radius: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .seller-item.top {
+        background-color: #e8f5e9;
+        border-left: 5px solid #4caf50;
+    }
+    
+    .seller-item.bottom {
+        background-color: #ffebee;
+        border-left: 5px solid #f44336;
+    }
+    
+    .rank {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #0074D9;
+        min-width: 40px;
+    }
+    
+    .seller-info {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .seller-name {
+        font-weight: bold;
+        color: #333;
+        display: block;
+    }
+    
+    .business-name {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .performance-metrics {
+        flex: 2;
+        min-width: 300px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .kpi-score {
+        font-weight: bold;
+        color: #0074D9;
+    }
+    
+    .total-sales {
+        color: #4caf50;
+    }
+    
+    .avg-rating {
+        color: #ff9800;
+    }
+    
+    .legend ul {
+        padding-right: 20px;
+    }
+    
+    .legend li {
+        margin-bottom: 10px;
+    }
+    
+    @media (max-width: 768px) {
+        .seller-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .performance-metrics {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

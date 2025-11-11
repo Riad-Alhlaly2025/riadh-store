@@ -1,0 +1,358 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}الدفع - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <h1>الدفع للطلب #{{ order.pk }}</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="payment-content">
+        <div class="order-summary">
+            <h2>ملخص الطلب</h2>
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>السعر الفرعي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.total_price }} 
+                                {% if order.items.first.product.currency == 'USD' %}USD
+                                {% elif order.items.first.product.currency == 'EUR' %}EUR
+                                {% elif order.items.first.product.currency == 'SAR' %}ر.س
+                                {% elif order.items.first.product.currency == 'AED' %}د.إ
+                                {% elif order.items.first.product.currency == 'EGP' %}ج.م
+                                {% elif order.items.first.product.currency == 'KWD' %}د.ك
+                                {% elif order.items.first.product.currency == 'QAR' %}ر.ق
+                                {% elif order.items.first.product.currency == 'OMR' %}ر.ع.
+                                {% elif order.items.first.product.currency == 'BHD' %}د.ب
+                                {% elif order.items.first.product.currency == 'JOD' %}د.أ
+                                {% else %}{{ order.items.first.product.currency }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <h3 class="total-amount">الإجمالي: {{ order.total_amount }} 
+                {% if order.items.first.product.currency == 'USD' %}USD
+                {% elif order.items.first.product.currency == 'EUR' %}EUR
+                {% elif order.items.first.product.currency == 'SAR' %}ر.س
+                {% elif order.items.first.product.currency == 'AED' %}د.إ
+                {% elif order.items.first.product.currency == 'EGP' %}ج.م
+                {% elif order.items.first.product.currency == 'KWD' %}د.ك
+                {% elif order.items.first.product.currency == 'QAR' %}ر.ق
+                {% elif order.items.first.product.currency == 'OMR' %}ر.ع.
+                {% elif order.items.first.product.currency == 'BHD' %}د.ب
+                {% elif order.items.first.product.currency == 'JOD' %}د.أ
+                {% else %}{{ order.items.first.product.currency }}
+                {% endif %}
+            </h3>
+        </div>
+        
+        <div class="payment-methods">
+            <h2>طرق الدفع</h2>
+            <div class="payment-options">
+                <button id="stripe-payment-btn" class="payment-btn stripe">
+                    💳 الدفع ببطاقة ائتمان (Stripe)
+                </button>
+                <button id="paypal-payment-btn" class="payment-btn paypal">
+                    🅿 الدفع عبر PayPal
+                </button>
+            </div>
+            
+            <div id="stripe-payment-form" class="payment-form hidden">
+                <h3>بطاقة ائتمان</h3>
+                <div id="card-element">
+                    <!-- Stripe Elements will create form elements here -->
+                </div>
+                <div id="card-errors" role="alert"></div>
+                <button id="submit-payment" class="btn pay">دفع الآن</button>
+            </div>
+            
+            <div id="paypal-payment-form" class="payment-form hidden">
+                <h3>PayPal</h3>
+                <p>سيتم تحويلك إلى موقع PayPal لإتمام الدفع.</p>
+                <button id="submit-paypal-payment" class="btn pay">الدفع عبر PayPal</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Stripe integration
+    const stripePublicKey = "{{ stripe_public_key }}";
+    const stripe = Stripe(stripePublicKey);
+    const elements = stripe.elements();
+    
+    // Create card element
+    const cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                    color: '#aab7c4',
+                },
+            },
+            invalid: {
+                color: '#9e2146',
+            },
+        },
+    });
+    
+    // Mount card element
+    cardElement.mount('#card-element');
+    
+    // Handle real-time validation errors
+    cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+    
+    // Show Stripe payment form when button is clicked
+    document.getElementById('stripe-payment-btn').addEventListener('click', function() {
+        document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('stripe-payment-form').classList.remove('hidden');
+        document.getElementById('paypal-payment-form').classList.add('hidden');
+    });
+    
+    // Show PayPal payment form when button is clicked
+    document.getElementById('paypal-payment-btn').addEventListener('click', function() {
+        document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('paypal-payment-form').classList.remove('hidden');
+        document.getElementById('stripe-payment-form').classList.add('hidden');
+    });
+    
+    // Handle Stripe form submission
+    const submitButton = document.getElementById('submit-payment');
+    submitButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        submitButton.disabled = true;
+        submitButton.textContent = 'جارٍ المعالجة...';
+        
+        // Create payment intent
+        fetch('{% url "create_payment_intent" order.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Confirm card payment
+            return stripe.confirmCardPayment(data.client_secret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: '{{ request.user.first_name }} {{ request.user.last_name }}',
+                    }
+                }
+            });
+        })
+        .then(result => {
+            if (result.error) {
+                // Show error to customer
+                const errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+                submitButton.disabled = false;
+                submitButton.textContent = 'دفع الآن';
+            } else {
+                // Payment succeeded
+                if (result.paymentIntent.status === 'succeeded') {
+                    window.location.href = '{% url "order_detail" order.pk %}';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const errorElement = document.getElementById('card-errors');
+            errorElement.textContent = 'حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى.';
+            submitButton.disabled = false;
+            submitButton.textContent = 'دفع الآن';
+        });
+    });
+    
+    // Handle PayPal form submission
+    const submitPayPalButton = document.getElementById('submit-paypal-payment');
+    submitPayPalButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        submitPayPalButton.disabled = true;
+        submitPayPalButton.textContent = 'جارٍ التحويل إلى PayPal...';
+        
+        // Create PayPal payment
+        fetch('{% url "create_paypal_payment" order.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Redirect to PayPal approval URL
+            window.location.href = data.approval_url;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء إنشاء الدفع عبر PayPal. يرجى المحاولة مرة أخرى.');
+            submitPayPalButton.disabled = false;
+            submitPayPalButton.textContent = 'الدفع عبر PayPal';
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.payment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.payment-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.order-summary, .payment-methods {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dark-mode .order-summary, 
+.dark-mode .payment-methods {
+    background: #2a2a2a;
+}
+
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.payment-btn {
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.dark-mode .payment-btn {
+    background: #333;
+    border-color: #555;
+    color: white;
+}
+
+.payment-btn:hover {
+    border-color: #2c5aa0;
+    transform: translateY(-2px);
+}
+
+.payment-btn.active {
+    border-color: #2c5aa0;
+    background: #e8f0fe;
+}
+
+.dark-mode .payment-btn.active {
+    background: #1a3a6a;
+}
+
+.payment-form {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.dark-mode .payment-form {
+    border-color: #555;
+}
+
+.hidden {
+    display: none;
+}
+
+#card-element {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    margin-bottom: 15px;
+}
+
+.dark-mode #card-element {
+    background: #333;
+    border-color: #555;
+    color: white;
+}
+
+#card-errors {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.total-amount {
+    text-align: left;
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: #2c5aa0;
+}
+
+.dark-mode .total-amount {
+    color: #6b9bd9;
+}
+
+@media (max-width: 768px) {
+    .payment-content {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

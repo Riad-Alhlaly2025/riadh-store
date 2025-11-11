@@ -1,0 +1,143 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة الكوبونات{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>إدارة الكوبونات</h2>
+            
+            <!-- Create Coupon Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>إنشاء كوبون جديد</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="code">رمز الكوبون:</label>
+                                    <input type="text" class="form-control" id="code" name="code" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="discount_type">نوع الخصم:</label>
+                                    <select class="form-control" id="discount_type" name="discount_type" required>
+                                        <option value="percentage">نسبة مئوية</option>
+                                        <option value="fixed">قيمة ثابتة</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="discount_value">قيمة الخصم:</label>
+                                    <input type="number" step="0.01" class="form-control" id="discount_value" name="discount_value" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="minimum_amount">الحد الأدنى للطلب:</label>
+                                    <input type="number" step="0.01" class="form-control" id="minimum_amount" name="minimum_amount" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="valid_from">صالح من:</label>
+                                    <input type="datetime-local" class="form-control" id="valid_from" name="valid_from" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="valid_to">صالح حتى:</label>
+                                    <input type="datetime-local" class="form-control" id="valid_to" name="valid_to" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="usage_limit">حد الاستخدام (اختياري):</label>
+                                    <input type="number" class="form-control" id="usage_limit" name="usage_limit">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">إنشاء الكوبون</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Coupons List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>الكوبونات الحالية</h5>
+                </div>
+                <div class="card-body">
+                    {% if coupons %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>رمز الكوبون</th>
+                                    <th>نوع الخصم</th>
+                                    <th>قيمة الخصم</th>
+                                    <th>صالح من</th>
+                                    <th>صالح حتى</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for coupon in coupons %}
+                                <tr>
+                                    <td>{{ coupon.code }}</td>
+                                    <td>{{ coupon.get_discount_type_display }}</td>
+                                    <td>
+                                        {% if coupon.discount_type == 'percentage' %}
+                                            {{ coupon.discount_value }}%
+                                        {% else %}
+                                            {{ coupon.discount_value }} ر.س
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ coupon.valid_from|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ coupon.valid_to|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% if coupon.active %}
+                                            <span class="badge badge-success">مفعل</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">غير مفعل</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'delete_coupon' coupon.id %}" 
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('هل أنت متأكد من حذف هذا الكوبون؟')">
+                                            حذف
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>لا توجد كوبونات حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

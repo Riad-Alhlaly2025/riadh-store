@@ -1,0 +1,145 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}إدارة التعليقات{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>إدارة التعليقات</h2>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">الحالة</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">الكل</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>قيد المراجعة</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>معتمد</option>
+                        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>مرفوض</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="content_type" class="form-label">نوع المحتوى</label>
+                    <select class="form-select" id="content_type" name="content_type">
+                        <option value="">الكل</option>
+                        <option value="article" {% if content_type_filter == 'article' %}selected{% endif %}>مقال</option>
+                        <option value="page" {% if content_type_filter == 'page' %}selected{% endif %}>صفحة</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">تصفية</button>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="{% url 'comment_list' %}" class="btn btn-outline-secondary w-100">إعادة تعيين</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Comments Table -->
+    <div class="card">
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>التعليق</th>
+                            <th>المؤلف</th>
+                            <th>المحتوى</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comment in page_obj %}
+                        <tr>
+                            <td>{{ comment.content|truncatewords:10 }}</td>
+                            <td>{{ comment.author.username }}</td>
+                            <td>
+                                {% if comment.article %}
+                                <a href="{% url 'article_detail' comment.article.slug %}">مقال: {{ comment.article.title }}</a>
+                                {% elif comment.page %}
+                                <a href="{% url 'page_detail' comment.page.slug %}">صفحة: {{ comment.page.title }}</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if comment.status == 'pending' %}
+                                <span class="badge bg-warning">قيد المراجعة</span>
+                                {% elif comment.status == 'approved' %}
+                                <span class="badge bg-success">معتمد</span>
+                                {% elif comment.status == 'rejected' %}
+                                <span class="badge bg-danger">مرفوض</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ comment.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    {% if comment.status != 'approved' %}
+                                    <form method="post" action="{% url 'comment_update_status' comment.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="approved">
+                                        <button type="submit" class="btn btn-sm btn-success">اعتماد</button>
+                                    </form>
+                                    {% endif %}
+                                    
+                                    {% if comment.status != 'rejected' %}
+                                    <form method="post" action="{% url 'comment_update_status' comment.id %}" class="d-inline mx-1">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="rejected">
+                                        <button type="submit" class="btn btn-sm btn-danger">رفض</button>
+                                    </form>
+                                    {% endif %}
+                                    
+                                    <a href="{% url 'comment_delete' comment.id %}" class="btn btn-sm btn-outline-danger">حذف</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">لا توجد تعليقات</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if content_type_filter %}&content_type={{ content_type_filter }}{% endif %}">السابق</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if content_type_filter %}&content_type={{ content_type_filter }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if content_type_filter %}&content_type={{ content_type_filter }}{% endif %}">التالي</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <p class="text-center">لا توجد تعليقات</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

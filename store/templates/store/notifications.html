@@ -1,0 +1,153 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}الإشعارات - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <h1>الإشعارات</h1>
+    
+    {% if notifications %}
+        <div class="notifications-list">
+            {% for notification in notifications %}
+                <div class="notification-card {% if not notification.is_read %}unread{% endif %}" 
+                     data-notification-id="{{ notification.pk }}">
+                    <div class="notification-header">
+                        <h3>{{ notification.get_notification_type_display }}</h3>
+                        <span class="notification-date">{{ notification.created_at|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    
+                    <div class="notification-content">
+                        <p>{{ notification.message }}</p>
+                        
+                        {% if notification.order %}
+                            <a href="{% url 'order_detail' notification.order.pk %}" class="btn small">عرض الطلب</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-notifications">
+            <p>لا توجد إشعارات حالياً.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.notifications-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notification-card {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    border-right: 4px solid #ccc;
+}
+
+.dark-mode .notification-card {
+    background: #2a2a2a;
+}
+
+.notification-card.unread {
+    border-right-color: #2196f3;
+    background: #e3f2fd;
+}
+
+.dark-mode .notification-card.unread {
+    background: #1a2a3a;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.notification-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.dark-mode .notification-header h3 {
+    color: #fff;
+}
+
+.notification-date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.dark-mode .notification-date {
+    color: #aaa;
+}
+
+.notification-content p {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.btn.small {
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+.empty-notifications {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.empty-notifications p {
+    font-size: 1.2em;
+    color: #666;
+}
+
+.dark-mode .empty-notifications p {
+    color: #aaa;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mark notifications as read when viewed
+    const notificationCards = document.querySelectorAll('.notification-card.unread');
+    
+    notificationCards.forEach(card => {
+        const notificationId = card.getAttribute('data-notification-id');
+        
+        // Send AJAX request to mark as read
+        fetch(`/notification/${notificationId}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            },
+        }).then(response => {
+            if (response.ok) {
+                card.classList.remove('unread');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

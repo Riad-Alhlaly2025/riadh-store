@@ -1,0 +1,83 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}{% if action == 'create' %}إنشاء صفحة{% else %}تعديل صفحة{% endif %}{% endblock %}
+
+{% block cms_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>{% if action == 'create' %}إنشاء صفحة جديدة{% else %}تعديل الصفحة: {{ page.title }}{% endif %}</h2>
+  <a href="{% url 'page_list' %}" class="btn btn-secondary">رجوع إلى القائمة</a>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="form-group mb-3">
+        <label for="title">العنوان *</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ page.title|default:'' }}" required>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="excerpt">الملخص</label>
+        <textarea class="form-control" id="excerpt" name="excerpt" rows="3">{{ page.excerpt|default:'' }}</textarea>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="content">المحتوى *</label>
+        <textarea class="form-control" id="content" name="content" rows="10" required>{{ page.content|default:'' }}</textarea>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="featured_image">الصورة الرئيسية</label>
+        <input type="file" class="form-control-file" id="featured_image" name="featured_image">
+        {% if page.featured_image %}
+          <small class="form-text text-muted">الصورة الحالية: <a href="{{ page.featured_image.url }}" target="_blank">عرض</a></small>
+        {% endif %}
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="status">الحالة</label>
+        <select class="form-control" id="status" name="status">
+          <option value="draft" {% if page.status == 'draft' %}selected{% endif %}>مسودة</option>
+          <option value="published" {% if page.status == 'published' %}selected{% endif %}>منشور</option>
+          <option value="archived" {% if page.status == 'archived' %}selected{% endif %}>مؤرشف</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SEO Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5>تحسين محركات البحث (SEO)</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-group mb-3">
+        <label for="seo_title">عنوان SEO</label>
+        <input type="text" class="form-control" id="seo_title" name="seo_title" value="{{ page.seo_title|default:'' }}" maxlength="60">
+        <small class="form-text text-muted">60 حرف كحد أقصى</small>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="seo_description">وصف SEO</label>
+        <textarea class="form-control" id="seo_description" name="seo_description" rows="3" maxlength="160">{{ page.seo_description|default:'' }}</textarea>
+        <small class="form-text text-muted">160 حرف كحد أقصى</small>
+      </div>
+      
+      <div class="form-group mb-3">
+        <label for="seo_keywords">الكلمات المفتاحية SEO</label>
+        <input type="text" class="form-control" id="seo_keywords" name="seo_keywords" value="{{ page.seo_keywords|default:'' }}" placeholder="كلمة1, كلمة2, كلمة3">
+        <small class="form-text text-muted">افصل بين الكلمات بفاصلة</small>
+      </div>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">
+      {% if action == 'create' %}إنشاء الصفحة{% else %}حفظ التغييرات{% endif %}
+    </button>
+    <a href="{% url 'page_list' %}" class="btn btn-secondary">إلغاء</a>
+  </div>
+</form>
+{% endblock %}

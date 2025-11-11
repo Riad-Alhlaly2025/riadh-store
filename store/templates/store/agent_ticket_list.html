@@ -1,0 +1,180 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}إدارة تذاكر الدعم{% endblock %}
+
+{% block support_content %}
+<div class="card">
+    <div class="card-header">
+        <h4>إدارة تذاكر الدعم</h4>
+    </div>
+    
+    <div class="card-body">
+        <!-- Filters -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="status" class="form-label">الحالة</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">الكل</option>
+                        <option value="open" {% if status_filter == 'open' %}selected{% endif %}>مفتوح</option>
+                        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>قيد المعالجة</option>
+                        <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>تم الحل</option>
+                        <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>مغلق</option>
+                        <option value="reopened" {% if status_filter == 'reopened' %}selected{% endif %}>أُعيد فتحه</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="priority" class="form-label">الأولوية</label>
+                    <select class="form-select" id="priority" name="priority">
+                        <option value="">الكل</option>
+                        <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>منخفض</option>
+                        <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>متوسط</option>
+                        <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>عالي</option>
+                        <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>عاجل</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="category" class="form-label">الفئة</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">الكل</option>
+                        <option value="technical" {% if category_filter == 'technical' %}selected{% endif %}>تقني</option>
+                        <option value="billing" {% if category_filter == 'billing' %}selected{% endif %}>فوترة</option>
+                        <option value="account" {% if category_filter == 'account' %}selected{% endif %}>حساب</option>
+                        <option value="product" {% if category_filter == 'product' %}selected{% endif %}>منتج</option>
+                        <option value="order" {% if category_filter == 'order' %}selected{% endif %}>طلب</option>
+                        <option value="other" {% if category_filter == 'other' %}selected{% endif %}>أخرى</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="agent" class="form-label">الوكيل</label>
+                    <select class="form-select" id="agent" name="agent">
+                        <option value="">الكل</option>
+                        <option value="unassigned" {% if agent_filter == 'unassigned' %}selected{% endif %}>غير معيّن</option>
+                        {% for agent in agents %}
+                        <option value="{{ agent.id }}" {% if agent_filter == agent.id|stringformat:"i" %}selected{% endif %}>{{ agent.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">تصفية</button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Tickets Table -->
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>التذكرة</th>
+                        <th>العميل</th>
+                        <th>الفئة</th>
+                        <th>الأولوية</th>
+                        <th>الحالة</th>
+                        <th>الوكيل</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in page_obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'ticket_detail' ticket.id %}">#{{ ticket.id }} - {{ ticket.subject }}</a>
+                        </td>
+                        <td>{{ ticket.customer.username }}</td>
+                        <td>
+                            {% if ticket.category == 'technical' %}تقني
+                            {% elif ticket.category == 'billing' %}فوترة
+                            {% elif ticket.category == 'account' %}حساب
+                            {% elif ticket.category == 'product' %}منتج
+                            {% elif ticket.category == 'order' %}طلب
+                            {% elif ticket.category == 'other' %}أخرى
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.priority == 'low' %}
+                            <span class="badge bg-success">منخفض</span>
+                            {% elif ticket.priority == 'medium' %}
+                            <span class="badge bg-warning">متوسط</span>
+                            {% elif ticket.priority == 'high' %}
+                            <span class="badge bg-danger">عالي</span>
+                            {% elif ticket.priority == 'urgent' %}
+                            <span class="badge bg-danger">عاجل</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.status == 'open' %}
+                            <span class="badge bg-secondary">مفتوح</span>
+                            {% elif ticket.status == 'in_progress' %}
+                            <span class="badge bg-primary">قيد المعالجة</span>
+                            {% elif ticket.status == 'resolved' %}
+                            <span class="badge bg-success">تم الحل</span>
+                            {% elif ticket.status == 'closed' %}
+                            <span class="badge bg-dark">مغلق</span>
+                            {% elif ticket.status == 'reopened' %}
+                            <span class="badge bg-info">أُعيد فتحه</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.assigned_agent %}
+                            {{ ticket.assigned_agent.username }}
+                            {% else %}
+                            <span class="text-muted">غير معيّن</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if not ticket.assigned_agent %}
+                            <a href="{% url 'assign_ticket' ticket.id %}" class="btn btn-sm btn-outline-primary">تعيين</a>
+                            {% endif %}
+                            {% if ticket.status != 'resolved' and ticket.status != 'closed' %}
+                            <a href="{% url 'resolve_ticket' ticket.id %}" class="btn btn-sm btn-outline-success">حل</a>
+                            {% endif %}
+                            <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-info">عرض</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">لا توجد تذاكر دعم</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}">السابق</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if priority_filter %}&priority={{ priority_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if agent_filter %}&agent={{ agent_filter }}{% endif %}">التالي</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p class="text-center">لا توجد تذاكر دعم</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

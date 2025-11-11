@@ -1,0 +1,583 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block meta_description %}{{ product.description|truncatewords:30 }}{% endblock %}
+
+{% block og_title %}{{ product.name }} - متجر رياض الإلكتروني{% endblock %}
+{% block og_description %}{{ product.description|truncatewords:30 }}{% endblock %}
+{% block og_image %}{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/logo.png' %}{% endif %}{% endblock %}
+
+{% block twitter_title %}{{ product.name }} - متجر رياض الإلكتروني{% endblock %}
+{% block twitter_description %}{{ product.description|truncatewords:30 }}{% endblock %}
+{% block twitter_image %}{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/logo.png' %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid product-image" alt="{{ product.name }}">
+            {% else %}
+            <div class="no-image-placeholder">
+                <i class="fas fa-camera"></i>
+                <p>لا توجد صورة</p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1 class="product-title">{{ product.name }}</h1>
+            <p class="product-price">{{ product.price }} ر.س</p>
+            <p class="product-description">{{ product.description }}</p>
+            
+            {% if product.in_stock %}
+                <p class="text-success"><i class="fas fa-check-circle"></i> متوفر في المخزون ({{ product.stock_quantity }} وحدة)</p>
+            {% elif product.is_low_stock %}
+                <p class="text-warning"><i class="fas fa-exclamation-triangle"></i> عدد قليل في المخزون ({{ product.stock_quantity }} وحدة)</p>
+            {% else %}
+                <p class="text-danger"><i class="fas fa-times-circle"></i> غير متوفر حالياً</p>
+            {% endif %}
+            
+            {% if product.in_stock %}
+            <form method="post" action="{% url 'add_to_cart' product.pk %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="quantity">الكمية:</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" class="form-control" style="width: 100px;">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-cart"></i> إضافة للسلة
+                </button>
+            </form>
+            {% endif %}
+            
+            <!-- Social Media Sharing Buttons -->
+            <div class="social-sharing mt-4">
+                <h5>مشاركة المنتج:</h5>
+                <div class="social-buttons">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-primary">
+                        <i class="fab fa-facebook-f"></i> فيسبوك
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ product.name }}" target="_blank" class="btn btn-info">
+                        <i class="fab fa-twitter"></i> تويتر
+                    </a>
+                    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ product.name }}" target="_blank" class="btn btn-primary">
+                        <i class="fab fa-linkedin-in"></i> لينكدإن
+                    </a>
+                    <a href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}&media={% if product.image %}{{ product.image.url }}{% endif %}&description={{ product.name }}" target="_blank" class="btn btn-danger">
+                        <i class="fab fa-pinterest"></i> بينتيريست
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Product Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3>تقييمات العملاء</h3>
+            {% if product.reviews.all %}
+                {% for review in product.reviews.all %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title">{{ review.user.username }}</h5>
+                            <div>
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="card-text">{{ review.comment }}</p>
+                        <small class="text-muted">{{ review.created_at|date:"F d, Y" }}</small>
+                        {% if review.is_verified_purchase %}
+                            <span class="badge badge-success">شراء مؤكد</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>لا توجد تقييمات لهذا المنتج بعد.</p>
+            {% endif %}
+            
+            {% if user.is_authenticated %}
+            <a href="{% url 'add_review' product.id %}" class="btn btn-secondary">إضافة تقييم</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.product-image {
+    max-height: 500px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.no-image-placeholder {
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    color: #6c757d;
+}
+
+.product-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.product-price {
+    font-size: 1.5rem;
+    color: #007bff;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.product-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.social-sharing {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.social-buttons a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .social-buttons {
+        flex-direction: column;
+    }
+    
+    .social-buttons a {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+    .product-detail {
+        max-width: 1200px;
+        margin: 30px auto;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        padding: 30px;
+    }
+
+    .product-image {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .product-detail img {
+        width: 100%;
+        border-radius: 15px;
+        object-fit: cover;
+    }
+
+    .product-info-detail {
+        flex: 1;
+        padding: 20px;
+        min-width: 300px;
+    }
+
+    .product-info-detail h2 {
+        color: #0074D9;
+        margin-bottom: 15px;
+        font-size: 2rem;
+    }
+
+    .product-info-detail p {
+        font-size: 16px;
+        color: #555;
+        line-height: 1.8;
+        margin-bottom: 20px;
+    }
+
+    .price {
+        font-size: 24px;
+        color: #00aaff;
+        font-weight: bold;
+        margin: 20px 0;
+        padding: 10px;
+        background: rgba(0, 170, 255, 0.1);
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    .buy-btn {
+        display: inline-block;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .buy-btn:hover {
+        transform: scale(1.02);
+        background: linear-gradient(90deg, #0072ff, #00c6ff);
+        box-shadow: 0 5px 15px rgba(0,114,255,0.4);
+    }
+
+    .back-link {
+        display: inline-block;
+        text-decoration: none;
+        color: #0074D9;
+        font-weight: bold;
+        transition: 0.3s;
+        padding: 10px 20px;
+        border: 2px solid #0074D9;
+        border-radius: 30px;
+        text-align: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .product-actions-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin: 20px 0;
+    }
+    
+    .wishlist-btn, .compare-btn {
+        display: inline-block;
+        padding: 12px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid #0074D9;
+        color: #0074D9;
+        text-align: center;
+    }
+    
+    .dark-mode .wishlist-btn, .dark-mode .compare-btn {
+        border-color: #00c6ff;
+        color: #00c6ff;
+    }
+    
+    .wishlist-btn:hover, .compare-btn:hover {
+        background: #0074D9;
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,116,217,0.3);
+    }
+    
+    .dark-mode .wishlist-btn:hover, .dark-mode .compare-btn:hover {
+        background: #00c6ff;
+        color: #0f1115;
+    }
+    
+    .compare-btn {
+        border-color: #56ab2f;
+        color: #56ab2f;
+    }
+    
+    .dark-mode .compare-btn {
+        border-color: #a8e063;
+        color: #a8e063;
+    }
+    
+    .compare-btn:hover {
+        background: #56ab2f;
+        color: white;
+        box-shadow: 0 5px 15px rgba(86, 171, 47, 0.3);
+    }
+    
+    .dark-mode .compare-btn:hover {
+        background: #a8e063;
+        color: #0f1115;
+    }
+    
+    /* Reviews Section */
+    .reviews-section {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+    
+    .reviews-section .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eee;
+    }
+    
+    .dark-mode .reviews-section .section-header {
+        border-bottom-color: #3a3d44;
+    }
+    
+    .reviews-section h3 {
+        color: #0074D9;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    
+    .dark-mode .reviews-section h3 {
+        color: #00c6ff;
+    }
+    
+    .review-count {
+        font-size: 1rem;
+        color: #666;
+        font-weight: normal;
+    }
+    
+    .dark-mode .review-count {
+        color: #a3a3a3;
+    }
+    
+    .add-review-btn {
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 3px 10px rgba(0, 198, 255, 0.3);
+    }
+    
+    .add-review-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+        background: linear-gradient(135deg, #0072ff, #00c6ff);
+    }
+    
+    .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .review-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    
+    .dark-mode .review-card {
+        background: #1a1c22;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .reviewer-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .reviewer-name {
+        font-weight: 700;
+        color: #333;
+        font-size: 1.1rem;
+    }
+    
+    .dark-mode .reviewer-name {
+        color: #f5f5f7;
+    }
+    
+    .rating-display {
+        display: flex;
+        gap: 3px;
+    }
+    
+    .rating-display .filled {
+        color: #ffc107;
+    }
+    
+    .rating-display .empty {
+        color: #ddd;
+    }
+    
+    .dark-mode .rating-display .empty {
+        color: #4a4d54;
+    }
+    
+    .review-date {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .dark-mode .review-date {
+        color: #a3a3a3;
+    }
+    
+    .review-content p {
+        color: #555;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    .dark-mode .review-content p {
+        color: #ccc;
+    }
+    
+    .verified-badge {
+        display: inline-block;
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+    
+    .review-actions {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+    
+    .delete-review {
+        color: #dc3545;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+    }
+    
+    .delete-review:hover {
+        color: #a71d2a;
+    }
+    
+    .no-reviews {
+        text-align: center;
+        padding: 40px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .dark-mode .no-reviews {
+        background: #1a1c22;
+    }
+    
+    .no-reviews p {
+        color: #666;
+        margin: 10px 0;
+    }
+    
+    .dark-mode .no-reviews p {
+        color: #a3a3a3;
+    }
+    
+    @media (max-width: 768px) {
+        .product-detail {
+            flex-direction: column;
+            margin: 20px 10px;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        .product-info-detail h2 {
+            font-size: 1.5rem;
+        }
+        
+        .price {
+            font-size: 20px;
+        }
+        
+        .buy-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+        }
+        
+        .reviews-section {
+            padding: 0 15px;
+        }
+        
+        .reviews-section .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .review-header {
+            flex-direction: column;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .product-detail {
+            margin: 15px 5px;
+            padding: 15px;
+        }
+        
+        .product-info-detail h2 {
+            font-size: 1.3rem;
+        }
+        
+        .product-info-detail p {
+            font-size: 14px;
+        }
+        
+        .price {
+            font-size: 18px;
+        }
+        
+        .reviews-section {
+            padding: 0 10px;
+        }
+        
+        .review-card {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'store/base.html' %}
+
+{% block title %}{{ landing_page.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h1 class="card-title">{{ landing_page.title }}</h1>
+                    
+                    {% if landing_page.subtitle %}
+                    <h3 class="card-subtitle text-muted mb-4">{{ landing_page.subtitle }}</h3>
+                    {% endif %}
+                    
+                    <div class="card-text mb-4">
+                        {{ landing_page.content|linebreaks }}
+                    </div>
+                    
+                    {% if landing_page.call_to_action and landing_page.call_to_action_url %}
+                    <div class="mt-4">
+                        <a href="{{ landing_page.call_to_action_url }}" class="btn btn-primary btn-lg">
+                            {{ landing_page.call_to_action }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4>التعليقات</h4>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="content" class="form-label">أضف تعليقك</label>
+                            <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">إرسال التعليق</button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted">يجب <a href="{% url 'login' %}">تسجيل الدخول</a> لإضافة تعليق.</p>
+                    {% endif %}
+                    
+                    {% if comments %}
+                    <div class="mt-4">
+                        {% for comment in comments %}
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ comment.author.username }}</strong>
+                                <small class="text-muted">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <p class="mt-2 mb-0">{{ comment.content }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">لا توجد تعليقات بعد.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

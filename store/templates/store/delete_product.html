@@ -1,0 +1,161 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}حذف منتج - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <h1>تأكيد حذف المنتج</h1>
+    
+    <div class="product-info">
+        <h2>{{ product.name }}</h2>
+        <p class="price">{{ product.price }} 
+            {% if product.currency == 'USD' %}USD
+            {% elif product.currency == 'EUR' %}EUR
+            {% elif product.currency == 'SAR' %}ر.س
+            {% elif product.currency == 'AED' %}د.إ
+            {% elif product.currency == 'EGP' %}ج.م
+            {% elif product.currency == 'KWD' %}د.ك
+            {% elif product.currency == 'QAR' %}ر.ق
+            {% elif product.currency == 'OMR' %}ر.ع.
+            {% elif product.currency == 'BHD' %}د.ب
+            {% elif product.currency == 'JOD' %}د.أ
+            {% else %}{{ product.currency }}
+            {% endif %}
+        </p>
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 300px; max-height: 300px;">
+        {% endif %}
+        <p class="description">{{ product.description }}</p>
+    </div>
+    
+    <div class="warning-message">
+        <p>⚠️ هل أنت متأكد أنك تريد حذف هذا المنتج؟ هذا الإجراء لا يمكن التراجع عنه.</p>
+    </div>
+    
+    <form method="post" class="delete-form">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn-delete">نعم، احذف المنتج</button>
+            <a href="{% url 'seller_products' %}" class="btn-cancel">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .delete-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .delete-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .product-info {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .product-info h2 {
+        color: #333;
+        margin: 0 0 15px 0;
+    }
+    
+    .price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #28a745;
+        margin: 15px 0;
+    }
+    
+    .description {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .warning-message {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .warning-message p {
+        margin: 0;
+        color: #856404;
+        font-weight: bold;
+    }
+    
+    .delete-form {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-delete {
+        background: linear-gradient(90deg, #dc3545, #c82333);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+    
+    .btn-delete:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        text-align: center;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .delete-container {
+            padding: 15px;
+        }
+        
+        .product-info, .delete-form {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

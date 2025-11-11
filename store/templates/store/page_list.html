@@ -1,0 +1,116 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}إدارة الصفحات{% endblock %}
+
+{% block cms_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>إدارة الصفحات</h2>
+  <a href="{% url 'page_create' %}" class="btn btn-primary">إنشاء صفحة جديدة</a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" class="row">
+      <div class="col-md-4">
+        <input type="text" class="form-control" name="search" placeholder="بحث في الصفحات..." value="{{ search_query }}">
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-control">
+          <option value="">جميع الحالات</option>
+          <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>مسودة</option>
+          <option value="published" {% if status_filter == 'published' %}selected{% endif %}>منشور</option>
+          <option value="archived" {% if status_filter == 'archived' %}selected{% endif %}>مؤرشف</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-primary">تصفية</button>
+        <a href="{% url 'page_list' %}" class="btn btn-outline-secondary">إعادة تعيين</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Pages Table -->
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>العنوان</th>
+        <th>الحالة</th>
+        <th>تاريخ الإنشاء</th>
+        <th>تاريخ النشر</th>
+        <th>الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for page in page_obj %}
+      <tr>
+        <td>
+          <a href="{% url 'page_detail' slug=page.slug %}">{{ page.title }}</a>
+          {% if page.slug %}
+          <br><small class="text-muted">{{ page.slug }}</small>
+          {% endif %}
+        </td>
+        <td>
+          {% if page.status == 'draft' %}
+            <span class="badge badge-secondary">مسودة</span>
+          {% elif page.status == 'published' %}
+            <span class="badge badge-success">منشور</span>
+          {% elif page.status == 'archived' %}
+            <span class="badge badge-warning">مؤرشف</span>
+          {% endif %}
+        </td>
+        <td>{{ page.created_at|date:"d/m/Y" }}</td>
+        <td>
+          {% if page.published_at %}
+            {{ page.published_at|date:"d/m/Y" }}
+          {% else %}
+            <span class="text-muted">-</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'page_edit' slug=page.slug %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+          <a href="{% url 'page_delete' slug=page.slug %}" class="btn btn-sm btn-outline-danger">حذف</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">لا توجد صفحات</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation">
+  <ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">السابق</a>
+      </li>
+    {% endif %}
+    
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+    
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">التالي</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}

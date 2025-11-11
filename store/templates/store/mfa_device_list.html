@@ -1,0 +1,62 @@
+{% extends 'store/base.html' %}
+
+{% block title %}أجهزة MFA{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>أجهزة المصادقة متعددة العوامل (MFA)</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="mb-3">
+        <a href="{% url 'mfa_setup' %}" class="btn btn-primary">إضافة جهاز MFA</a>
+    </div>
+    
+    {% if devices %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>النوع</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for device in devices %}
+                        <tr>
+                            <td>{{ device.name }}</td>
+                        <td>{{ device.get_device_type_display }}</td>
+                            <td>
+                                {% if device.is_active %}
+                                    <span class="badge bg-success">مفعل</span>
+                                {% else %}
+                                    <span class="badge bg-danger">غير مفعل</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ device.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <a href="{% url 'mfa_delete_device' device.id %}" class="btn btn-danger btn-sm" 
+                                   onclick="return confirm('هل أنت متأكد من حذف هذا الجهاز؟')">حذف</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>لا توجد أجهزة MFA مسجلة.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

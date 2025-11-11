@@ -1,0 +1,113 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block cms_content %}
+<article>
+  <header class="mb-4">
+    <div class="mb-2">
+      {% if article.article_type == 'blog' %}
+        <span class="badge badge-primary">مدونة</span>
+      {% elif article.article_type == 'news' %}
+        <span class="badge badge-info">أخبار</span>
+      {% elif article.article_type == 'tutorial' %}
+        <span class="badge badge-success">شرح</span>
+      {% elif article.article_type == 'announcement' %}
+        <span class="badge badge-warning">إعلان</span>
+      {% endif %}
+    </div>
+    <h1>{{ article.title }}</h1>
+    <div class="text-muted">
+      <small>
+        بواسطة {{ article.author.username }} | 
+        {% if article.published_at %}
+          نُشر في {{ article.published_at|date:"d F Y" }}
+        {% else %}
+          تم الإنشاء في {{ article.created_at|date:"d F Y" }}
+        {% endif %} | 
+        {{ article.views }} مشاهدة
+      </small>
+    </div>
+  </header>
+  
+  {% if article.featured_image %}
+  <div class="mb-4">
+    <img src="{{ article.featured_image.url }}" class="img-fluid rounded" alt="{{ article.title }}">
+  </div>
+  {% endif %}
+  
+  {% if article.excerpt %}
+  <div class="lead mb-4">
+    {{ article.excerpt|linebreaks }}
+  </div>
+  {% endif %}
+  
+  <div class="content">
+    {{ article.content|linebreaks }}
+  </div>
+</article>
+
+<!-- Related Articles -->
+{% if related_articles %}
+<section class="mt-5">
+  <h3>مقالات ذات صلة</h3>
+  <div class="row">
+    {% for related in related_articles %}
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'article_detail' slug=related.slug %}" class="text-decoration-none">{{ related.title }}</a>
+          </h5>
+          <p class="card-text">{{ related.excerpt|truncatewords:15 }}</p>
+          <small class="text-muted">{{ related.created_at|date:"d F Y" }}</small>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Comments Section -->
+<section class="mt-5">
+  <h3>التعليقات</h3>
+  
+  <!-- Add Comment Form -->
+  {% if user.is_authenticated %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>أضف تعليقًا</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <textarea name="content" class="form-control" rows="4" placeholder="اكتب تعليقك هنا..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">إرسال التعليق</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <p><a href="{% url 'login' %}">سجل دخولك</a> لإضافة تعليق.</p>
+  {% endif %}
+  
+  <!-- Comments List -->
+  {% if comments %}
+  <div class="comments-list">
+    {% for comment in comments %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h6 class="card-title">{{ comment.author.username }}</h6>
+          <small class="text-muted">{{ comment.created_at|date:"d F Y H:i" }}</small>
+        </div>
+        <p class="card-text">{{ comment.content|linebreaks }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>لا توجد تعليقات بعد.</p>
+  {% endif %}
+</section>
+{% endblock %}

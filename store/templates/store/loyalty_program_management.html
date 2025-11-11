@@ -1,0 +1,118 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة برنامج الولاء{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>إدارة برنامج الولاء</h2>
+            
+            <!-- Create Reward Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>إنشاء مكافأة جديدة</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="name">اسم المكافأة:</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="reward_type">نوع المكافأة:</label>
+                                    <select class="form-control" id="reward_type" name="reward_type" required>
+                                        <option value="discount">خصم</option>
+                                        <option value="free_product">منتج مجاني</option>
+                                        <option value="shipping">شحن مجاني</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="points_required">النقاط المطلوبة:</label>
+                                    <input type="number" class="form-control" id="points_required" name="points_required" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="discount_percentage">نسبة الخصم (للخصم فقط):</label>
+                                    <input type="number" step="0.01" class="form-control" id="discount_percentage" name="discount_percentage">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">إنشاء المكافأة</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Rewards List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>المكافآت الحالية</h5>
+                </div>
+                <div class="card-body">
+                    {% if rewards %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>اسم المكافأة</th>
+                                    <th>نوع المكافأة</th>
+                                    <th>النقاط المطلوبة</th>
+                                    <th>نسبة الخصم</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reward in rewards %}
+                                <tr>
+                                    <td>{{ reward.name }}</td>
+                                    <td>{{ reward.get_reward_type_display }}</td>
+                                    <td>{{ reward.points_required }}</td>
+                                    <td>
+                                        {% if reward.discount_percentage %}
+                                            {{ reward.discount_percentage }}%
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if reward.active %}
+                                            <span class="badge badge-success">مفعل</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">غير مفعل</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'delete_loyalty_reward' reward.id %}" 
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('هل أنت متأكد من حذف هذه المكافأة؟')">
+                                            حذف
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>لا توجد مكافآت حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

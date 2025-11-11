@@ -1,0 +1,160 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إنشاء حساب - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form">
+        <h2>إنشاء حساب جديد</h2>
+        
+        {% if form.errors %}
+            <div class="error-message">
+                <p>حدث خطأ أثناء إنشاء الحساب. يرجى التحقق من المعلومات المدخلة.</p>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="post" class="signup-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">اسم المستخدم:</label>
+                {{ form.username }}
+                {% if form.username.help_text %}
+                    <small class="form-text">{{ form.username.help_text }}</small>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">البريد الإلكتروني:</label>
+                {{ form.email }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">كلمة المرور:</label>
+                {{ form.password1 }}
+                {% if form.password1.help_text %}
+                    <small class="form-text">{{ form.password1.help_text|safe }}</small>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">تأكيد كلمة المرور:</label>
+                {{ form.password2 }}
+                {% if form.password2.help_text %}
+                    <small class="form-text">{{ form.password2.help_text }}</small>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="إنشاء الحساب" class="btn-primary">
+            </div>
+        </form>
+        
+        <div class="auth-links">
+            <p>لديك حساب بالفعل؟ <a href="{% url 'login' %}">تسجيل الدخول</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+    
+    .auth-form {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .auth-form h2 {
+        text-align: center;
+        color: #0074D9;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-family: "Cairo", sans-serif;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    .form-text {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-family: "Cairo", sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    
+    .error-message {
+        background: #ffebee;
+        color: #c62828;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .auth-links {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .auth-links a {
+        color: #0074D9;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .auth-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

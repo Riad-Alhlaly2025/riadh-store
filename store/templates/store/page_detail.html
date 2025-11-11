@@ -1,0 +1,78 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block cms_content %}
+<article>
+  <header class="mb-4">
+    <h1>{{ page.title }}</h1>
+    <div class="text-muted">
+      <small>
+        {% if page.published_at %}
+          نُشر في {{ page.published_at|date:"d F Y" }}
+        {% else %}
+          تم الإنشاء في {{ page.created_at|date:"d F Y" }}
+        {% endif %}
+      </small>
+    </div>
+  </header>
+  
+  {% if page.featured_image %}
+  <div class="mb-4">
+    <img src="{{ page.featured_image.url }}" class="img-fluid rounded" alt="{{ page.title }}">
+  </div>
+  {% endif %}
+  
+  {% if page.excerpt %}
+  <div class="lead mb-4">
+    {{ page.excerpt|linebreaks }}
+  </div>
+  {% endif %}
+  
+  <div class="content">
+    {{ page.content|linebreaks }}
+  </div>
+</article>
+
+<!-- Comments Section -->
+<section class="mt-5">
+  <h3>التعليقات</h3>
+  
+  <!-- Add Comment Form -->
+  {% if user.is_authenticated %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>أضف تعليقًا</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <textarea name="content" class="form-control" rows="4" placeholder="اكتب تعليقك هنا..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">إرسال التعليق</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <p><a href="{% url 'login' %}">سجل دخولك</a> لإضافة تعليق.</p>
+  {% endif %}
+  
+  <!-- Comments List -->
+  {% if comments %}
+  <div class="comments-list">
+    {% for comment in comments %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h6 class="card-title">{{ comment.author.username }}</h6>
+          <small class="text-muted">{{ comment.created_at|date:"d F Y H:i" }}</small>
+        </div>
+        <p class="card-text">{{ comment.content|linebreaks }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>لا توجد تعليقات بعد.</p>
+  {% endif %}
+</section>
+{% endblock %}

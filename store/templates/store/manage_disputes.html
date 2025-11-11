@@ -1,0 +1,297 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة النزاعات - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="manage-disputes-container">
+    <h1>إدارة النزاعات</h1>
+    
+    {% if disputes %}
+    <div class="disputes-list">
+        {% for dispute in disputes %}
+        <div class="dispute-card">
+            <div class="dispute-header">
+                <h3>نزاع الطلب #{{ dispute.order.id }}</h3>
+                <span class="dispute-status {{ dispute.status }}">{{ dispute.get_status_display }}</span>
+            </div>
+            
+            <div class="dispute-details">
+                <div class="detail-row">
+                    <span class="label">المشتري:</span>
+                    <span class="value">{{ dispute.buyer.username }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="label">البائع:</span>
+                    <span class="value">{{ dispute.seller.username }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="label">تاريخ النزاع:</span>
+                    <span class="value">{{ dispute.created_at|date:"d/m/Y H:i" }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="label">سبب النزاع:</span>
+                    <span class="value">{{ dispute.reason }}</span>
+                </div>
+                
+                {% if dispute.resolution != 'pending' %}
+                <div class="detail-row">
+                    <span class="label">الحل المقترح:</span>
+                    <span class="value resolution-{{ dispute.resolution }}">{{ dispute.get_resolution_display }}</span>
+                </div>
+                {% endif %}
+                
+                {% if dispute.resolution_notes %}
+                <div class="detail-row">
+                    <span class="label">ملاحظات الحل:</span>
+                    <span class="value">{{ dispute.resolution_notes }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if dispute.status == 'open' or dispute.status == 'in_progress' %}
+            <div class="dispute-resolution">
+                <h4>حل النزاع</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="dispute_id" value="{{ dispute.id }}">
+                    
+                    <div class="form-group">
+                        <label for="resolution_{{ dispute.id }}">الحل المقترح:</label>
+                        <select id="resolution_{{ dispute.id }}" name="resolution" required>
+                            <option value="">اختر الحل</option>
+                            <option value="buyer_favor">صالح المشتري</option>
+                            <option value="seller_favor">صالح البائع</option>
+                            <option value="refund">استرداد كامل</option>
+                            <option value="partial_refund">استرداد جزئي</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes_{{ dispute.id }}">ملاحظات الحل:</label>
+                        <textarea id="notes_{{ dispute.id }}" name="notes" rows="3" placeholder="ملاحظات إضافية حول الحل..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn resolve-dispute">حل النزاع</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-disputes">
+        <p>لا توجد نزاعات حالياً</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .manage-disputes-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .manage-disputes-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .disputes-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+    }
+    
+    .dispute-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .dispute-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .dispute-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .dispute-header h3 {
+        color: #333;
+        margin: 0;
+    }
+    
+    .dispute-status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .dispute-status.open {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .dispute-status.in_progress {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    
+    .dispute-status.resolved {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .dispute-status.closed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .dispute-details {
+        margin-bottom: 20px;
+    }
+    
+    .detail-row {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .detail-row .label {
+        font-weight: bold;
+        color: #333;
+        width: 120px;
+        flex-shrink: 0;
+    }
+    
+    .detail-row .value {
+        color: #666;
+        flex: 1;
+    }
+    
+    .resolution-buyer_favor {
+        color: #28a745;
+        font-weight: bold;
+    }
+    
+    .resolution-seller_favor {
+        color: #007bff;
+        font-weight: bold;
+    }
+    
+    .resolution-refund {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .resolution-partial_refund {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    
+    .dispute-resolution {
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .dispute-resolution h4 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group select:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: #0074D9;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+    }
+    
+    .btn.resolve-dispute {
+        background: linear-gradient(90deg, #28a745, #218838);
+        color: white;
+    }
+    
+    .btn.resolve-dispute:hover {
+        background: linear-gradient(90deg, #218838, #1e7e34);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .no-disputes {
+        background: white;
+        border-radius: 15px;
+        padding: 50px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .no-disputes p {
+        font-size: 1.2rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .disputes-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .dispute-card {
+            padding: 20px;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-row .label {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+{% endblock %}

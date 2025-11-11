@@ -1,0 +1,267 @@
+/* 🌙==============================    
+    التصميم الداكن الفخم للمتجر    
+    مستوحى من المتاجر العالمية    
+==============================*/
+
+/* الخط العام */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+body {
+    font-family: 'Cairo', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #0d0d0f;
+    color: #f2f2f2;
+    line-height: 1.6;
+}
+
+/* ===========================    
+    ✅ الشريط العلوي (Navbar)   
+=========================== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #121212, #1e1e1e);
+    padding: 15px 40px;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* 🎨 لوجو بمتدرج لوني متوافق مع جميع المتصفحات + لمعان متحرك */
+.navbar .logo {
+    font-size: 1.6em;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00e6ff, #0072ff);
+    color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    /* دعم Firefox */
+    background-clip: text;
+    -moz-background-clip: text;
+    -moz-text-fill-color: transparent;
+    -webkit-mask-image: linear-gradient(#fff, #fff);
+    -webkit-mask-clip: text;
+    /* Adding standard properties for better compatibility */
+    mask-image: linear-gradient(#fff, #fff);
+    mask-clip: text;
+
+    /* لمعان متحرك للكمبيوتر */
+    text-shadow: 0 0 5px #00e6ff, 0 0 10px #00e6ff, 0 0 20px #0072ff, 0 0 30px #0072ff;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* حركة لمعان متدرجة للكمبيوتر */
+@keyframes glow {
+    0% {
+        text-shadow: 0 0 5px #00e6ff, 0 0 10px #00e6ff, 0 0 20px #0072ff, 0 0 30px #0072ff;
+    }
+
+    50% {
+        text-shadow: 0 0 10px #00e6ff, 0 0 20px #00e6ff, 0 0 40px #0072ff, 0 0 60px #0072ff;
+    }
+
+    100% {
+        text-shadow: 0 0 5px #00e6ff, 0 0 10px #00e6ff, 0 0 20px #0072ff, 0 0 30px #0072ff;
+    }
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #d1d1d1;
+    margin-left: 25px;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.navbar a:hover {
+    color: #00e6ff;
+    transform: scale(1.1);
+}
+
+/* ===========================    
+    🏠 الصفحة الرئيسية   
+=========================== */
+.home-container {
+    max-width: 1300px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* عنوان القسم */
+.section-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    border-left: 5px solid #00e6ff;
+    padding-left: 10px;
+    margin-bottom: 25px;
+    color: #fff;
+}
+
+/* ===========================    
+    🆕 سلايدر المنتجات الجديدة   
+=========================== */
+.new-products-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+    padding-bottom: 15px;
+}
+
+.new-products-slider::-webkit-scrollbar {
+    height: 6px;
+}
+
+.new-products-slider::-webkit-scrollbar-thumb {
+    background: #00bfff;
+    border-radius: 10px;
+}
+
+/* ===========================    
+    🛍 بطاقات المنتجات   
+=========================== */
+.product-card {
+    background: linear-gradient(145deg, #181818, #0f0f10);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 15px;
+    text-align: center;
+    width: 240px;
+    flex: 0 0 auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 25px rgba(0, 229, 255, 0.1);
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.product-card h3 {
+    margin: 10px 0 5px;
+    font-size: 1.1em;
+    color: #fff;
+}
+
+.product-card p {
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+.product-card .price {
+    font-size: 1.1em;
+    color: #00e6ff;
+    font-weight: 700;
+}
+
+/* ===========================    
+    🛒 زر الشراء   
+=========================== */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #00bfff, #006aff);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background: linear-gradient(90deg, #0094ff, #0033ff);
+    transform: translateY(-3px);
+}
+
+/* ===========================    
+    📱 الفلترة والبحث   
+=========================== */
+.filter-box {
+    background: #141414;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.05);
+}
+
+.filter-box input,
+.filter-box select {
+    background: #0e0e10;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.filter-box input:focus,
+.filter-box select:focus {
+    border-color: #00e6ff;
+}
+
+/* ===========================    
+    ⚙️ الفوتر (Footer)   
+=========================== */
+footer {
+    margin-top: 70px;
+    padding: 40px 0;
+    background: #0a0a0b;
+    text-align: center;
+    color: #777;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+footer a {
+    color: #00e6ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* ===========================    
+    Responsive: تأثير اللوجو على الهواتف   
+=========================== */
+@media (max-width: 768px) {
+    .navbar .logo {
+        font-size: 1.4em;
+        /* حجم أصغر للقراءة على الهواتف */
+        text-shadow: 0 0 3px #00e6ff, 0 0 6px #0072ff;
+        /* لمعان أخف */
+        animation: glow-mobile 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow-mobile {
+        0% {
+            text-shadow: 0 0 3px #00e6ff, 0 0 6px #0072ff;
+        }
+
+        50% {
+            text-shadow: 0 0 5px #00e6ff, 0 0 10px #0072ff;
+        }
+
+        100% {
+            text-shadow: 0 0 3px #00e6ff, 0 0 6px #0072ff;
+        }
+    }
+}

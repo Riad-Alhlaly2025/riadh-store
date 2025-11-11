@@ -1,0 +1,167 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إتمام الطلب - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <h1>إتمام الطلب</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="checkout-content">
+        <div class="order-summary">
+            <h2>ملخص الطلب</h2>
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>السعر الفرعي</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.subtotal }} 
+                                {% if currency == 'USD' %}USD
+                                {% elif currency == 'EUR' %}EUR
+                                {% elif currency == 'SAR' %}ر.س
+                                {% elif currency == 'AED' %}د.إ
+                                {% elif currency == 'EGP' %}ج.م
+                                {% elif currency == 'KWD' %}د.ك
+                                {% elif currency == 'QAR' %}ر.ق
+                                {% elif currency == 'OMR' %}ر.ع.
+                                {% elif currency == 'BHD' %}د.ب
+                                {% elif currency == 'JOD' %}د.أ
+                                {% else %}{{ currency }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <h3 class="total-amount">الإجمالي: {{ total }} 
+                {% if currency == 'USD' %}USD
+                {% elif currency == 'EUR' %}EUR
+                {% elif currency == 'SAR' %}ر.س
+                {% elif currency == 'AED' %}د.إ
+                {% elif currency == 'EGP' %}ج.م
+                {% elif currency == 'KWD' %}د.ك
+                {% elif currency == 'QAR' %}ر.ق
+                {% elif currency == 'OMR' %}ر.ع.
+                {% elif currency == 'BHD' %}د.ب
+                {% elif currency == 'JOD' %}د.أ
+                {% else %}{{ currency }}
+                {% endif %}
+            </h3>
+        </div>
+        
+        <div class="shipping-info">
+            <h2>معلومات التوصيل</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.shipping_address.id_for_label }}">{{ form.shipping_address.label }}</label>
+                    {{ form.shipping_address }}
+                    {% if form.shipping_address.errors %}
+                        <div class="error">{{ form.shipping_address.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}
+                        <div class="error">{{ form.phone_number.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="btn checkout">تأكيد الطلب</button>
+                <a href="{% url 'view_cart' %}" class="btn">العودة للسلة</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.order-summary, .shipping-info {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dark-mode .order-summary, 
+.dark-mode .shipping-info {
+    background: #2a2a2a;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input, 
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'Cairo', sans-serif;
+}
+
+.dark-mode .form-group input, 
+.dark-mode .form-group textarea {
+    background: #333;
+    border-color: #555;
+    color: white;
+}
+
+.total-amount {
+    text-align: left;
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: #2c5aa0;
+}
+
+.dark-mode .total-amount {
+    color: #6b9bd9;
+}
+
+@media (max-width: 768px) {
+    .checkout-content {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

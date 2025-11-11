@@ -1,0 +1,107 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة الحملات البريدية{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>إدارة الحملات البريدية</h2>
+            
+            <!-- Create Campaign Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>إنشاء حملة بريدية جديدة</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="subject">الموضوع:</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content">المحتوى:</label>
+                            <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="recipients">المستلمون (قائمة البريد الإلكتروني مفصولة بفواصل):</label>
+                            <textarea class="form-control" id="recipients" name="recipients" rows="3" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">إنشاء الحملة</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Campaigns List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>الحملات الحالية</h5>
+                </div>
+                <div class="card-body">
+                    {% if campaigns %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>الموضوع</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>تاريخ الإرسال</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for campaign in campaigns %}
+                                <tr>
+                                    <td>{{ campaign.subject }}</td>
+                                    <td>
+                                        {% if campaign.status == 'draft' %}
+                                            <span class="badge badge-secondary">مسودة</span>
+                                        {% elif campaign.status == 'scheduled' %}
+                                            <span class="badge badge-warning">مجدول</span>
+                                        {% elif campaign.status == 'sent' %}
+                                            <span class="badge badge-success">مرسل</span>
+                                        {% elif campaign.status == 'cancelled' %}
+                                            <span class="badge badge-danger">ملغى</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ campaign.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% if campaign.sent_at %}
+                                            {{ campaign.sent_at|date:"Y-m-d H:i" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if campaign.status != 'sent' %}
+                                            <a href="{% url 'send_email_campaign' campaign.id %}" 
+                                               class="btn btn-success btn-sm">
+                                                إرسال
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'delete_email_campaign' campaign.id %}" 
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('هل أنت متأكد من حذف هذه الحملة؟')">
+                                            حذف
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>لا توجد حملات بريدية حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}منتجاتي - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="products-container">
+    <div class="header-actions">
+        <h1>منتجاتي</h1>
+        <a href="{% url 'add_product' %}" class="btn-primary">إضافة منتج جديد</a>
+    </div>
+    
+    {% if products %}
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-image">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <div class="no-image">لا توجد صورة</div>
+                {% endif %}
+            </div>
+            <div class="product-info">
+                <h3>{{ product.name }}</h3>
+                <p class="category">{{ product.get_category_display }}</p>
+                <p class="price">{{ product.price }} 
+                    {% if product.currency == 'USD' %}USD
+                    {% elif product.currency == 'EUR' %}EUR
+                    {% elif product.currency == 'SAR' %}ر.س
+                    {% elif product.currency == 'AED' %}د.إ
+                    {% elif product.currency == 'EGP' %}ج.م
+                    {% elif product.currency == 'KWD' %}د.ك
+                    {% elif product.currency == 'QAR' %}ر.ق
+                    {% elif product.currency == 'OMR' %}ر.ع.
+                    {% elif product.currency == 'BHD' %}د.ب
+                    {% elif product.currency == 'JOD' %}د.أ
+                    {% else %}{{ product.currency }}
+                    {% endif %}
+                </p>
+                <div class="product-actions">
+                    <a href="{% url 'edit_product' product.id %}" class="btn-edit">تعديل</a>
+                    <a href="{% url 'delete_product' product.id %}" class="btn-delete">حذف</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-products">
+        <p>لا توجد منتجات حالياً.</p>
+        <a href="{% url 'add_product' %}" class="btn-primary">إضافة منتج أول</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .products-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .header-actions h1 {
+        color: #0074D9;
+        margin: 0;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,116,217,0.3);
+    }
+    
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .product-image {
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+    }
+    
+    .product-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+    
+    .no-image {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    .product-info {
+        padding: 20px;
+    }
+    
+    .product-info h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .category {
+        color: #0074D9;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+    
+    .price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #28a745;
+        margin: 10px 0;
+    }
+    
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .btn-edit, .btn-delete {
+        flex: 1;
+        padding: 8px 15px;
+        border-radius: 20px;
+        text-decoration: none;
+        text-align: center;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-edit {
+        background: #ffc107;
+        color: #212529;
+        border: 1px solid #ffc107;
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        border: 1px solid #dc3545;
+    }
+    
+    .btn-edit:hover, .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .no-products {
+        text-align: center;
+        padding: 50px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .no-products p {
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .header-actions {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+    }
+</style>
+{% endblock %}

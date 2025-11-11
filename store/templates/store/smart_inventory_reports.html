@@ -1,0 +1,264 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تقارير المخزون الذكية - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="smart-inventory-container">
+    <h1>تقارير المخزون الذكية</h1>
+    
+    <!-- Inventory Summary -->
+    <div class="info-section">
+        <h3>ملخص المخزون</h3>
+        <div class="inventory-summary">
+            <div class="summary-item">
+                <span>إجمالي المنتجات</span>
+                <span class="count">{{ products }}</span>
+            </div>
+            <div class="summary-item">
+                <span>المنتجات منخفضة المخزون</span>
+                <span class="count low">{{ low_stock_count }}</span>
+            </div>
+            <div class="summary-item">
+                <span>المنتجات غير متوفرة</span>
+                <span class="count out">{{ out_of_stock_count }}</span>
+            </div>
+            <div class="summary-item">
+                <span>المنتجات ذات المخزون العالي</span>
+                <span class="count high">{{ high_stock_count }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Automatic Reorder Suggestions -->
+    {% if reorder_suggestions %}
+    <div class="info-section">
+        <h3>اقتراحات إعادة الطلب التلقائية</h3>
+        <div class="reorder-suggestions">
+            {% for suggestion in reorder_suggestions %}
+            <div class="suggestion-item">
+                <div class="product-info">
+                    <span class="product-name">{{ suggestion.product.name }}</span>
+                    <span class="product-seller">البائع: {{ suggestion.product.seller.username }}</span>
+                </div>
+                <div class="suggestion-details">
+                    <span class="current-stock">المخزون الحالي: {{ suggestion.current_stock }} وحدة</span>
+                    <span class="avg-sales">متوسط المبيعات اليومية: {{ suggestion.avg_daily_sales }} وحدة</span>
+                    <span class="days-remaining">الأيام المتبقية: {{ suggestion.days_inventory_remaining }} يوم</span>
+                    <span class="suggested-quantity">الكمية المقترحة لإعادة الطلب: {{ suggestion.suggested_quantity }} وحدة</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="info-section">
+        <h3>اقتراحات إعادة الطلب التلقائية</h3>
+        <p class="no-data">لا توجد اقتراحات لإعادة الطلب في الوقت الحالي.</p>
+    </div>
+    {% endif %}
+    
+    <!-- Category Trends -->
+    {% if category_trends %}
+    <div class="info-section">
+        <h3>اتجاهات الفئات</h3>
+        <div class="category-trends">
+            {% for category, trend in category_trends.items %}
+            <div class="trend-item">
+                <div class="category-info">
+                    <span class="category-name">
+                        {% if category == 'phones' %}هواتف
+                        {% elif category == 'computers' %}أجهزة كمبيوتر
+                        {% elif category == 'accessories' %}إكسسوارات
+                        {% else %}غير مصنف
+                        {% endif %}
+                    </span>
+                    <span class="total-inventory">إجمالي المخزون: {{ trend.total_inventory }} وحدة</span>
+                </div>
+                <div class="trend-details">
+                    <span class="avg-sales">متوسط المبيعات اليومية: {{ trend.avg_daily_sales }} وحدة</span>
+                    <span class="days-remaining">الأيام المتبقية: {{ trend.days_inventory_remaining }} يوم</span>
+                    <span class="seasonal-trend">الاتجاه الموسمي: {{ trend.seasonal_trend }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Low Stock Products -->
+    {% if low_stock_products %}
+    <div class="info-section">
+        <h3>المنتجات منخفضة المخزون</h3>
+        <div class="low-stock-products">
+            {% for product in low_stock_products %}
+            <div class="product-item">
+                <div class="product-info">
+                    <span class="product-name">{{ product.name }}</span>
+                    <span class="product-seller">البائع: {{ product.seller.username }}</span>
+                </div>
+                <div class="stock-info">
+                    <span class="current-stock">المخزون الحالي: {{ product.stock_quantity }} وحدة</span>
+                    <span class="threshold">حد التنبيه: {{ product.low_stock_threshold }} وحدة</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Out of Stock Products -->
+    {% if out_of_stock_products %}
+    <div class="info-section">
+        <h3>المنتجات غير متوفرة</h3>
+        <div class="out-of-stock-products">
+            {% for product in out_of_stock_products %}
+            <div class="product-item">
+                <div class="product-info">
+                    <span class="product-name">{{ product.name }}</span>
+                    <span class="product-seller">البائع: {{ product.seller.username }}</span>
+                </div>
+                <div class="stock-info">
+                    <span class="current-stock out">المخزون الحالي: 0 وحدة</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .smart-inventory-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .smart-inventory-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .info-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .info-section h3 {
+        color: #0074D9;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .inventory-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .summary-item {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .summary-item .count {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #0074D9;
+        margin-top: 5px;
+    }
+    
+    .summary-item .count.low {
+        color: #ffc107;
+    }
+    
+    .summary-item .count.out {
+        color: #dc3545;
+    }
+    
+    .summary-item .count.high {
+        color: #28a745;
+    }
+    
+    .reorder-suggestions, .category-trends, .low-stock-products, .out-of-stock-products {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .suggestion-item, .trend-item, .product-item {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .product-info {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .product-name {
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .product-seller {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .suggestion-details, .trend-details, .stock-info {
+        flex: 1;
+        min-width: 200px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .current-stock.out {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .suggested-quantity {
+        color: #0074D9;
+        font-weight: bold;
+    }
+    
+    .seasonal-trend {
+        color: #28a745;
+        font-weight: bold;
+    }
+    
+    .no-data {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .suggestion-item, .trend-item, .product-item {
+            flex-direction: column;
+        }
+        
+        .inventory-summary {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,317 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تفاصيل الطلب #{{ order.id }} - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <h1>تفاصيل الطلب #{{ order.id }}</h1>
+    
+    <div class="order-info">
+        <div class="info-section">
+            <h3>معلومات الطلب</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>رقم الطلب:</strong>
+                    <span>#{{ order.id }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>تاريخ الطلب:</strong>
+                    <span>{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>حالة الطلب:</strong>
+                    <span class="order-status {{ order.status }}">{{ order.get_status_display }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>إجمالي الطلب:</strong>
+                    <span>{{ order.total_amount }} ر.س</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>معلومات العميل</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>الاسم:</strong>
+                    <span>{{ order.user.get_full_name|default:order.user.username }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>عنوان التوصيل:</strong>
+                    <span>{{ order.shipping_address }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>رقم الهاتف:</strong>
+                    <span>{{ order.phone_number }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>منتجاتك في هذا الطلب</h3>
+            <div class="order-items">
+                {% for item in order_items %}
+                <div class="item">
+                    <div class="item-info">
+                        <h4>{{ item.product.name }}</h4>
+                        <p class="category">{{ item.product.get_category_display }}</p>
+                    </div>
+                    <div class="item-details">
+                        <span>{{ item.quantity }} × {{ item.price }} ر.س</span>
+                        <span class="item-total">{{ item.total_price }} ر.س</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="items-total">
+                <strong>إجمالي منتجاتك:</strong>
+                {% with total=order_items|sum:'total_price' %}
+                <span>{{ total|default:0 }} ر.س</span>
+                {% endwith %}
+            </div>
+        </div>
+        
+        {% if order.status != 'delivered' and order.status != 'cancelled' %}
+        <div class="info-section">
+            <h3>تحديث حالة الطلب</h3>
+            <form method="post" action="{% url 'update_order_status' order.id %}" class="status-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="status">اختر الحالة الجديدة:</label>
+                    <select id="status" name="status">
+                        {% for value, display in order.STATUS_CHOICES %}
+                            {% if value != 'delivered' or order.status == 'shipped' %}
+                            <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ display }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-update">تحديث الحالة</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="back-link">
+        <a href="{% url 'seller_orders' %}" class="btn-back">العودة إلى الطلبات</a>
+    </div>
+</div>
+
+<style>
+    .order-detail-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .order-detail-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .order-info {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .info-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .info-section h3 {
+        color: #0074D9;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .info-item strong {
+        color: #333;
+    }
+    
+    .order-status {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        width: fit-content;
+    }
+    
+    .order-status.pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .order-status.processing {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .order-status.shipped {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    
+    .order-status.delivered {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .order-status.cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .order-items {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .item {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .item-info h4 {
+        margin: 0 0 5px 0;
+        color: #333;
+    }
+    
+    .category {
+        color: #0074D9;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .item-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+    }
+    
+    .item-total {
+        font-weight: bold;
+        color: #28a745;
+    }
+    
+    .items-total {
+        text-align: left;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0074D9;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid #eee;
+    }
+    
+    .status-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: end;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    
+    .btn-update {
+        background: linear-gradient(90deg, #28a745, #218838);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-update:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .back-link {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-back:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .item {
+            flex-direction: column;
+        }
+        
+        .item-details {
+            align-items: flex-start;
+        }
+        
+        .status-form {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

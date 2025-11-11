@@ -1,0 +1,155 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إضافة منتج - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>إضافة منتج جديد</h1>
+    
+    <form method="post" enctype="multipart/form-data" class="product-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="name">اسم المنتج *</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="price">السعر *</label>
+            <input type="number" id="price" name="price" step="0.01" min="0" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="category">الفئة</label>
+            <select id="category" name="category">
+                <option value="phones">هواتف</option>
+                <option value="computers">أجهزة كمبيوتر</option>
+                <option value="accessories">إكسسوارات</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">الوصف</label>
+            <textarea id="description" name="description" rows="5"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="image">صورة المنتج</label>
+            <input type="file" id="image" name="image" accept="image/*">
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">إضافة المنتج</button>
+            <a href="{% url 'seller_products' %}" class="btn-cancel">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .form-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .product-form {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #0074D9;
+        box-shadow: 0 0 0 3px rgba(0,116,217,0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(90deg, #28a745, #218838);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: bold;
+        text-align: center;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 15px;
+        }
+        
+        .product-form {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

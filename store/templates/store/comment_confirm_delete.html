@@ -1,0 +1,37 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}تأكيد حذف التعليق{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">تأكيد حذف التعليق</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">هل أنت متأكد أنك تريد حذف التعليق التالي؟</p>
+                    
+                    <div class="alert alert-warning">
+                        <p class="mb-0">{{ comment.content }}</p>
+                        <small class="text-muted">بواسطة: {{ comment.author.username }} | التاريخ: {{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    
+                    <p class="text-danger">
+                        <strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه. سيتم حذف التعليق نهائيًا.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'comment_list' %}" class="btn btn-secondary">إلغاء</a>
+                            <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

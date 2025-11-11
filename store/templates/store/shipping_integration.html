@@ -1,0 +1,117 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}تكامل أنظمة الشحن العالمية{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>تكامل أنظمة الشحن العالمية</h2>
+            
+            <!-- Create Integration Form -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>إنشاء تكامل شحن جديد</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="order_id">الطلب:</label>
+                                    <select class="form-control" id="order_id" name="order_id" required>
+                                        <option value="">اختر الطلب</option>
+                                        {% for order in orders %}
+                                        <option value="{{ order.id }}">طلب #{{ order.id }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="provider">مزود الشحن:</label>
+                                    <select class="form-control" id="provider" name="provider" required>
+                                        <option value="">اختر المزود</option>
+                                        <option value="fedex">FedEx</option>
+                                        <option value="dhl">DHL</option>
+                                        <option value="ups">UPS</option>
+                                        <option value="aramex">Aramex</option>
+                                        <option value="smsa">SMSA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="tracking_number">رقم التتبع (اختياري):</label>
+                                    <input type="text" class="form-control" id="tracking_number" name="tracking_number">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">إنشاء التكامل</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Integrations List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>تكاملات الشحن الحالية</h5>
+                </div>
+                <div class="card-body">
+                    {% if integrations %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>مزود الشحن</th>
+                                    <th>رقم التتبع</th>
+                                    <th>التكلفة</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for integration in integrations %}
+                                <tr>
+                                    <td>طلب #{{ integration.order.id }}</td>
+                                    <td>{{ integration.get_provider_display }}</td>
+                                    <td>{{ integration.tracking_number|default:"-" }}</td>
+                                    <td>{{ integration.shipping_cost }} ر.س</td>
+                                    <td>
+                                        {% if integration.status == 'pending' %}
+                                            <span class="badge badge-warning">قيد الانتظار</span>
+                                        {% elif integration.status == 'shipped' %}
+                                            <span class="badge badge-info">تم الشحن</span>
+                                        {% elif integration.status == 'delivered' %}
+                                            <span class="badge badge-success">تم التسليم</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">{{ integration.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ integration.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'delete_shipping_integration' integration.id %}" 
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('هل أنت متأكد من حذف هذا التكامل؟')">
+                                            حذف
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p>لا توجد تكاملات شحن حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

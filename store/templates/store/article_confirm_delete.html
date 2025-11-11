@@ -1,0 +1,37 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}تأكيد حذف المقال{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">تأكيد حذف المقال</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">هل أنت متأكد أنك تريد حذف المقال التالي؟</p>
+                    
+                    <div class="alert alert-warning">
+                        <h5>{{ article.title }}</h5>
+                        <p class="mb-0">{{ article.excerpt|truncatewords:20 }}</p>
+                    </div>
+                    
+                    <p class="text-danger">
+                        <strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه. جميع البيانات المتعلقة بهذا المقال ستُحذف نهائيًا.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'article_list_manager' %}" class="btn btn-secondary">إلغاء</a>
+                            <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

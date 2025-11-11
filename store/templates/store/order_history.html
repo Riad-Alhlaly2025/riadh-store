@@ -1,0 +1,149 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}سجل الطلبات - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="order-history-container">
+    <h1>سجل الطلبات</h1>
+    
+    {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <h3>طلب #{{ order.pk }}</h3>
+                        <span class="order-date">{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    
+                    <div class="order-details">
+                        <div class="detail-row">
+                            <span class="label">الحالة:</span>
+                            <span class="status-{{ order.status }}">{{ order.get_status_display }}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="label">عدد العناصر:</span>
+                            <span>{{ order.items.count }}</span>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <span class="label">المبلغ الإجمالي:</span>
+                            <span>{{ order.total_amount }} 
+                                {% if order.currency == 'USD' %}USD
+                                {% elif order.currency == 'EUR' %}EUR
+                                {% elif order.currency == 'SAR' %}ر.س
+                                {% elif order.currency == 'AED' %}د.إ
+                                {% elif order.currency == 'EGP' %}ج.م
+                                {% elif order.currency == 'KWD' %}د.ك
+                                {% elif order.currency == 'QAR' %}ر.ق
+                                {% elif order.currency == 'OMR' %}ر.ع.
+                                {% elif order.currency == 'BHD' %}د.ب
+                                {% elif order.currency == 'JOD' %}د.أ
+                                {% else %}{{ order.currency }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-actions">
+                        <a href="{% url 'order_detail' order.pk %}" class="btn">عرض التفاصيل</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-orders">
+            <p>ليس لديك أي طلبات حالياً.</p>
+            <a href="{% url 'home' %}" class="btn">ابدأ التسوق الآن</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+.order-history-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.orders-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.order-card {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.dark-mode .order-card {
+    background: #2a2a2a;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.dark-mode .order-header {
+    border-bottom: 1px solid #444;
+}
+
+.order-header h3 {
+    margin: 0;
+}
+
+.order-date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.dark-mode .order-date {
+    color: #aaa;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.detail-row:last-child {
+    margin-bottom: 0;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.order-actions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.empty-orders {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.empty-orders p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'store/base.html' %}
+
+{% block title %}البيانات الحساسة{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>البيانات الحساسة</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="mb-3">
+        <a href="{% url 'add_sensitive_data' %}" class="btn btn-primary">إضافة بيانات حساسة</a>
+    </div>
+    
+    {% if data_list %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>نوع البيانات</th>
+                        <th>طريقة التشفير</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>تاريخ التحديث</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in data_list %}
+                        <tr>
+                            <td>{{ data.get_data_type_display }}</td>
+                            <td>{{ data.encryption_method }}</td>
+                            <td>{{ data.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ data.updated_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <a href="{% url 'delete_sensitive_data' data.id %}" class="btn btn-danger btn-sm" 
+                                   onclick="return confirm('هل أنت متأكد من حذف هذه البيانات؟')">حذف</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>لا توجد بيانات حساسة مسجلة.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

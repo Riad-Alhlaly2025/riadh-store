@@ -1,0 +1,56 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}حل تذكرة دعم{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>حل تذكرة دعم #{{ ticket.id }}</h4>
+            </div>
+            
+            <div class="card-body">
+                <div class="mb-3">
+                    <p><strong>الموضوع:</strong> {{ ticket.subject }}</p>
+                    <p><strong>العميل:</strong> {{ ticket.customer.username }}</p>
+                    <p><strong>الحالة الحالية:</strong> 
+                        {% if ticket.status == 'open' %}
+                        <span class="badge bg-secondary">مفتوح</span>
+                        {% elif ticket.status == 'in_progress' %}
+                        <span class="badge bg-primary">قيد المعالجة</span>
+                        {% elif ticket.status == 'resolved' %}
+                        <span class="badge bg-success">تم الحل</span>
+                        {% elif ticket.status == 'closed' %}
+                        <span class="badge bg-dark">مغلق</span>
+                        {% elif ticket.status == 'reopened' %}
+                        <span class="badge bg-info">أُعيد فتحه</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="resolution_notes" class="form-label">ملاحظات الحل</label>
+                        <textarea class="form-control" id="resolution_notes" name="resolution_notes" rows="4"></textarea>
+                        <div class="form-text">يرجى تقديم تفاصيل حول كيفية حل هذه التذكرة.</div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <p>هل أنت متأكد أنك تريد وضع علامة على هذه التذكرة كـ "تم الحل"؟</p>
+                        <p>بعد حل التذكرة، سيتلقى العميل إشعارًا وستنتقل التذكرة إلى حالة "تم الحل".</p>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'agent_ticket_list' %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check-circle"></i> حل التذكرة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

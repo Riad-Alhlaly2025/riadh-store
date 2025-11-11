@@ -1,0 +1,179 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}فتح نزاع - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="open-dispute-container">
+    <h1>فتح نزاع للطلب #{{ order.id }}</h1>
+    
+    <div class="order-summary">
+        <h2>ملخص الطلب</h2>
+        <p><strong>تاريخ الطلب:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+        <p><strong>الحالة الحالية:</strong> <span class="status-{{ order.status }}">{{ order.get_status_display }}</span></p>
+        <p><strong>المبلغ الإجمالي:</strong> {{ order.total_amount }} ر.ي</p>
+    </div>
+    
+    <div class="dispute-form">
+        <h2>تفاصيل النزاع</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="reason">سبب النزاع:</label>
+                <textarea id="reason" name="reason" rows="6" placeholder="يرجى توضيح سبب النزاع بالتفصيل..." required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn submit-dispute">فتح النزاع</button>
+                <a href="{% url 'order_detail' order.id %}" class="btn cancel">إلغاء</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="dispute-info">
+        <h2>معلومات مهمة</h2>
+        <ul>
+            <li>سيتم إشعار البائع بفتح النزاع فور إرساله</li>
+            <li>سيقوم المدير بمراجعة النزاع والتوصل لحل مناسب</li>
+            <li>يمكنك تتبع حالة النزاع من خلال صفحة طلباتك</li>
+            <li>يرجى تقديم تفاصيل دقيقة لتسهيل عملية الحل</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    .open-dispute-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .open-dispute-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .order-summary, .dispute-form, .dispute-info {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .order-summary h2, .dispute-form h2, .dispute-info h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .order-summary p {
+        margin: 10px 0;
+        color: #666;
+    }
+    
+    .status-dispute {
+        color: #ff9800;
+        font-weight: bold;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group textarea {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 16px;
+        resize: vertical;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #0074D9;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .btn {
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+        font-size: 16px;
+    }
+    
+    .btn.submit-dispute {
+        background: linear-gradient(90deg, #ff9800, #f57c00);
+        color: white;
+    }
+    
+    .btn.submit-dispute:hover {
+        background: linear-gradient(90deg, #f57c00, #ef6c00);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    }
+    
+    .btn.cancel {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn.cancel:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    .dispute-info ul {
+        padding-right: 20px;
+        margin: 0;
+    }
+    
+    .dispute-info li {
+        margin-bottom: 10px;
+        color: #666;
+    }
+    
+    @media (max-width: 768px) {
+        .open-dispute-container {
+            padding: 15px;
+        }
+        
+        .order-summary, .dispute-form, .dispute-info {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

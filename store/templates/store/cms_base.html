@@ -1,0 +1,77 @@
+{% extends 'store/base.html' %}
+
+{% block title %}
+  {% if page %}{{ page.title }}{% elif article %}{{ article.title }}{% elif landing_page %}{{ landing_page.title }}{% else %}إدارة المحتوى{% endif %} - {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="{% if not is_manager_view %}col-md-8{% else %}col-12{% endif %}">
+      {% block cms_content %}{% endblock %}
+    </div>
+    
+    <!-- Sidebar for non-manager views -->
+    {% if not is_manager_view %}
+    <div class="col-md-4">
+      {% block cms_sidebar %}
+        <!-- Search Widget -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>بحث</h5>
+          </div>
+          <div class="card-body">
+            <form method="get" action="{% if article %}{% url 'article_list' %}{% else %}{% url 'page_list' %}{% endif %}">
+              <div class="input-group">
+                <input type="text" class="form-control" name="search" placeholder="ابحث..." value="{{ search_query }}">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="submit">بحث</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Categories/Types Widget -->
+        {% if article %}
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>أنواع المقالات</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group">
+              <a href="{% url 'article_list' %}" class="list-group-item list-group-item-action {% if not type_filter %}active{% endif %}">الكل</a>
+              <a href="{% url 'article_list' %}?type=blog" class="list-group-item list-group-item-action {% if type_filter == 'blog' %}active{% endif %}">مدونة</a>
+              <a href="{% url 'article_list' %}?type=news" class="list-group-item list-group-item-action {% if type_filter == 'news' %}active{% endif %}">أخبار</a>
+              <a href="{% url 'article_list' %}?type=tutorial" class="list-group-item list-group-item-action {% if type_filter == 'tutorial' %}active{% endif %}">شروحات</a>
+              <a href="{% url 'article_list' %}?type=announcement" class="list-group-item list-group-item-action {% if type_filter == 'announcement' %}active{% endif %}">إعلانات</a>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- Popular Articles Widget -->
+        {% if popular_articles %}
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5>مقالات شائعة</h5>
+          </div>
+          <div class="card-body">
+            <div class="list-group">
+              {% for article in popular_articles %}
+              <a href="{% url 'article_detail' slug=article.slug %}" class="list-group-item list-group-item-action">
+                {{ article.title }}
+                <small class="text-muted">{{ article.views }} مشاهدة</small>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      {% endblock %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

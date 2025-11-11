@@ -1,0 +1,107 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}سلة التسوق{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>سلة التسوق</h2>
+            
+            {% if cart_items %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>السعر</th>
+                            <th>الكمية</th>
+                            <th>الإجمالي</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                        <tr>
+                            <td>
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% endif %}
+                                {{ item.product.name }}
+                            </td>
+                            <td>{{ item.product.price }} ر.س</td>
+                            <td>
+                                <form method="post" action="{% url 'update_cart' item.product.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" style="width: 60px;">
+                                    <button type="submit" class="btn btn-sm btn-secondary">تحديث</button>
+                                </form>
+                            </td>
+                            <td>{{ item.subtotal }} ر.س</td>
+                            <td>
+                                <a href="{% url 'remove_from_cart' item.product.pk %}" class="btn btn-danger btn-sm">إزالة</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Coupon Section -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>رمز الكوبون</h5>
+                </div>
+                <div class="card-body">
+                    {% if coupon_id %}
+                        <p>لديك كوبون مطبق على السلة.</p>
+                        <a href="{% url 'remove_coupon' %}" class="btn btn-warning">إزالة الكوبون</a>
+                    {% else %}
+                        <form method="post" action="{% url 'apply_coupon' %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="coupon_code" placeholder="أدخل رمز الكوبون" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">تطبيق الكوبون</button>
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Cart Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>ملخص الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>الإجمالي الفرعي:</strong> {{ total }} ر.س</p>
+                            
+                            {% if coupon_id %}
+                                <p><strong>خصم الكوبون مطبق</strong></p>
+                            {% endif %}
+                            
+                            {% if request.session.loyalty_discount %}
+                                <p><strong>خصم برنامج الولاء مطبق</strong></p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 text-left">
+                            <a href="{% url 'checkout' %}" class="btn btn-success btn-lg">الدفع</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <p>سلة التسوق فارغة.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">متابعة التسوق</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

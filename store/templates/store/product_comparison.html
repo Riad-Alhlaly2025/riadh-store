@@ -1,0 +1,410 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}مقارنة المنتجات - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="comparison-container">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-balance-scale"></i> مقارنة المنتجات
+        </h2>
+        <p class="section-subtitle">قارن بين المنتجات المختارة لاتخاذ قرار الشراء الأفضل</p>
+    </div>
+
+    {% if products %}
+        <div class="comparison-table-container">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>الخاصية</th>
+                        {% for product in products %}
+                            <th>
+                                <div class="product-header">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumb">
+                                    {% else %}
+                                        <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" class="product-thumb">
+                                    {% endif %}
+                                    <h3>{{ product.name }}</h3>
+                                    <p class="price">{{ product.price }} 
+                                        {% if product.currency == 'USD' %}USD
+                                        {% elif product.currency == 'EUR' %}EUR
+                                        {% elif product.currency == 'SAR' %}ر.س
+                                        {% elif product.currency == 'AED' %}د.إ
+                                        {% elif product.currency == 'EGP' %}ج.م
+                                        {% elif product.currency == 'KWD' %}د.ك
+                                        {% elif product.currency == 'QAR' %}ر.ق
+                                        {% elif product.currency == 'OMR' %}ر.ع.
+                                        {% elif product.currency == 'BHD' %}د.ب
+                                        {% elif product.currency == 'JOD' %}د.أ
+                                        {% else %}{{ product.currency }}
+                                        {% endif %}
+                                    </p>
+                                    <a href="{% url 'remove_from_comparison' product.id %}" class="remove-btn" 
+                                       title="إزالة من المقارنة" 
+                                       onclick="return confirm('هل أنت متأكد من إزالة هذا المنتج من المقارنة؟')">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                            </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>التصنيف</td>
+                        {% for product in products %}
+                            <td>
+                                {% if product.category == 'phones' %}
+                                    <span class="category-badge phones">هاتف</span>
+                                {% elif product.category == 'computers' %}
+                                    <span class="category-badge computers">كمبيوتر</span>
+                                {% elif product.category == 'accessories' %}
+                                    <span class="category-badge accessories">إكسسوارات</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>الوصف</td>
+                        {% for product in products %}
+                            <td>{{ product.description|truncatewords:20 }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>الكمية المتوفرة</td>
+                        {% for product in products %}
+                            <td>
+                                {% if product.in_stock %}
+                                    <span class="stock in-stock">{{ product.stock_quantity }} وحدة</span>
+                                {% else %}
+                                    <span class="stock out-of-stock">غير متوفر</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>الإجراءات</td>
+                        {% for product in products %}
+                            <td>
+                                <a href="{% url 'product_detail' product.id %}" class="btn-outline">عرض التفاصيل</a>
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn-add-to-cart">إضافة للسلة</a>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-products">
+            <i class="fas fa-balance-scale" style="font-size: 3rem; margin-bottom: 20px; color: #0074D9;"></i>
+            <h3>لا توجد منتجات للمقارنة</h3>
+            <p>قم بإضافة منتجات إلى قائمة المقارنة لمقارنة الخصائص.</p>
+            <a href="{% url 'home' %}" class="btn-primary" style="margin-top: 20px;">تصفح المنتجات</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.comparison-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-title {
+    color: #0074D9;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    color: #666;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.dark-mode .section-subtitle {
+    color: #a3a3a3;
+}
+
+.comparison-table-container {
+    overflow-x: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    min-width: 800px;
+}
+
+.dark-mode .comparison-table {
+    background: #1a1c22;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #eee;
+}
+
+.dark-mode .comparison-table th,
+.dark-mode .comparison-table td {
+    border-color: #3a3d44;
+}
+
+.comparison-table thead th {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    font-weight: 700;
+    position: relative;
+}
+
+.comparison-table thead th:first-child {
+    background: #0074D9;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+}
+
+.product-header {
+    position: relative;
+    padding: 15px;
+}
+
+.product-thumb {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.product-header h3 {
+    font-size: 1.1rem;
+    margin: 10px 0;
+    color: white;
+    min-height: 50px;
+}
+
+.price {
+    color: #ffdd57;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+    background: rgba(255, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.category-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+}
+
+.category-badge.phones {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.category-badge.computers {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.category-badge.accessories {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+
+.stock {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.stock.in-stock {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+}
+
+.stock.out-of-stock {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.btn-outline {
+    display: inline-block;
+    padding: 8px 15px;
+    border: 2px solid #0074D9;
+    color: #0074D9;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    margin: 5px;
+}
+
+.dark-mode .btn-outline {
+    border: 2px solid #00c6ff;
+    color: #00c6ff;
+}
+
+.btn-outline:hover {
+    background: #0074D9;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,116,217,0.3);
+}
+
+.dark-mode .btn-outline:hover {
+    background: #00c6ff;
+    color: #0f1115;
+}
+
+.btn-add-to-cart {
+    display: inline-block;
+    padding: 8px 15px;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 5px;
+    box-shadow: 0 3px 10px rgba(0,198,255,0.3);
+}
+
+.btn-add-to-cart:hover {
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,198,255,0.4);
+}
+
+.no-products {
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.dark-mode .no-products {
+    background: #1a1c22;
+}
+
+@media (max-width: 768px) {
+    .comparison-container {
+        padding: 15px;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 15px 10px;
+        font-size: 0.9rem;
+    }
+    
+    .product-thumb {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .product-header h3 {
+        font-size: 0.9rem;
+    }
+    
+    .price {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 1.6rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 10px 5px;
+        font-size: 0.8rem;
+    }
+    
+    .product-thumb {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .product-header h3 {
+        font-size: 0.8rem;
+        min-height: 40px;
+    }
+    
+    .price {
+        font-size: 0.9rem;
+    }
+    
+    .btn-outline,
+    .btn-add-to-cart {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

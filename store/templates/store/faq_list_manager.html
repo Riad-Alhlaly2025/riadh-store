@@ -1,0 +1,121 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}إدارة الأسئلة الشائعة{% endblock %}
+
+{% block support_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>إدارة الأسئلة الشائعة</h4>
+        <a href="{% url 'faq_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> سؤال جديد
+        </a>
+    </div>
+    
+    <div class="card-body">
+        <!-- Search and Filter Form -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="ابحث في الأسئلة...">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select" name="category">
+                        <option value="">جميع الفئات</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"i" %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select" name="status">
+                        <option value="">جميع الحالات</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>مفعل</option>
+                        <option value="inactive" {% if status_filter == 'inactive' %}selected{% endif %}>غير مفعل</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <button class="btn btn-outline-primary w-100" type="submit">
+                        <i class="fas fa-filter"></i> تصفية
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- FAQs Table -->
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>السؤال</th>
+                        <th>الفئة</th>
+                        <th>الترتيب</th>
+                        <th>الحالة</th>
+                        <th>المشاهدات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for faq in page_obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'faq_edit' faq.id %}">{{ faq.question }}</a>
+                        </td>
+                        <td>{{ faq.category.name }}</td>
+                        <td>{{ faq.order }}</td>
+                        <td>
+                            {% if faq.is_active %}
+                            <span class="badge bg-success">مفعل</span>
+                            {% else %}
+                            <span class="badge bg-secondary">غير مفعل</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ faq.views }}</td>
+                        <td>
+                            <a href="{% url 'faq_edit' faq.id %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                            <a href="{% url 'faq_delete' faq.id %}" class="btn btn-sm btn-outline-danger">حذف</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">لا توجد أسئلة شائعة</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">السابق</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">التالي</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p class="text-center">لا توجد أسئلة شائعة</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

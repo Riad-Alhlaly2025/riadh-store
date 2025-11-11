@@ -1,0 +1,60 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}
+{% if action == 'create' %}إنشاء فئة أسئلة شائعة{% else %}تعديل فئة أسئلة شائعة{% endif %}
+{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>
+                    {% if action == 'create' %}إنشاء فئة أسئلة شائعة{% else %}تعديل فئة أسئلة شائعة{% endif %}
+                </h4>
+            </div>
+            
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">الاسم *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ category.name|default:'' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">الوصف</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ category.description|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="order" class="form-label">الترتيب</label>
+                            <input type="number" class="form-control" id="order" name="order" value="{{ category.order|default:0 }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="is_active" class="form-label">الحالة</label>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if category.is_active or not category %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">مفعل</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'faq_category_list' %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if action == 'create' %}
+                            <i class="fas fa-plus"></i> إنشاء الفئة
+                            {% else %}
+                            <i class="fas fa-save"></i> حفظ التغييرات
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

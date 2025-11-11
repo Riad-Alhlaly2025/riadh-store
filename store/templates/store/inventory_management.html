@@ -1,0 +1,323 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة المخزون - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="inventory-management-container">
+    <h1>إدارة المخزون</h1>
+    
+    {% if low_stock_products %}
+    <div class="alert alert-warning">
+        <h3>تنبيه: منتجات منخفضة المخزون</h3>
+        <ul>
+            {% for product in low_stock_products %}
+            <li>{{ product.name }} - الكمية المتبقية: {{ product.stock_quantity }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    {% if products %}
+    <div class="products-table-container">
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>اسم المنتج</th>
+                    <th>الكمية الحالية</th>
+                    <th>حد التنبيه</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.stock_quantity }}</td>
+                    <td>{{ product.low_stock_threshold }}</td>
+                    <td>
+                        {% if product.is_low_stock %}
+                            <span class="status-low">منخفض</span>
+                        {% elif product.in_stock %}
+                            <span class="status-in-stock">متوفر</span>
+                        {% else %}
+                            <span class="status-out">غير متوفر</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn update-btn" onclick="openUpdateModal({{ product.id }}, '{{ product.name }}', {{ product.stock_quantity }})">تحديث الكمية</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-products">
+        <p>لا توجد منتجات حالياً</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Update Quantity Modal -->
+<div id="updateModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>تحديث كمية المخزون</h2>
+        <form id="updateForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="product_id" name="product_id">
+            <div class="form-group">
+                <label for="product_name">اسم المنتج:</label>
+                <input type="text" id="product_name" readonly>
+            </div>
+            <div class="form-group">
+                <label for="quantity">الكمية الجديدة:</label>
+                <input type="number" id="quantity" name="quantity" min="0" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn save-btn">حفظ</button>
+                <button type="button" class="btn cancel-btn" onclick="closeModal()">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .inventory-management-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .inventory-management-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .alert {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .alert h3 {
+        color: #856404;
+        margin-top: 0;
+    }
+    
+    .alert ul {
+        margin-bottom: 0;
+    }
+    
+    .alert li {
+        color: #856404;
+    }
+    
+    .products-table-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        overflow-x: auto;
+    }
+    
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .products-table th,
+    .products-table td {
+        padding: 15px;
+        text-align: right;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .products-table th {
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: bold;
+    }
+    
+    .products-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .status-low {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    
+    .status-in-stock {
+        color: #28a745;
+        font-weight: bold;
+    }
+    
+    .status-out {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+    }
+    
+    .btn.update-btn {
+        background: #0074D9;
+        color: white;
+    }
+    
+    .btn.update-btn:hover {
+        background: #0056b3;
+    }
+    
+    .no-products {
+        background: white;
+        border-radius: 15px;
+        padding: 50px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .no-products p {
+        font-size: 1.2rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+    }
+    
+    .close {
+        color: #aaa;
+        float: left;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        left: 20px;
+        top: 15px;
+    }
+    
+    .close:hover {
+        color: #000;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    
+    .form-group input[readonly] {
+        background-color: #f8f9fa;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+    
+    .btn.save-btn {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn.save-btn:hover {
+        background: #218838;
+    }
+    
+    .btn.cancel-btn {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn.cancel-btn:hover {
+        background: #5a6268;
+    }
+    
+    @media (max-width: 768px) {
+        .products-table-container {
+            padding: 15px;
+        }
+        
+        .products-table th,
+        .products-table td {
+            padding: 10px 5px;
+            font-size: 0.9rem;
+        }
+        
+        .modal-content {
+            margin: 20% auto;
+            width: 95%;
+            padding: 20px;
+        }
+    }
+</style>
+
+<script>
+    function openUpdateModal(productId, productName, currentQuantity) {
+        document.getElementById('product_id').value = productId;
+        document.getElementById('product_name').value = productName;
+        document.getElementById('quantity').value = currentQuantity;
+        document.getElementById('updateModal').style.display = 'block';
+    }
+    
+    function closeModal() {
+        document.getElementById('updateModal').style.display = 'none';
+    }
+    
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('updateModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,213 @@
+/* 🟦 الخطوط والألوان العامة */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+body {
+    font-family: "Cairo", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f7fa;
+    color: #333;
+}
+
+/* 🟦 شريط التنقل العلوي */
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(90deg, #001f3f, #0074D9);
+    padding: 15px 0;
+    border-bottom: 3px solid #00c3ff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar a {
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.navbar a:hover {
+    color: #00d4ff;
+    transform: scale(1.1);
+}
+
+.admin-link {
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(0,255,255,0.4);
+}
+
+/* 🟦 رأس الصفحة */
+.site-header {
+    text-align: center;
+    background: linear-gradient(to right, #00c6ff, #0072ff);
+    color: white;
+    padding: 60px 20px;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.site-header span {
+    color: #ffdd57;
+    font-weight: bold;
+}
+
+.site-header p {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+/* 🟩 الصفحة الرئيسية */
+.main-container {
+    display: flex;
+    margin: 30px;
+    gap: 25px;
+}
+
+/* 🟨 الشريط الجانبي للفلاتر */
+.sidebar {
+    width: 250px;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.sidebar h3 {
+    color: #0074D9;
+    text-align: center;
+    border-bottom: 2px solid #00c3ff;
+    padding-bottom: 10px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin: 12px 0;
+}
+
+.sidebar a {
+    color: #333;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    color: #0074D9;
+    font-weight: bold;
+}
+
+/* 🛍️ قسم المنتجات */
+.products-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 25px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-card:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.product-info h4 {
+    margin: 10px 0;
+    font-size: 18px;
+    color: #0074D9;
+}
+
+.product-info p {
+    color: #666;
+    font-size: 15px;
+}
+
+.product-info .price {
+    color: #00aaff;
+    font-weight: bold;
+    font-size: 17px;
+}
+
+/* 🟧 زر الشراء */
+.buy-btn {
+    display: inline-block;
+    margin-top: 10px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.buy-btn:hover {
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+}
+
+/* 🟦 التذييل */
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #001f3f;
+    color: white;
+    margin-top: 60px;
+    border-top: 3px solid #00c3ff;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+/* 📱 تحسين المظهر للجوال */
+@media (max-width: 768px) {
+.main-container {
+    flex-direction: column;
+    margin: 15px;
+}
+
+.sidebar {
+    width: 100%;
+}
+
+.products-container {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+}

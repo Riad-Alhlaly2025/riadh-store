@@ -1,0 +1,349 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}قائمة الرغبات - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="wishlist-container">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-heart"></i> قائمة الرغبات
+        </h2>
+        <p class="section-subtitle">جميع المنتجات التي أضفتها إلى قائمة الرغبات</p>
+    </div>
+
+    {% if wishlist_items %}
+        <div class="product-grid">
+            {% for item in wishlist_items %}
+                <div class="product-card">
+                    <div class="product-img">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.png' %}" alt="{{ item.product.name }}" loading="lazy">
+                        {% endif %}
+                        {% if item.product.category == 'phones' %}
+                            <div class="product-badge phones">هاتف</div>
+                        {% elif item.product.category == 'computers' %}
+                            <div class="product-badge computers">كمبيوتر</div>
+                        {% elif item.product.category == 'accessories' %}
+                            <div class="product-badge accessories">إكسسوارات</div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3>{{ item.product.name }}</h3>
+                        <p class="product-description">{{ item.product.description|truncatewords:10 }}</p>
+                        <p class="price">{{ item.product.price }} 
+                            {% if item.product.currency == 'USD' %}USD
+                            {% elif item.product.currency == 'EUR' %}EUR
+                            {% elif item.product.currency == 'SAR' %}ر.س
+                            {% elif item.product.currency == 'AED' %}د.إ
+                            {% elif item.product.currency == 'EGP' %}ج.م
+                            {% elif item.product.currency == 'KWD' %}د.ك
+                            {% elif item.product.currency == 'QAR' %}ر.ق
+                            {% elif item.product.currency == 'OMR' %}ر.ع.
+                            {% elif item.product.currency == 'BHD' %}د.ب
+                            {% elif item.product.currency == 'JOD' %}د.أ
+                            {% else %}{{ item.product.currency }}
+                            {% endif %}
+                        </p>
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' item.product.id %}" class="btn-outline">عرض التفاصيل</a>
+                            <a href="{% url 'remove_from_wishlist' item.product.id %}" class="btn-add-to-cart" 
+                               onclick="return confirm('هل أنت متأكد من إزالة هذا المنتج من قائمة الرغبات؟')">
+                                <i class="fas fa-trash"></i> إزالة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-products">
+            <i class="fas fa-heart-broken" style="font-size: 3rem; margin-bottom: 20px; color: #0074D9;"></i>
+            <h3>قائمة الرغبات فارغة</h3>
+            <p>لم تقم بإضافة أي منتجات إلى قائمة الرغبات بعد.</p>
+            <a href="{% url 'home' %}" class="btn-primary" style="margin-top: 20px;">تصفح المنتجات</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.wishlist-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-title {
+    color: #0074D9;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    color: #666;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.dark-mode .section-subtitle {
+    color: #a3a3a3;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 30px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.dark-mode .product-card {
+    background: #1a1c22;
+    border: 1px solid #2a2d34;
+}
+
+.product-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.product-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+}
+
+.product-card:hover::before {
+    transform: scaleX(1);
+}
+
+.product-img {
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-img img {
+    transform: scale(1.1);
+}
+
+.product-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+    z-index: 2;
+}
+
+.product-badge.new {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+}
+
+.product-badge.phones {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.product-badge.computers {
+    background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.product-badge.accessories {
+    background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+
+.product-info {
+    padding: 25px;
+    text-align: center;
+}
+
+.product-info h3 {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.dark-mode .product-info h3 {
+    color: #f5f5f7;
+}
+
+.product-description {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 10px 0;
+    min-height: 60px;
+}
+
+.dark-mode .product-description {
+    color: #a3a3a3;
+}
+
+.price {
+    color: #0074D9;
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin: 15px 0;
+}
+
+.dark-mode .price {
+    color: #00c6ff;
+}
+
+.product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-outline {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid #0074D9;
+    color: #0074D9;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.dark-mode .btn-outline {
+    border: 2px solid #00c6ff;
+    color: #00c6ff;
+}
+
+.btn-outline:hover {
+    background: #0074D9;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,116,217,0.3);
+}
+
+.dark-mode .btn-outline:hover {
+    background: #00c6ff;
+    color: #0f1115;
+}
+
+.btn-add-to-cart {
+    display: inline-block;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: white;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 5px 15px rgba(255, 65, 108, 0.3);
+}
+
+.btn-add-to-cart:hover {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 65, 108, 0.4);
+}
+
+.no-products {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.dark-mode .no-products {
+    background: #1a1c22;
+}
+
+@media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .product-img {
+        height: 180px;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-info {
+        padding: 20px;
+    }
+    
+    .product-info h3 {
+        font-size: 1.1rem;
+    }
+    
+    .price {
+        font-size: 1.3rem;
+    }
+    
+    .section-title {
+        font-size: 1.6rem;
+    }
+}
+</style>
+{% endblock %}

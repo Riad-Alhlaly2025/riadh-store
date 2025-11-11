@@ -1,0 +1,79 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}برنامج الولاء{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>برنامج الولاء</h2>
+            
+            <!-- Loyalty Points Summary -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>ملخص نقاط الولاء</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="alert alert-info text-center">
+                                <h3>{{ loyalty_program.points }}</h3>
+                                <p>نقاطك الحالية</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-success text-center">
+                                <h3>{{ loyalty_program.level|title }}</h3>
+                                <p>مستواك</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-warning text-center">
+                                <h3>{{ loyalty_program.total_spent }} ر.س</h3>
+                                <p>إجمالي إنفاقك</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Available Rewards -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>المكافآت المتاحة</h5>
+                </div>
+                <div class="card-body">
+                    {% if rewards %}
+                    <div class="row">
+                        {% for reward in rewards %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ reward.name }}</h5>
+                                    <p class="card-text">
+                                        <strong>النقاط المطلوبة:</strong> {{ reward.points_required }}<br>
+                                        <strong>نوع المكافأة:</strong> {{ reward.get_reward_type_display }}<br>
+                                        {% if reward.discount_percentage %}
+                                            <strong>نسبة الخصم:</strong> {{ reward.discount_percentage }}%
+                                        {% endif %}
+                                    </p>
+                                    <a href="{% url 'redeem_reward' reward.id %}" 
+                                       class="btn btn-primary"
+                                       onclick="return confirm('هل أنت متأكد من استبدال هذه المكافأة؟')">
+                                        استبدال المكافأة
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>لا توجد مكافآت متاحة حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

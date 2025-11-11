@@ -1,0 +1,113 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}جلسات الدردشة{% endblock %}
+
+{% block support_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>جلسات الدردشة</h4>
+        <a href="{% url 'start_chat' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> دردشة جديدة
+        </a>
+    </div>
+    
+    <div class="card-body">
+        <!-- Filters -->
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="status" class="form-label">الحالة</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">الكل</option>
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>نشط</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>قيد الانتظار</option>
+                        <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>مغلق</option>
+                        <option value="transferred" {% if status_filter == 'transferred' %}selected{% endif %}>محول</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">تصفية</button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Chat Sessions Table -->
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>الموضوع</th>
+                        <th>الحالة</th>
+                        <th>آخر تحديث</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chat in page_obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'chat_detail' chat.id %}">{{ chat.topic }}</a>
+                            {% if chat.support_agent %}
+                            <br><small class="text-muted">الوكيل: {{ chat.support_agent.username }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if chat.status == 'active' %}
+                            <span class="badge bg-success">نشط</span>
+                            {% elif chat.status == 'pending' %}
+                            <span class="badge bg-warning">قيد الانتظار</span>
+                            {% elif chat.status == 'closed' %}
+                            <span class="badge bg-secondary">مغلق</span>
+                            {% elif chat.status == 'transferred' %}
+                            <span class="badge bg-info">محول</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ chat.updated_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'chat_detail' chat.id %}" class="btn btn-sm btn-outline-primary">عرض</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">لا توجد جلسات دردشة</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">السابق</a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">التالي</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p class="text-center">لا توجد جلسات دردشة</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

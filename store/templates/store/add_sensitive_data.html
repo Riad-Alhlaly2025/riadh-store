@@ -1,0 +1,42 @@
+{% extends 'store/base.html' %}
+
+{% block title %}إضافة بيانات حساسة{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>إضافة بيانات حساسة</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="data_type" class="form-label">نوع البيانات</label>
+            <select class="form-select" id="data_type" name="data_type" required>
+                <option value="">اختر نوع البيانات</option>
+                <option value="credit_card">بطاقة ائتمان</option>
+                <option value="bank_account">حساب بنكي</option>
+                <option value="personal_id">هوية شخصية</option>
+                <option value="passport">جواز سفر</option>
+                <option value="address">عنوان</option>
+                <option value="phone">رقم هاتف</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="data" class="form-label">البيانات</label>
+            <textarea class="form-control" id="data" name="data" rows="5" required></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">حفظ البيانات</button>
+        <a href="{% url 'sensitive_data_list' %}" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>
+{% endblock %}

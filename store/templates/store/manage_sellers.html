@@ -1,0 +1,206 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة البائعين - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="manage-sellers-container">
+    <h1>إدارة البائعين</h1>
+    
+    {% if sellers %}
+    <div class="sellers-list">
+        {% for seller in sellers %}
+        <div class="seller-card">
+            <div class="seller-info">
+                <h3>{{ seller.user.username }}</h3>
+                <p><strong>اسم النشاط التجاري:</strong> {{ seller.business_name|default:"غير محدد" }}</p>
+                <p><strong>رقم الهاتف:</strong> {{ seller.phone_number|default:"غير محدد" }}</p>
+                <p><strong>العنوان:</strong> {{ seller.address|default:"غير محدد" }}</p>
+                <p><strong>حالة التحقق:</strong> 
+                    {% if seller.verification_status == 'pending' %}
+                        <span class="status-pending">قيد الانتظار</span>
+                    {% elif seller.verification_status == 'approved' %}
+                        <span class="status-approved">موافق عليه</span>
+                    {% elif seller.verification_status == 'rejected' %}
+                        <span class="status-rejected">مرفوض</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            {% if seller.verification_status == 'pending' %}
+            <div class="seller-actions">
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="seller_id" value="{{ seller.id }}">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn approve">موافقة</button>
+                </form>
+                <form method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="seller_id" value="{{ seller.id }}">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn reject">رفض</button>
+                </form>
+            </div>
+            {% endif %}
+            
+            {% if seller.business_license %}
+            <div class="document-preview">
+                <p><strong>الرخصة التجارية:</strong></p>
+                <a href="{{ seller.business_license.url }}" target="_blank">عرض الرخصة</a>
+            </div>
+            {% endif %}
+            
+            {% if seller.id_document %}
+            <div class="document-preview">
+                <p><strong>صورة الهوية:</strong></p>
+                <a href="{{ seller.id_document.url }}" target="_blank">عرض الهوية</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-sellers">
+        <p>لا توجد بائعين حالياً</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .manage-sellers-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .manage-sellers-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .sellers-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+    
+    .seller-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .seller-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .seller-info h3 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .seller-info p {
+        margin: 10px 0;
+        color: #666;
+    }
+    
+    .status-pending {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    
+    .status-approved {
+        color: #28a745;
+        font-weight: bold;
+    }
+    
+    .status-rejected {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    
+    .seller-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        text-align: center;
+    }
+    
+    .btn.approve {
+        background: linear-gradient(90deg, #28a745, #218838);
+        color: white;
+    }
+    
+    .btn.approve:hover {
+        background: linear-gradient(90deg, #218838, #1e7e34);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn.reject {
+        background: linear-gradient(90deg, #dc3545, #c82333);
+        color: white;
+    }
+    
+    .btn.reject:hover {
+        background: linear-gradient(90deg, #c82333, #bd2130);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .document-preview {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    
+    .document-preview a {
+        color: #0074D9;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .document-preview a:hover {
+        text-decoration: underline;
+    }
+    
+    .no-sellers {
+        background: white;
+        border-radius: 15px;
+        padding: 50px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .no-sellers p {
+        font-size: 1.2rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .sellers-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .seller-card {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}

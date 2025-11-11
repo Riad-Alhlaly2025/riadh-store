@@ -1,0 +1,37 @@
+{% extends 'store/cms_base.html' %}
+
+{% block title %}تأكيد حذف صفحة الهبوط{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">تأكيد حذف صفحة الهبوط</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">هل أنت متأكد أنك تريد حذف صفحة الهبوط التالية؟</p>
+                    
+                    <div class="alert alert-warning">
+                        <h5>{{ landing_page.name }}</h5>
+                        <p class="mb-0">{{ landing_page.title }}</p>
+                    </div>
+                    
+                    <p class="text-danger">
+                        <strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه. جميع البيانات المتعلقة بصفحة الهبوط هذه ستُحذف نهائيًا.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'landing_page_list' %}" class="btn btn-secondary">إلغاء</a>
+                            <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

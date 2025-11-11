@@ -1,0 +1,36 @@
+{% extends 'store/support_base.html' %}
+
+{% block support_title %}تأكيد حذف فئة الأسئلة الشائعة{% endblock %}
+
+{% block support_content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4>تأكيد حذف فئة الأسئلة الشائعة</h4>
+            </div>
+            
+            <div class="card-body">
+                <p class="lead">هل أنت متأكد أنك تريد حذف فئة الأسئلة الشائعة التالية؟</p>
+                
+                <div class="alert alert-warning">
+                    <h5>{{ category.name }}</h5>
+                    <p class="mb-0">{{ category.description|truncatewords:20 }}</p>
+                </div>
+                
+                <p class="text-danger">
+                    <strong>تحذير:</strong> هذا الإجراء لا يمكن التراجع عنه. جميع الأسئلة الشائعة المرتبطة بهذه الفئة سيتم حذفها أيضًا.
+                </p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'faq_category_list' %}" class="btn btn-secondary">إلغاء</a>
+                        <button type="submit" class="btn btn-danger">تأكيد الحذف</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

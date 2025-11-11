@@ -33,7 +33,7 @@ heroku addons:create heroku-postgresql:hobby-dev
 
 REM Set environment variables
 echo Setting environment variables...
-heroku config:set SECRET_KEY=myshop-production-secret-key-change-this
+heroku config:set SECRET_KEY=%RANDOM%%RANDOM%%RANDOM%%RANDOM%%RANDOM%%RANDOM%%RANDOM%%RANDOM%%RANDOM%%RANDOM%
 heroku config:set DEBUG=False
 
 REM Deploy the app

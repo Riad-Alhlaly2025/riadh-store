@@ -8,7 +8,7 @@ coverage==7.11.3
 cryptography==46.0.3
 decorator==4.4.2
 dj-database-url==3.0.1
-Django==5.2.7
+Django==5.2.8
 django-admin-interface==0.30.1
 django-colorfield==0.14.0
 django-cors-headers==4.9.0

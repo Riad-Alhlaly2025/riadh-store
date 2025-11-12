@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: myshop
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn shopsite.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: False
+      - key: DB_ENGINE
+        value: django.db.backends.postgresql
+      - key: DB_NAME
+        fromDatabase:
+          name: myshop-db
+          property: databaseName
+      - key: DB_USER
+        fromDatabase:
+          name: myshop-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: myshop-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: myshop-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: myshop-db
+          property: port
+
+databases:
+  - name: myshop-db
+    ipAllowList: []

@@ -201,9 +201,8 @@ urlpatterns = [
     path('manager/reviews/', views_support.review_list_manager, name='review_list_manager'),
     path('manager/review/<int:review_id>/toggle-featured/', views_support.toggle_featured_review, name='toggle_featured_review'),
     
-    # Debug URLs
+    # Debug URL
     path('debug/manager-access/', views.debug_manager_access, name='debug_manager_access'),
-    path('debug/manager-dashboard/', views.debug_manager_dashboard, name='debug_manager_dashboard'),
 
     # API URLs
     path('api/', include('store.api.urls')),

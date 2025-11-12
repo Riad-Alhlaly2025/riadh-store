@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ===========================
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-key')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['*']  # لاحقًا يمكنك وضع نطاق موقعك مثل ['yourappname.onrender.com']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # ===========================
 # التطبيقات المثبتة
@@ -55,23 +55,13 @@ WSGI_APPLICATION = 'shopsite.wsgi.application'
 # ===========================
 # إعداد قاعدة البيانات
 # ===========================
-if 'DATABASE_URL' in os.environ:
-    # استخدام قاعدة بيانات Heroku (PostgreSQL)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ['DATABASE_URL'],
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-else:
-    # استخدام قاعدة بيانات SQLite محليًا
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': str(BASE_DIR / 'db.sqlite3'),
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
+}
 
 # ===========================
 # الملفات الثابتة (Static)

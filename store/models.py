@@ -40,8 +40,8 @@ class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='البائع', null=True, blank=True)
     
     # Add inventory management fields
-    stock_quantity = models.PositiveIntegerField(default=0, verbose_name='كمية المخزون')  # type: ignore[assignment]
-    low_stock_threshold = models.PositiveIntegerField(default=5, verbose_name='حد التنبيه عند انخفاض المخزون')  # type: ignore[assignment]
+    stock_quantity = models.PositiveIntegerField(default=0, verbose_name='كمية المخزون')
+    low_stock_threshold = models.PositiveIntegerField(default=5, verbose_name='حد التنبيه عند انخفاض المخزون')
     
     # SEO fields
     seo_title = models.CharField(max_length=60, blank=True, verbose_name="عنوان SEO")
@@ -177,7 +177,7 @@ class Notification(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='الطلب', null=True, blank=True)
     notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES, verbose_name='نوع الإشعار')
     message = models.TextField(verbose_name='الرسالة')
-    is_read: BooleanField = models.BooleanField(default=False, verbose_name='مقروء')  # type: ignore
+    is_read = models.BooleanField(default=False, verbose_name='مقروء')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     
     class Meta:
@@ -188,7 +188,8 @@ class Notification(models.Model):
     def __str__(self) -> str:
         # Handle case where user might be None
         username = getattr(self.user, 'username', 'Unknown')
-        return f"إشعار {self.get_notification_type_display()} لـ {username}"  # type: ignore
+        notification_type_display = getattr(self, 'get_notification_type_display', lambda: 'Unknown')()
+        return f"إشعار {notification_type_display} لـ {username}"
 
 
 class Commission(models.Model):
@@ -197,7 +198,7 @@ class Commission(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='مبلغ العمولة')
     rate = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='نسبة العمولة (%)')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
-    is_paid: BooleanField = models.BooleanField(default=False, verbose_name='تم الدفع')  # type: ignore
+    is_paid = models.BooleanField(default=False, verbose_name='تم الدفع')
     
     class Meta:
         verbose_name = 'عمولة'
@@ -227,7 +228,7 @@ class CommissionSettings(models.Model):
     user_role = models.CharField(max_length=10, choices=USER_ROLE_CHOICES, verbose_name='دور المستخدم')
     product_category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name='فئة المنتج', blank=True, null=True)
     commission_rate = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='نسبة العمولة (%)', default=0.00)
-    is_active = models.BooleanField(default=True, verbose_name='مفعل')  # type: ignore
+    is_active = models.BooleanField(default=True, verbose_name='مفعل')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
     
@@ -1188,7 +1189,8 @@ class SupportTicketReply(models.Model):
     
     def __str__(self) -> str:
         author_name = getattr(self.author, 'username', 'Unknown User')
-        return f"رد من {author_name} على تذكرة #{self.ticket.pk}"
+        ticket_id = getattr(self.ticket, 'pk', 'Unknown')
+        return f"رد من {author_name} على تذكرة #{ticket_id}"
 
 class FAQCategory(models.Model):
     """Model for FAQ categories"""

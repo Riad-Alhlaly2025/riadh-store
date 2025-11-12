@@ -89,20 +89,22 @@ class UserProfile(models.Model):
     def __str__(self) -> str:
         # Handle the case where user might be None
         if self.user:
-            return f"{self.user.username} - {self.get_role_display()}"  # type: ignore
+            username = getattr(self.user, 'username', 'Unknown User')
+            role_display = getattr(self, 'get_role_display', lambda: 'Unknown')()
+            return f"{username} - {role_display}"
         return f"UserProfile {self.pk}"
 
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance: User, created: bool, **kwargs) -> None:
     if created:
-        UserProfile.objects.create(user=instance)  # type: ignore
+        UserProfile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance: User, **kwargs) -> None:
     if hasattr(instance, 'userprofile'):
-        instance.userprofile.save()  # type: ignore
+        instance.userprofile.save()
 
 
 class Order(models.Model):

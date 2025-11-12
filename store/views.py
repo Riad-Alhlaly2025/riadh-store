@@ -52,15 +52,39 @@ def order_detail(request, order_id):
 
 def order_history(request):
     """Order history view"""
-    return render(request, 'store/order_history.html')
+    # TODO: Implement actual order history functionality
+    Order = apps.get_model('store', 'Order')
+    if hasattr(request, 'user') and request.user.is_authenticated:
+        orders = Order.objects.filter(user=request.user)
+        return render(request, 'store/order_history.html', {'orders': orders})
+    else:
+        messages.error(request, "يجب تسجيل الدخول لعرض تاريخ الطلبات")
+        return redirect('home')
 
 def notifications(request):
     """Notifications view"""
-    return render(request, 'store/notifications.html')
+    # TODO: Implement actual notifications functionality
+    Notification = apps.get_model('store', 'Notification')
+    if hasattr(request, 'user') and request.user.is_authenticated:
+        notifications = Notification.objects.filter(user=request.user)
+        return render(request, 'store/notifications.html', {'notifications': notifications})
+    else:
+        messages.error(request, "يجب تسجيل الدخول لعرض الإشعارات")
+        return redirect('home')
 
 def mark_notification_as_read(request, notification_id):
     """Mark notification as read"""
-    return JsonResponse({'status': 'success'})
+    # TODO: Implement actual notification marking functionality
+    if request.method == 'POST':
+        Notification = apps.get_model('store', 'Notification')
+        try:
+            notification = Notification.objects.get(pk=notification_id, user=request.user)
+            notification.is_read = True
+            notification.save()
+            return JsonResponse({'status': 'success', 'message': 'تم تحديث الإشعار'})
+        except Notification.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'الإشعار غير موجود'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'طلب غير صالح'}, status=400)
 
 def optimize_images_view(request):
     """Optimize images view"""

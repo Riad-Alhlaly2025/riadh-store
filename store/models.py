@@ -40,8 +40,8 @@ class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='البائع', null=True, blank=True)
     
     # Add inventory management fields
-    stock_quantity = models.PositiveIntegerField(default=0, verbose_name='كمية المخزون')
-    low_stock_threshold = models.PositiveIntegerField(default=5, verbose_name='حد التنبيه عند انخفاض المخزون')
+    stock_quantity = models.PositiveIntegerField(default=0, verbose_name='كمية المخزون')  # type: ignore
+    low_stock_threshold = models.PositiveIntegerField(default=5, verbose_name='حد التنبيه عند انخفاض المخزون')  # type: ignore
     
     # SEO fields
     seo_title = models.CharField(max_length=60, blank=True, verbose_name="عنوان SEO")
@@ -98,14 +98,12 @@ class UserProfile(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance: User, created: bool, **kwargs) -> None:
     if created:
-        UserProfile.objects.create(user=instance)
-
+        UserProfile.objects.create(user=instance)  # type: ignore
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance: User, **kwargs) -> None:
     if hasattr(instance, 'userprofile'):
-        instance.userprofile.save()
-
+        instance.userprofile.save()  # type: ignore
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -179,7 +177,7 @@ class Notification(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='الطلب', null=True, blank=True)
     notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES, verbose_name='نوع الإشعار')
     message = models.TextField(verbose_name='الرسالة')
-    is_read = models.BooleanField(default=False, verbose_name='مقروء')
+    is_read = models.BooleanField(default=False, verbose_name='مقروء')  # type: ignore
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     
     class Meta:
@@ -200,7 +198,7 @@ class Commission(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='مبلغ العمولة')
     rate = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='نسبة العمولة (%)')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
-    is_paid = models.BooleanField(default=False, verbose_name='تم الدفع')
+    is_paid = models.BooleanField(default=False, verbose_name='تم الدفع')  # type: ignore
     
     class Meta:
         verbose_name = 'عمولة'
@@ -230,7 +228,7 @@ class CommissionSettings(models.Model):
     user_role = models.CharField(max_length=10, choices=USER_ROLE_CHOICES, verbose_name='دور المستخدم')
     product_category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, verbose_name='فئة المنتج', blank=True, null=True)
     commission_rate = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='نسبة العمولة (%)', default=0.00)
-    is_active = models.BooleanField(default=True, verbose_name='مفعل')
+    is_active = models.BooleanField(default=True, verbose_name='مفعل')  # type: ignore
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
     
@@ -567,7 +565,7 @@ class AdvertisementCampaign(models.Model):
     conversions = models.PositiveIntegerField(default=0, verbose_name='التحويلات')  # type: ignore
     start_date = models.DateTimeField(verbose_name='تاريخ البدء')
     end_date = models.DateTimeField(verbose_name='تاريخ الانتهاء')
-    active = models.BooleanField(default=True, verbose_name='مفعل')
+    active = models.BooleanField(default=True, verbose_name='مفعل')  # type: ignore
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     
     class Meta:
@@ -986,7 +984,7 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
     published_at = models.DateTimeField(null=True, blank=True, verbose_name='تاريخ النشر')
-    views = models.PositiveIntegerField(default=0, verbose_name='المشاهدات')
+    views = models.PositiveIntegerField(default=0, verbose_name='المشاهدات')  # type: ignore
     
     # SEO fields
     seo_title = models.CharField(max_length=60, blank=True, verbose_name="عنوان SEO")
@@ -1111,13 +1109,14 @@ class LiveChatSession(models.Model):
         agent_name = getattr(self.support_agent, 'username', 'No Agent') if self.support_agent else 'No Agent'
         return f"دردشة: {customer_name} مع {agent_name} - {self.topic}"
 
+
 class LiveChatMessage(models.Model):
     """Model for individual messages in live chat sessions"""
     chat_session = models.ForeignKey(LiveChatSession, on_delete=models.CASCADE, related_name='messages', verbose_name='جلسة الدردشة')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='المرسل')
     message = models.TextField(verbose_name='الرسالة')
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name='الطابع الزمني')
-    is_read = models.BooleanField(default=False, verbose_name='مقروء')
+    is_read = models.BooleanField(default=False, verbose_name='مقروء')  # type: ignore
     
     class Meta:
         verbose_name = 'رسالة دردشة مباشرة'
@@ -1127,6 +1126,7 @@ class LiveChatMessage(models.Model):
     def __str__(self) -> str:
         sender_name = getattr(self.sender, 'username', 'Unknown User')
         return f"رسالة من {sender_name} في {self.timestamp}"
+
 
 class SupportTicket(models.Model):
     """Model for customer support tickets"""
@@ -1175,13 +1175,14 @@ class SupportTicket(models.Model):
         customer_name = getattr(self.customer, 'username', 'Unknown Customer')
         return f"تذكرة #{self.pk} - {customer_name} - {self.subject}"
 
+
 class SupportTicketReply(models.Model):
     """Model for replies to support tickets"""
     ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='replies', verbose_name='التذكرة')
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='الكاتب')
     message = models.TextField(verbose_name='الرسالة')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
-    is_internal_note = models.BooleanField(default=False, verbose_name='ملاحظة داخلية')
+    is_internal_note = models.BooleanField(default=False, verbose_name='ملاحظة داخلية')  # type: ignore
     attachment = models.FileField(upload_to='support_ticket_replies/', null=True, blank=True, verbose_name='المرفق')
     
     class Meta:
@@ -1194,12 +1195,13 @@ class SupportTicketReply(models.Model):
         ticket_id = getattr(self.ticket, 'pk', 'Unknown')
         return f"رد من {author_name} على تذكرة #{ticket_id}"
 
+
 class FAQCategory(models.Model):
     """Model for FAQ categories"""
     name = models.CharField(max_length=100, verbose_name='الاسم')
     description = models.TextField(blank=True, null=True, verbose_name='الوصف')
-    order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')
-    is_active = models.BooleanField(default=True, verbose_name='مفعل')
+    order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')  # type: ignore
+    is_active = models.BooleanField(default=True, verbose_name='مفعل')  # type: ignore
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     
     class Meta:
@@ -1210,16 +1212,17 @@ class FAQCategory(models.Model):
     def __str__(self) -> str:
         return str(self.name)
 
+
 class FAQ(models.Model):
     """Model for frequently asked questions"""
     category = models.ForeignKey(FAQCategory, on_delete=models.CASCADE, related_name='faqs', verbose_name='الفئة')
     question = models.CharField(max_length=300, verbose_name='السؤال')
     answer = models.TextField(verbose_name='الإجابة')
-    order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')
-    is_active = models.BooleanField(default=True, verbose_name='مفعل')
+    order = models.PositiveIntegerField(default=0, verbose_name='الترتيب')  # type: ignore
+    is_active = models.BooleanField(default=True, verbose_name='مفعل')  # type: ignore
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
-    views = models.PositiveIntegerField(default=0, verbose_name='المشاهدات')
+    views = models.PositiveIntegerField(default=0, verbose_name='المشاهدات')  # type: ignore
     
     class Meta:
         verbose_name = 'سؤال شائع'
@@ -1247,10 +1250,10 @@ class EnhancedReview(models.Model):
     comment = models.TextField(verbose_name='التعليق')
     pros = models.TextField(blank=True, null=True, verbose_name='الإيجابيات')
     cons = models.TextField(blank=True, null=True, verbose_name='السلبيات')
-    is_verified_purchase = models.BooleanField(default=False, verbose_name='شراء مؤكد')
-    is_featured = models.BooleanField(default=False, verbose_name='مميز')
-    helpful_count = models.PositiveIntegerField(default=0, verbose_name='عدد المساعدين')
-    not_helpful_count = models.PositiveIntegerField(default=0, verbose_name='عدد غير المساعدين')
+    is_verified_purchase = models.BooleanField(default=False, verbose_name='شراء مؤكد')  # type: ignore
+    is_featured = models.BooleanField(default=False, verbose_name='مميز')  # type: ignore
+    helpful_count = models.PositiveIntegerField(default=0, verbose_name='عدد المساعدين')  # type: ignore
+    not_helpful_count = models.PositiveIntegerField(default=0, verbose_name='عدد غير المساعدين')  # type: ignore
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
     
@@ -1267,8 +1270,7 @@ class EnhancedReview(models.Model):
     @property
     def helpfulness_score(self) -> int:
         """Calculate helpfulness score"""
-        total_votes = self.helpful_count + self.not_helpful_count
+        total_votes = self.helpful_count + self.not_helpful_count  # type: ignore
         if total_votes == 0:
             return 0
-        return int((self.helpful_count / total_votes) * 100)
-
+        return int((self.helpful_count / total_votes) * 100)  # type: ignore

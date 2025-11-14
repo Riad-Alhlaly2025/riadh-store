@@ -9,6 +9,7 @@ from .models import (
     ShippingIntegration, ExternalInventory, AccountingIntegration, AnalyticsIntegration,
     MFADevice, SecurityLog, SensitiveData
 )
+from .admin_mixins import VisualizationAdmin
 
 # Register your models here.
 
@@ -20,21 +21,68 @@ class UserProfileInline(admin.StackedInline):
 
 class UserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline,)
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
+    list_filter = ('is_staff', 'is_active', 'date_joined')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
+    list_per_page = 25
+    
+    # Add date hierarchy
+    date_hierarchy = 'date_joined'
 
 
-class ProductAdmin(admin.ModelAdmin):
+class ProductAdmin(VisualizationAdmin):
     list_display = ('name', 'price', 'category', 'stock_quantity', 'seller')
     list_filter = ('category', 'seller')
     search_fields = ('name', 'description')
     readonly_fields = ('in_stock', 'is_low_stock')
+    list_per_page = 25
+    
+    # Add actions
+    actions = ['make_published', 'make_draft']
+    
+    @admin.action(description="نشر المنتجات المحددة")
+    def make_published(self, request, queryset):
+        updated = queryset.update(status='published')
+        self.message_user(request, f'تم نشر {updated} منتج.')
+    
+    @admin.action(description="تحويل المنتجات المحددة إلى مسودة")
+    def make_draft(self, request, queryset):
+        updated = queryset.update(status='draft')
+        self.message_user(request, f'تم تحويل {updated} منتج إلى مسودة.')
 
 
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(VisualizationAdmin):
     list_display = ('id', 'user', 'status', 'total_amount', 'created_at')
-    list_filter = ('status', 'created_at')
+    list_filter = ('status', 'created_at', 'user')
     search_fields = ('user__username', 'id')
     readonly_fields = ('created_at', 'updated_at')
+    list_per_page = 25
+    
+    # Add date hierarchy
+    date_hierarchy = 'created_at'
+    
+    # Add actions
+    actions = ['mark_as_processing', 'mark_as_shipped', 'mark_as_delivered', 'mark_as_cancelled']
+    
+    @admin.action(description="标记为处理中")
+    def mark_as_processing(self, request, queryset):
+        updated = queryset.update(status='processing')
+        self.message_user(request, f'تم تحديث {updated} طلب إلى قيد المعالجة.')
+    
+    @admin.action(description="标记为已发货")
+    def mark_as_shipped(self, request, queryset):
+        updated = queryset.update(status='shipped')
+        self.message_user(request, f'تم تحديث {updated} طلب إلى تم الشحن.')
+    
+    @admin.action(description="标记为已交付")
+    def mark_as_delivered(self, request, queryset):
+        updated = queryset.update(status='delivered')
+        self.message_user(request, f'تم تحديث {updated} طلب إلى تم التسليم.')
+    
+    @admin.action(description="标记为已取消")
+    def mark_as_cancelled(self, request, queryset):
+        updated = queryset.update(status='cancelled')
+        self.message_user(request, f'تم تحديث {updated} طلب إلى ملغى.')
 
 
 class OrderItemAdmin(admin.ModelAdmin):
@@ -42,16 +90,33 @@ class OrderItemAdmin(admin.ModelAdmin):
     list_filter = ('order__status',)
 
 
-class NotificationAdmin(admin.ModelAdmin):
+class NotificationAdmin(VisualizationAdmin):
     list_display = ('user', 'notification_type', 'is_read', 'created_at')
     list_filter = ('notification_type', 'is_read', 'created_at')
     search_fields = ('user__username', 'message')
 
 
-class CommissionAdmin(admin.ModelAdmin):
+class CommissionAdmin(VisualizationAdmin):
     list_display = ('user', 'order', 'amount', 'rate', 'is_paid', 'created_at')
-    list_filter = ('is_paid', 'created_at')
+    list_filter = ('is_paid', 'created_at', 'user')
     search_fields = ('user__username', 'order__id')
+    list_per_page = 25
+    
+    # Add date hierarchy
+    date_hierarchy = 'created_at'
+    
+    # Add actions
+    actions = ['mark_as_paid', 'mark_as_unpaid']
+    
+    @admin.action(description="标记为已支付")
+    def mark_as_paid(self, request, queryset):
+        updated = queryset.update(is_paid=True)
+        self.message_user(request, f'تم تحديث {updated} عمولة كمدفوعة.')
+    
+    @admin.action(description="标记为未支付")
+    def mark_as_unpaid(self, request, queryset):
+        updated = queryset.update(is_paid=False)
+        self.message_user(request, f'تم تحديث {updated} عمولة كغير مدفوعة.')
 
 
 class CommissionSettingsAdmin(admin.ModelAdmin):
@@ -59,7 +124,7 @@ class CommissionSettingsAdmin(admin.ModelAdmin):
     list_filter = ('user_role', 'product_category', 'is_active')
 
 
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(VisualizationAdmin):
     list_display = ('order', 'payment_method', 'amount', 'currency', 'status', 'created_at')
     list_filter = ('payment_method', 'currency', 'status', 'created_at')
     search_fields = ('order__id', 'transaction_id')
@@ -71,7 +136,7 @@ class WishlistAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'product__name')
 
 
-class ReviewAdmin(admin.ModelAdmin):
+class ReviewAdmin(VisualizationAdmin):
     list_display = ('product', 'user', 'rating', 'is_verified_purchase', 'created_at')
     list_filter = ('rating', 'is_verified_purchase', 'created_at')
     search_fields = ('user__username', 'product__name')
@@ -83,7 +148,7 @@ class ProductComparisonAdmin(admin.ModelAdmin):
     filter_horizontal = ('products',)
 
 
-class DisputeAdmin(admin.ModelAdmin):
+class DisputeAdmin(VisualizationAdmin):
     list_display = ('order', 'buyer', 'seller', 'status', 'resolution', 'created_at')
     list_filter = ('status', 'resolution', 'created_at')
     search_fields = ('order__id', 'buyer__username', 'seller__username')
@@ -101,14 +166,14 @@ class TaxRateAdmin(admin.ModelAdmin):
 
 # New admin registrations for missing features
 
-class CouponAdmin(admin.ModelAdmin):
+class CouponAdmin(VisualizationAdmin):
     list_display = ('code', 'discount_type', 'discount_value', 'minimum_amount', 'active', 'valid_from', 'valid_to', 'times_used')
     list_filter = ('discount_type', 'active', 'valid_from', 'valid_to')
     search_fields = ('code',)
     readonly_fields = ('times_used',)
 
 
-class LoyaltyProgramAdmin(admin.ModelAdmin):
+class LoyaltyProgramAdmin(VisualizationAdmin):
     list_display = ('user', 'points', 'level', 'total_spent', 'created_at')
     list_filter = ('level', 'created_at')
     search_fields = ('user__username',)
@@ -120,7 +185,7 @@ class LoyaltyRewardAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class EmailCampaignAdmin(admin.ModelAdmin):
+class EmailCampaignAdmin(VisualizationAdmin):
     list_display = ('subject', 'status', 'scheduled_at', 'sent_at', 'created_at')
     list_filter = ('status', 'created_at')
     search_fields = ('subject',)
@@ -132,7 +197,7 @@ class UserRecommendationAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'product__name')
 
 
-class AdvertisementCampaignAdmin(admin.ModelAdmin):
+class AdvertisementCampaignAdmin(VisualizationAdmin):
     list_display = ('name', 'platform', 'budget', 'spent', 'clicks', 'impressions', 'conversions', 'active')
     list_filter = ('platform', 'active', 'start_date', 'end_date')
     search_fields = ('name',)
@@ -146,13 +211,13 @@ class UserBehaviorAdmin(admin.ModelAdmin):
 
 # New admin registrations for integration features
 
-class SocialMediaIntegrationAdmin(admin.ModelAdmin):
+class SocialMediaIntegrationAdmin(VisualizationAdmin):
     list_display = ('product', 'platform', 'status', 'created_at')
     list_filter = ('platform', 'status', 'created_at')
     search_fields = ('product__name',)
 
 
-class ShippingIntegrationAdmin(admin.ModelAdmin):
+class ShippingIntegrationAdmin(VisualizationAdmin):
     list_display = ('order', 'provider', 'tracking_number', 'shipping_cost', 'status', 'created_at')
     list_filter = ('provider', 'status', 'created_at')
     search_fields = ('order__id', 'tracking_number')
@@ -164,7 +229,7 @@ class ExternalInventoryAdmin(admin.ModelAdmin):
     search_fields = ('product__name', 'external_id')
 
 
-class AccountingIntegrationAdmin(admin.ModelAdmin):
+class AccountingIntegrationAdmin(VisualizationAdmin):
     list_display = ('order', 'accounting_system', 'transaction_id', 'sync_status', 'synced_at')
     list_filter = ('accounting_system', 'sync_status', 'synced_at')
     search_fields = ('order__id', 'transaction_id')
@@ -184,7 +249,7 @@ class MFADeviceAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'name')
 
 
-class SecurityLogAdmin(admin.ModelAdmin):
+class SecurityLogAdmin(VisualizationAdmin):
     list_display = ('user', 'event_type', 'ip_address', 'is_suspicious', 'timestamp')
     list_filter = ('event_type', 'is_suspicious', 'timestamp')
     search_fields = ('user__username', 'ip_address')

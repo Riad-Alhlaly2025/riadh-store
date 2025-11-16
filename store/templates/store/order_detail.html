@@ -1,87 +1,57 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}تفاصيل الطلب #{{ order.pk }} - متجر رياض الإلكتروني{% endblock %}
+{% block title %}تفاصيل الطلب #{{ order.pk }} - متجر رياض الإلكتروني الفاخر{% endblock %}
 
 {% block content %}
-<div class="order-detail-container">
-    <h1>تفاصيل الطلب #{{ order.pk }}</h1>
-    
-    <div class="order-info">
-        <div class="info-row">
-            <span class="label">تاريخ الطلب:</span>
-            <span class="value">{{ order.created_at|date:"d/m/Y H:i" }}</span>
+<div class="luxury-dashboard">
+    <!-- Order Detail Header -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title"><i class="fas fa-receipt"></i> تفاصيل الطلب الفاخر #{{ order.pk }}</h1>
+                <p class="last-login">جميع تفاصيل طلبك المميز من متجر رياض الإلكتروني</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="stat-label">تاريخ الطلب</span>
+                    <span class="stat-value">{{ order.created_at|date:"d/m/Y" }}</span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-clock"></i>
+                    <span class="stat-label">الوقت</span>
+                    <span class="stat-value">{{ order.created_at|date:"H:i" }}</span>
+                </div>
+            </div>
         </div>
-        
-        <div class="info-row">
-            <span class="label">الحالة:</span>
-            <span class="value status-{{ order.status }}">{{ order.get_status_display }}</span>
-        </div>
-        
-        <div class="info-row">
-            <span class="label">عنوان التوصيل:</span>
-            <span class="value">{{ order.shipping_address }}</span>
-        </div>
-        
-        <div class="info-row">
-            <span class="label">رقم الهاتف:</span>
-            <span class="value">{{ order.phone_number }}</span>
-        </div>
-        
-        <div class="info-row">
-            <span class="label">المبلغ الإجمالي:</span>
-            <span class="value">{{ order.total_amount }} 
-                {% if currency == 'USD' %}USD
-                {% elif currency == 'EUR' %}EUR
-                {% elif currency == 'SAR' %}ر.س
-                {% elif currency == 'AED' %}د.إ
-                {% elif currency == 'EGP' %}ج.م
-                {% elif currency == 'KWD' %}د.ك
-                {% elif currency == 'QAR' %}ر.ق
-                {% elif currency == 'OMR' %}ر.ع.
-                {% elif currency == 'BHD' %}د.ب
-                {% elif currency == 'JOD' %}د.أ
-                {% else %}{{ currency }}
-                {% endif %}
-            </span>
-        </div>
-        
-        {% if payment %}
-        <div class="info-row">
-            <span class="label">حالة الدفع:</span>
-            <span class="value status-{{ payment.status }}">{{ payment.get_status_display }}</span>
-        </div>
-        
-        <div class="info-row">
-            <span class="label">طريقة الدفع:</span>
-            <span class="value">{{ payment.get_payment_method_display }}</span>
-        </div>
-        
-        {% if payment.transaction_id %}
-        <div class="info-row">
-            <span class="label">معرف المعاملة:</span>
-            <span class="value">{{ payment.transaction_id }}</span>
-        </div>
-        {% endif %}
-        {% endif %}
     </div>
     
-    <h2>عناصر الطلب</h2>
-    <table class="cart-table">
-        <thead>
-            <tr>
-                <th>المنتج</th>
-                <th>الكمية</th>
-                <th>السعر للوحدة</th>
-                <th>السعر الإجمالي</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in order.items.all %}
-                <tr>
-                    <td>{{ item.product.name }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.price }} 
+    <!-- Order Status -->
+    <div class="order-status luxury-card animated fadeInUp">
+        <div class="status-header">
+            <h3><i class="fas fa-info-circle"></i> حالة الطلب</h3>
+        </div>
+        <div class="status-content">
+            <div class="status-info">
+                <div class="info-row luxury-row">
+                    <span class="label">الحالة الحالية:</span>
+                    <span class="value status-{{ order.status }} luxury-status">{{ order.get_status_display }}</span>
+                </div>
+                
+                <div class="info-row luxury-row">
+                    <span class="label">عنوان التوصيل:</span>
+                    <span class="value">{{ order.shipping_address }}</span>
+                </div>
+                
+                <div class="info-row luxury-row">
+                    <span class="label">رقم الهاتف:</span>
+                    <span class="value">{{ order.phone_number }}</span>
+                </div>
+                
+                <div class="info-row luxury-row">
+                    <span class="label">المبلغ الإجمالي:</span>
+                    <span class="value luxury-price">{{ order.total_amount }} 
                         {% if currency == 'USD' %}USD
                         {% elif currency == 'EUR' %}EUR
                         {% elif currency == 'SAR' %}ر.س
@@ -94,31 +64,208 @@
                         {% elif currency == 'JOD' %}د.أ
                         {% else %}{{ currency }}
                         {% endif %}
-                    </td>
-                    <td>{{ item.total_price }} 
-                        {% if currency == 'USD' %}USD
-                        {% elif currency == 'EUR' %}EUR
-                        {% elif currency == 'SAR' %}ر.س
-                        {% elif currency == 'AED' %}د.إ
-                        {% elif currency == 'EGP' %}ج.م
-                        {% elif currency == 'KWD' %}د.ك
-                        {% elif currency == 'QAR' %}ر.ق
-                        {% elif currency == 'OMR' %}ر.ع.
-                        {% elif currency == 'BHD' %}د.ب
-                        {% elif currency == 'JOD' %}د.أ
-                        {% else %}{{ currency }}
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </span>
+                </div>
+                
+                {% if payment %}
+                <div class="info-row luxury-row">
+                    <span class="label">حالة الدفع:</span>
+                    <span class="value status-{{ payment.status }} luxury-status">{{ payment.get_status_display }}</span>
+                </div>
+                
+                <div class="info-row luxury-row">
+                    <span class="label">طريقة الدفع:</span>
+                    <span class="value">{{ payment.get_payment_method_display }}</span>
+                </div>
+                
+                {% if payment.transaction_id %}
+                <div class="info-row luxury-row">
+                    <span class="label">معرف المعاملة:</span>
+                    <span class="value">{{ payment.transaction_id }}</span>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
     
-    <div class="actions">
-        {% if not payment or payment.status != 'completed' %}
-        <a href="{% url 'payment_view' order.pk %}" class="btn">دفع الآن</a>
-        {% endif %}
-        <a href="{% url 'order_history' %}" class="btn">العودة إلى سجل الطلبات</a>
+    <!-- Order Items -->
+    <div class="order-items luxury-card animated fadeInUp">
+        <div class="items-header">
+            <h3><i class="fas fa-box-open"></i> عناصر الطلب</h3>
+        </div>
+        <div class="items-content">
+            <div class="items-table luxury-table">
+                <div class="table-header luxury-header">
+                    <div class="table-cell">المنتج</div>
+                    <div class="table-cell">الكمية</div>
+                    <div class="table-cell">السعر للوحدة</div>
+                    <div class="table-cell">السعر الإجمالي</div>
+                </div>
+                <div class="table-body luxury-body">
+                    {% for item in order.items.all %}
+                    <div class="table-row luxury-row">
+                        <div class="table-cell product-cell">
+                            <span class="mobile-label">المنتج:</span>
+                            <span>{{ item.product.name }}</span>
+                        </div>
+                        <div class="table-cell quantity-cell">
+                            <span class="mobile-label">الكمية:</span>
+                            <span>{{ item.quantity }}</span>
+                        </div>
+                        <div class="table-cell price-cell">
+                            <span class="mobile-label">السعر للوحدة:</span>
+                            <span>{{ item.price }} 
+                                {% if currency == 'USD' %}USD
+                                {% elif currency == 'EUR' %}EUR
+                                {% elif currency == 'SAR' %}ر.س
+                                {% elif currency == 'AED' %}د.إ
+                                {% elif currency == 'EGP' %}ج.م
+                                {% elif currency == 'KWD' %}د.ك
+                                {% elif currency == 'QAR' %}ر.ق
+                                {% elif currency == 'OMR' %}ر.ع.
+                                {% elif currency == 'BHD' %}د.ب
+                                {% elif currency == 'JOD' %}د.أ
+                                {% else %}{{ currency }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="table-cell total-cell">
+                            <span class="mobile-label">السعر الإجمالي:</span>
+                            <span class="luxury-price">{{ item.total_price }} 
+                                {% if currency == 'USD' %}USD
+                                {% elif currency == 'EUR' %}EUR
+                                {% elif currency == 'SAR' %}ر.س
+                                {% elif currency == 'AED' %}د.إ
+                                {% elif currency == 'EGP' %}ج.م
+                                {% elif currency == 'KWD' %}د.ك
+                                {% elif currency == 'QAR' %}ر.ق
+                                {% elif currency == 'OMR' %}ر.ع.
+                                {% elif currency == 'BHD' %}د.ب
+                                {% elif currency == 'JOD' %}د.أ
+                                {% else %}{{ currency }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Actions -->
+    <div class="order-actions luxury-card animated fadeInUp">
+        <div class="actions-header">
+            <h3><i class="fas fa-cogs"></i> إجراءات الطلب</h3>
+        </div>
+        <div class="actions-content">
+            <div class="action-buttons luxury-buttons">
+                {% if not payment or payment.status != 'completed' %}
+                <a href="{% url 'payment_view' order.pk %}" class="luxury-btn primary">
+                    <i class="fas fa-credit-card"></i> دفع الآن
+                </a>
+                {% endif %}
+                <a href="{% url 'order_history' %}" class="luxury-btn secondary">
+                    <i class="fas fa-history"></i> العودة إلى سجل الطلبات
+                </a>
+                <button class="luxury-btn secondary" id="printOrder">
+                    <i class="fas fa-print"></i> طباعة الطلب
+                </button>
+                <button class="luxury-btn secondary" id="trackOrder">
+                    <i class="fas fa-truck"></i> تتبع الطلب
+                </button>
+            </div>
+            
+            <!-- Luxury Features -->
+            <div class="luxury-features">
+                <div class="feature-item luxury-feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>ضمان شامل</h4>
+                        <p>استرجاع خلال 30 يوم بدون رسوم إضافية</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item luxury-feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>دعم 24/7</h4>
+                        <p>خدمة عملاء على مدار الساعة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Timeline -->
+    <div class="order-timeline luxury-card animated fadeInUp">
+        <div class="timeline-header">
+            <h3><i class="fas fa-road"></i> مسار الطلب</h3>
+        </div>
+        <div class="timeline-content">
+            <div class="timeline-steps">
+                <div class="step luxury-step completed">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="step-content">
+                        <h4>تم استلام الطلب</h4>
+                        <p class="step-date">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                <div class="step luxury-step completed">
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="step-content">
+                        <h4>قيد المعالجة</h4>
+                        <p class="step-date">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+                
+                <div class="step luxury-step {% if order.status == 'shipped' or order.status == 'delivered' %}completed{% endif %}">
+                    <div class="step-icon">
+                        {% if order.status == 'shipped' or order.status == 'delivered' %}
+                        <i class="fas fa-check-circle"></i>
+                        {% else %}
+                        <i class="fas fa-truck"></i>
+                        {% endif %}
+                    </div>
+                    <div class="step-content">
+                        <h4>تم الشحن</h4>
+                        {% if order.status == 'shipped' %}
+                        <p class="step-date">تم الشحن</p>
+                        {% else %}
+                        <p class="step-date">قيد الانتظار</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="step luxury-step {% if order.status == 'delivered' %}completed{% endif %}">
+                    <div class="step-icon">
+                        {% if order.status == 'delivered' %}
+                        <i class="fas fa-check-circle"></i>
+                        {% else %}
+                        <i class="fas fa-home"></i>
+                        {% endif %}
+                    </div>
+                    <div class="step-content">
+                        <h4>تم التوصيل</h4>
+                        {% if order.status == 'delivered' %}
+                        <p class="step-date">تم التوصيل</p>
+                        {% else %}
+                        <p class="step-date">قيد الانتظار</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -209,5 +356,387 @@
 .actions .btn {
     margin: 0 10px;
 }
+
+/* Luxury Theme Styles */
+.luxury-dashboard {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary-gradient), var(--secondary-gradient));
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: var(--premium-shadow);
+    color: white;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.user-greeting h1 {
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+}
+
+.last-login {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.header-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 120px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.luxury-card {
+    background: var(--glass-effect);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: var(--premium-shadow);
+}
+
+.luxury-card h3 {
+    color: var(--primary);
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.luxury-row {
+    display: flex;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.luxury-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.luxury-row .label {
+    font-weight: 600;
+    width: 200px;
+    color: var(--text-secondary);
+}
+
+.luxury-row .value {
+    flex: 1;
+    color: var(--text-main);
+}
+
+.luxury-status {
+    font-weight: 700;
+    padding: 5px 15px;
+    border-radius: 20px;
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.luxury-price {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+.luxury-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    background: rgba(0, 114, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    padding: 15px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.table-row:last-child {
+    border-bottom: none;
+}
+
+.table-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-label {
+    display: none;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.luxury-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.luxury-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.luxury-btn.primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.luxury-btn.secondary {
+    background: rgba(0, 114, 255, 0.1);
+    color: var(--primary);
+}
+
+.luxury-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.luxury-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.feature-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(0, 114, 255, 0.05);
+    border-radius: 15px;
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.feature-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-main);
+}
+
+.feature-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.timeline-steps {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 40px 0;
+}
+
+.timeline-steps::before {
+    content: "";
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--glass-border);
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 2;
+    position: relative;
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    z-index: 2;
+}
+
+.step.completed .step-icon {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.step-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-main);
+}
+
+.step-date {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.animated {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.animated.fadeInDown {
+    animation: fadeInDown 0.6s ease forwards;
+}
+
+.animated.fadeInUp {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInDown {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-stats {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .table-header, .table-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .table-cell {
+        justify-content: space-between;
+    }
+    
+    .mobile-label {
+        display: block;
+    }
+    
+    .luxury-buttons {
+        flex-direction: column;
+    }
+    
+    .timeline-steps {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .timeline-steps::before {
+        display: none;
+    }
+}
 </style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Print order functionality
+    const printOrderBtn = document.getElementById('printOrder');
+    if (printOrderBtn) {
+        printOrderBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
+    
+    // Track order functionality
+    const trackOrderBtn = document.getElementById('trackOrder');
+    if (trackOrderBtn) {
+        trackOrderBtn.addEventListener('click', function() {
+            alert('سيتم فتح صفحة تتبع الطلب');
+        });
+    }
+    
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, parseFloat(delay) * 1000 || 0);
+    });
+});
+</script>
 {% endblock %}

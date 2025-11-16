@@ -1,152 +1,425 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}الإشعارات - متجر رياض الإلكتروني{% endblock %}
+{% block title %}الإشعارات - متجر رياض الإلكتروني الفاخر{% endblock %}
 
 {% block content %}
-<div class="notifications-container">
-    <h1>الإشعارات</h1>
+<div class="luxury-dashboard">
+    <!-- Notifications Header -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title"><i class="fas fa-bell"></i> مركز الإشعارات الفاخر</h1>
+                <p class="last-login">جميع الإشعارات المهمة من متجر رياض الإلكتروني</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-envelope"></i>
+                    <span class="stat-label">إجمالي الإشعارات</span>
+                    <span class="stat-value">{{ notifications.count }}</span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-eye"></i>
+                    <span class="stat-label">غير مقروءة</span>
+                    <span class="stat-value">{{ unread_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notifications Filters -->
+    <div class="filters-section luxury-card animated fadeInUp">
+        <div class="filters-header">
+            <h3><i class="fas fa-filter"></i> تصفية الإشعارات</h3>
+        </div>
+        <div class="filters-content">
+            <div class="filter-buttons luxury-buttons">
+                <button class="luxury-btn primary filter-btn active" data-filter="all">
+                    <i class="fas fa-list"></i> جميع الإشعارات
+                </button>
+                <button class="luxury-btn secondary filter-btn" data-filter="unread">
+                    <i class="fas fa-envelope"></i> غير مقروءة
+                </button>
+                <button class="luxury-btn secondary filter-btn" data-filter="orders">
+                    <i class="fas fa-shopping-cart"></i> طلبات
+                </button>
+                <button class="luxury-btn secondary filter-btn" data-filter="promotions">
+                    <i class="fas fa-tags"></i> عروض وترقيات
+                </button>
+                <button class="luxury-btn secondary filter-btn" data-filter="system">
+                    <i class="fas fa-cog"></i> نظام
+                </button>
+            </div>
+        </div>
+    </div>
     
     {% if notifications %}
-        <div class="notifications-list">
-            {% for notification in notifications %}
-                <div class="notification-card {% if not notification.is_read %}unread{% endif %}" 
-                     data-notification-id="{{ notification.pk }}">
-                    <div class="notification-header">
-                        <h3>{{ notification.get_notification_type_display }}</h3>
-                        <span class="notification-date">{{ notification.created_at|date:"d/m/Y H:i" }}</span>
-                    </div>
-                    
-                    <div class="notification-content">
-                        <p>{{ notification.message }}</p>
-                        
-                        {% if notification.order %}
-                            <a href="{% url 'order_detail' notification.order.pk %}" class="btn small">عرض الطلب</a>
+    <div class="notifications-section">
+        <!-- Notifications List -->
+        <div class="notifications-list luxury-card animated fadeInUp">
+            <div class="list-header">
+                <h3><i class="fas fa-inbox"></i> الإشعارات الحديثة</h3>
+                <div class="list-actions luxury-actions">
+                    <button class="luxury-btn secondary" id="markAllAsRead">
+                        <i class="fas fa-check-circle"></i> وضع علامة كمقروءة
+                    </button>
+                    <button class="luxury-btn danger" id="clearAll">
+                        <i class="fas fa-trash"></i> مسح الكل
+                    </button>
+                </div>
+            </div>
+            <div class="list-content">
+                {% for notification in notifications %}
+                <div class="notification-item luxury-item {% if not notification.is_read %}unread{% endif %} animated fadeInUp" data-delay="{{ forloop.counter0|div:10 }}" data-type="{{ notification.notification_type }}">
+                    <div class="item-icon luxury-icon">
+                        {% if notification.notification_type == 'order' %}
+                        <i class="fas fa-shopping-cart"></i>
+                        {% elif notification.notification_type == 'promotion' %}
+                        <i class="fas fa-tags"></i>
+                        {% elif notification.notification_type == 'system' %}
+                        <i class="fas fa-cog"></i>
+                        {% else %}
+                        <i class="fas fa-bell"></i>
                         {% endif %}
                     </div>
+                    <div class="item-content luxury-content">
+                        <h4>{{ notification.title }}</h4>
+                        <p>{{ notification.message }}</p>
+                        <div class="item-meta">
+                            <span class="timestamp">{{ notification.created_at|date:"d M Y H:i" }}</span>
+                            {% if not notification.is_read %}
+                            <span class="status-badge unread-badge">غير مقروءة</span>
+                            {% else %}
+                            <span class="status-badge read-badge">مقروءة</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="item-actions luxury-actions">
+                        {% if not notification.is_read %}
+                        <button class="luxury-btn primary small mark-as-read" data-id="{{ notification.id }}">
+                            <i class="fas fa-check"></i> وضع علامة كمقروءة
+                        </button>
+                        {% endif %}
+                        <button class="luxury-btn secondary small view-details">
+                            <i class="fas fa-eye"></i> عرض التفاصيل
+                        </button>
+                        <button class="luxury-btn danger small delete-notification" data-id="{{ notification.id }}">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
+        
+        <!-- Notifications Summary -->
+        <div class="notifications-summary luxury-card animated fadeInUp">
+            <div class="summary-header">
+                <h3><i class="fas fa-chart-bar"></i> ملخص الإشعارات</h3>
+            </div>
+            <div class="summary-content">
+                <div class="summary-stats">
+                    <div class="stat-card luxury-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ order_notifications_count }}</span>
+                            <span class="stat-label">إشعارات الطلبات</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card luxury-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ promotion_notifications_count }}</span>
+                            <span class="stat-label">إشعارات العروض</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card luxury-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">{{ system_notifications_count }}</span>
+                            <span class="stat-label">إشعارات النظام</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions luxury-actions">
+                    <a href="{% url 'order_history' %}" class="luxury-btn primary full-width">
+                        <i class="fas fa-history"></i> عرض تاريخ الطلبات
+                    </a>
+                    <a href="{% url 'product_list' %}" class="luxury-btn secondary full-width">
+                        <i class="fas fa-store"></i> تصفح المنتجات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination luxury-pagination animated fadeInUp">
+        <ul class="pagination-list luxury-list">
+            <li class="pagination-item luxury-item">
+                <a href="#" class="pagination-link luxury-link">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            <li class="pagination-item luxury-item active">
+                <a href="#" class="pagination-link luxury-link">1</a>
+            </li>
+            <li class="pagination-item luxury-item">
+                <a href="#" class="pagination-link luxury-link">2</a>
+            </li>
+            <li class="pagination-item luxury-item">
+                <a href="#" class="pagination-link luxury-link">3</a>
+            </li>
+            <li class="pagination-item luxury-item">
+                <a href="#" class="pagination-link luxury-link">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
     {% else %}
-        <div class="empty-notifications">
-            <p>لا توجد إشعارات حالياً.</p>
+    <div class="empty-notifications luxury-card animated fadeInUp">
+        <div class="empty-notifications-content">
+            <i class="fas fa-bell-slash empty-notifications-icon"></i>
+            <h3>لا توجد إشعارات</h3>
+            <p>لا توجد إشعارات جديدة في الوقت الحالي</p>
+            <a href="{% url 'home' %}" class="luxury-btn primary">
+                <i class="fas fa-home"></i> العودة إلى الصفحة الرئيسية
+            </a>
         </div>
+    </div>
     {% endif %}
+    
+    <!-- Luxury Promotions -->
+    <div class="luxury-promotions-section">
+        <div class="promotion-card luxury-card animated fadeInUp">
+            <div class="promotion-icon luxury-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="promotion-content luxury-content">
+                <h4>تنبيهات فورية</h4>
+                <p>فعّل التنبيهات الفورية للحصول على إشعارات فورية بأهم العروض</p>
+                <div class="toggle-switch luxury-switch">
+                    <input type="checkbox" id="instantNotifications" checked>
+                    <label for="instantNotifications" class="switch-label">
+                        <span class="switch-inner"></span>
+                        <span class="switch-switch"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-{% endblock %}
-
-{% block extra_styles %}
-<style>
-.notifications-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.notifications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.notification-card {
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-    border-right: 4px solid #ccc;
-}
-
-.dark-mode .notification-card {
-    background: #2a2a2a;
-}
-
-.notification-card.unread {
-    border-right-color: #2196f3;
-    background: #e3f2fd;
-}
-
-.dark-mode .notification-card.unread {
-    background: #1a2a3a;
-}
-
-.notification-card:hover {
-    transform: translateY(-2px);
-}
-
-.notification-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.notification-header h3 {
-    margin: 0;
-    color: #333;
-}
-
-.dark-mode .notification-header h3 {
-    color: #fff;
-}
-
-.notification-date {
-    color: #666;
-    font-size: 0.9em;
-}
-
-.dark-mode .notification-date {
-    color: #aaa;
-}
-
-.notification-content p {
-    margin: 10px 0;
-    line-height: 1.6;
-}
-
-.btn.small {
-    padding: 5px 10px;
-    font-size: 0.9em;
-}
-
-.empty-notifications {
-    text-align: center;
-    padding: 50px 20px;
-}
-
-.empty-notifications p {
-    font-size: 1.2em;
-    color: #666;
-}
-
-.dark-mode .empty-notifications p {
-    color: #aaa;
-}
-</style>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Mark notifications as read when viewed
-    const notificationCards = document.querySelectorAll('.notification-card.unread');
+    // Filter buttons functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const notificationItems = document.querySelectorAll('.notification-item');
     
-    notificationCards.forEach(card => {
-        const notificationId = card.getAttribute('data-notification-id');
-        
-        // Send AJAX request to mark as read
-        fetch(`/notification/${notificationId}/read/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/json'
-            },
-        }).then(response => {
-            if (response.ok) {
-                card.classList.remove('unread');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filterType = this.dataset.filter;
+            
+            // Filter notifications
+            notificationItems.forEach(item => {
+                if (filterType === 'all') {
+                    item.style.display = 'flex';
+                } else {
+                    const itemType = item.dataset.type;
+                    if (filterType === 'unread') {
+                        if (item.classList.contains('unread')) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    } else if (filterType === 'orders' && itemType === 'order') {
+                        item.style.display = 'flex';
+                    } else if (filterType === 'promotions' && itemType === 'promotion') {
+                        item.style.display = 'flex';
+                    } else if (filterType === 'system' && itemType === 'system') {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+    
+    // Mark as read functionality
+    const markAsReadButtons = document.querySelectorAll('.mark-as-read');
+    markAsReadButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationId = this.dataset.id;
+            
+            fetch(`/notifications/mark-as-read/${notificationId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI
+                    this.closest('.notification-item').classList.remove('unread');
+                    this.closest('.item-actions').querySelector('.mark-as-read').remove();
+                    alert('تم وضع علامة كمقروءة');
+                } else {
+                    alert('حدث خطأ أثناء تحديث الإشعار');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء تحديث الإشعار');
+            });
+        });
+    });
+    
+    // Mark all as read
+    const markAllAsReadBtn = document.getElementById('markAllAsRead');
+    if (markAllAsReadBtn) {
+        markAllAsReadBtn.addEventListener('click', function() {
+            if (confirm('هل أنت متأكد من وضع علامة كمقروءة لجميع الإشعارات؟')) {
+                fetch('/notifications/mark-all-as-read/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI
+                        document.querySelectorAll('.notification-item.unread').forEach(item => {
+                            item.classList.remove('unread');
+                        });
+                        document.querySelectorAll('.mark-as-read').forEach(btn => {
+                            btn.remove();
+                        });
+                        alert('تم وضع علامة كمقروءة لجميع الإشعارات');
+                    } else {
+                        alert('حدث خطأ أثناء تحديث الإشعارات');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ أثناء تحديث الإشعارات');
+                });
             }
         });
+    }
+    
+    // Delete notification
+    const deleteButtons = document.querySelectorAll('.delete-notification');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationId = this.dataset.id;
+            
+            if (confirm('هل أنت متأكد من حذف هذا الإشعار؟')) {
+                fetch(`/notifications/delete/${notificationId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from UI
+                        this.closest('.notification-item').remove();
+                        alert('تم حذف الإشعار');
+                    } else {
+                        alert('حدث خطأ أثناء حذف الإشعار');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ أثناء حذف الإشعار');
+                });
+            }
+        });
+    });
+    
+    // Clear all notifications
+    const clearAllBtn = document.getElementById('clearAll');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function() {
+            if (confirm('هل أنت متأكد من مسح جميع الإشعارات؟')) {
+                fetch('/notifications/clear-all/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Clear UI
+                        document.querySelector('.list-content').innerHTML = '<p class="empty-message">لا توجد إشعارات</p>';
+                        alert('تم مسح جميع الإشعارات');
+                    } else {
+                        alert('حدث خطأ أثناء مسح الإشعارات');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('حدث خطأ أثناء مسح الإشعارات');
+                });
+            }
+        });
+    }
+    
+    // Toggle switch for instant notifications
+    const instantNotificationsToggle = document.getElementById('instantNotifications');
+    if (instantNotificationsToggle) {
+        instantNotificationsToggle.addEventListener('change', function() {
+            if (this.checked) {
+                alert('تم تفعيل التنبيهات الفورية');
+            } else {
+                alert('تم إيقاف التنبيهات الفورية');
+            }
+        });
+    }
+    
+    // View details functionality
+    const viewDetailsButtons = document.querySelectorAll('.view-details');
+    viewDetailsButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            alert('سيتم عرض تفاصيل الإشعار');
+        });
+    });
+    
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, parseFloat(delay) * 1000 || 0);
     });
 });
 </script>

@@ -1,0 +1,140 @@
+{% extends "admin/custom_base.html" %}
+{% load static %}
+
+{% block title %}لوحة التحكم الرئيسية{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>مرحباً بك في لوحة التحكم الرئيسية</h1>
+    
+    <!-- Key Metrics -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <h3>إجمالي المنتجات</h3>
+            <div class="stat-number">{{ total_products }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🛒</div>
+            <h3>إجمالي الطلبات</h3>
+            <div class="stat-number">{{ total_orders }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <h3>إجمالي المستخدمين</h3>
+            <div class="stat-number">{{ total_users }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <h3>إجمالي الإيرادات</h3>
+            <div class="stat-number">{{ total_revenue|floatformat:2 }} ر.س</div>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div class="chart-container">
+        <h3>نظرة عامة على المبيعات</h3>
+        <canvas id="salesChart" height="100"></canvas>
+    </div>
+    
+    <!-- Recent Orders -->
+    <div class="chart-container">
+        <h3>أحدث الطلبات</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>العميل</th>
+                        <th>المبلغ الإجمالي</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.total_amount|floatformat:2 }} ر.س</td>
+                        <td>
+                            <span class="status-badge status-{{ order.status }}">
+                                {% if order.status == 'pending' %}قيد الانتظار
+                                {% elif order.status == 'processing' %}قيد المعالجة
+                                {% elif order.status == 'shipped' %}تم الشحن
+                                {% elif order.status == 'delivered' %}تم التسليم
+                                {% elif order.status == 'cancelled' %}ملغى
+                                {% else %}{{ order.status }}
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center;">لا توجد طلبات حالياً</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="chart-container">
+        <h3>الإجراءات السريعة</h3>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <a href="{% url 'admin:store_product_changelist' %}" class="btn-custom">إدارة المنتجات</a>
+            <a href="{% url 'admin:store_order_changelist' %}" class="btn-custom btn-success">إدارة الطلبات</a>
+            <a href="{% url 'admin:store_user_changelist' %}" class="btn-custom btn-warning">إدارة المستخدمين</a>
+            <a href="{% url 'admin:custom_admin:commission_report' %}" class="btn-custom">تقارير العمولات</a>
+            <a href="{% url 'admin:custom_admin:sales_report' %}" class="btn-custom">تقارير المبيعات</a>
+            <a href="{% url 'admin:custom_admin:store_settings' %}" class="btn-custom">إعدادات المتجر</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sample data for the chart
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                datasets: [{
+                    label: 'المبيعات الشهرية',
+                    data: [12000, 19000, 15000, 18000, 22000, 25000],
+                    borderColor: '#0074D9',
+                    backgroundColor: 'rgba(0, 116, 217, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' ر.س';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

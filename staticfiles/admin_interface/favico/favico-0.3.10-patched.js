@@ -443,18 +443,30 @@
                             _stop = false;
                             return;
                         }
-                        newVideo = document.createElement('video');
-                        newVideo.width = _w;
-                        newVideo.height = _h;
-                        navigator.getUserMedia({
-                            video: true,
-                            audio: false
-                        }, function (stream) {
-                            newVideo.src = URL.createObjectURL(stream);
-                            newVideo.play();
-                            drawVideo(newVideo);
-                        }, function () {
-                        });
+                        try {
+                            newVideo = document.createElement('video');
+                            newVideo.width = _w;
+                            newVideo.height = _h;
+                            if (navigator.getUserMedia) {
+                                navigator.getUserMedia({
+                                    video: true,
+                                    audio: false
+                                }, function (stream) {
+                                    try {
+                                        newVideo.src = URL.createObjectURL(stream);
+                                        newVideo.play().catch(function(e) {
+                                            // Ignore play errors
+                                        });
+                                        drawVideo(newVideo);
+                                    } catch (e) {
+                                        // Ignore video errors
+                                    }
+                                }, function () {
+                                });
+                            }
+                        } catch (e) {
+                            // Ignore webcam errors
+                        }
                     } catch (e) {
                         throw new Error('Error setting webcam. Message: ' + e.message);
                     }
@@ -503,7 +515,11 @@
             _drawTimeout = setTimeout(function () {
                 drawVideo(video);
             }, animation.duration);
-            link.setIcon(_canvas);
+            try {
+                link.setIcon(_canvas);
+            } catch (e) {
+                // Ignore icon setting errors
+            }
         }
 
         var link = {};

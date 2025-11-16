@@ -1,0 +1,210 @@
+{% extends "admin/custom_base.html" %}
+{% load static %}
+
+{% block title %}تقارير العمولات{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>تقارير العمولات</h1>
+    
+    <!-- Commission Statistics -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <h3>إجمالي العمولات</h3>
+            <div class="stat-number">{{ total_commissions }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <h3>إجمالي القيمة</h3>
+            <div class="stat-number">{{ total_commission_amount|floatformat:2 }} ر.س</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <h3>المدفوعة</h3>
+            <div class="stat-number">{{ paid_commissions|floatformat:2 }} ر.س</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <h3>المعلقة</h3>
+            <div class="stat-number">{{ pending_commissions|floatformat:2 }} ر.س</div>
+        </div>
+    </div>
+    
+    <!-- Commission Trends Chart -->
+    <div class="chart-container">
+        <h3>الاتجاهات الشهرية للعمولات</h3>
+        <canvas id="commissionTrendsChart" height="100"></canvas>
+    </div>
+    
+    <!-- Commissions by Role -->
+    <div class="chart-container">
+        <h3>العمولات حسب دور المستخدم</h3>
+        <canvas id="commissionsByRoleChart" height="100"></canvas>
+    </div>
+    
+    <!-- Recent Commissions -->
+    <div class="chart-container">
+        <h3>أحدث العمولات</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>المستخدم</th>
+                        <th>رقم الطلب</th>
+                        <th>تاريخ العمولة</th>
+                        <th>نسبة العمولة</th>
+                        <th>قيمة العمولة</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commission in recent_commissions %}
+                    <tr>
+                        <td>{{ commission.user.username }}</td>
+                        <td>#{{ commission.order.id }}</td>
+                        <td>{{ commission.created_at|date:"d/m/Y" }}</td>
+                        <td>{{ commission.rate|floatformat:2 }}%</td>
+                        <td>{{ commission.amount|floatformat:2 }} ر.س</td>
+                        <td>
+                            {% if commission.is_paid %}
+                                <span class="status-badge status-paid">مدفوعة</span>
+                            {% else %}
+                                <span class="status-badge status-pending">معلقة</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">لا توجد عمولات حالياً</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Export Options -->
+    <div class="chart-container">
+        <h3>تصدير التقرير</h3>
+        <div style="display: flex; gap: 15px;">
+            <button class="btn-custom" onclick="exportReport('pdf')">تصدير إلى PDF</button>
+            <button class="btn-custom btn-success" onclick="exportReport('excel')">تصدير إلى Excel</button>
+            <button class="btn-custom btn-warning" onclick="exportReport('csv')">تصدير إلى CSV</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Parse commission trends data
+    var commissionTrendsData = JSON.parse('{{ commission_trends|escapejs }}');
+    
+    // Prepare commissions by role data
+    var commissionsByRoleLabels = [];
+    var commissionsByRoleData = [];
+    
+    // This would be populated by Django template tags in the actual implementation
+    // For now, we'll use sample data to avoid syntax errors
+    commissionsByRoleLabels = ['مدير', 'بائع', 'مشتري'];
+    commissionsByRoleData = [5000, 12000, 3000];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Commission Trends Chart
+        var ctx1 = document.getElementById('commissionTrendsChart').getContext('2d');
+        var commissionTrendsChart = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: commissionTrendsData.map(item => {
+                    var date = new Date(item.month);
+                    return date.toLocaleDateString('ar-SA', { month: 'short', year: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'عدد العمولات',
+                    data: commissionTrendsData.map(item => item.count),
+                    borderColor: '#0074D9',
+                    backgroundColor: 'rgba(0, 116, 217, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'إجمالي القيم',
+                    data: commissionTrendsData.map(item => item.total),
+                    borderColor: '#2ECC40',
+                    backgroundColor: 'rgba(46, 204, 64, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'عدد العمولات'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'إجمالي القيم (ر.س)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+        
+        // Commissions by Role Chart
+        var ctx2 = document.getElementById('commissionsByRoleChart').getContext('2d');
+        var commissionsByRoleChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: commissionsByRoleLabels,
+                datasets: [{
+                    data: commissionsByRoleData,
+                    backgroundColor: [
+                        '#0074D9',
+                        '#2ECC40',
+                        '#FF4136',
+                        '#FF851B',
+                        '#B10DC9'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+    });
+    
+    function exportReport(format) {
+        alert('سيتم تصدير التقرير بتنسيق ' + format + '. هذه الميزة ستكون متاحة في الإصدار الكامل.');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% load i18n %}
+
+<div class="dashboard-widgets">
+    {% for widget in widgets %}
+    <div class="dashboard-widget">
+        <h3>
+            <span class="widget-icon">{{ widget.icon }}</span>
+            {{ widget.title }}
+        </h3>
+        <div class="widget-content">
+            <div class="widget-stat">
+                <span class="stat-label">{% trans 'Total' %}:</span>
+                <span class="stat-value" style="color: {{ widget.color }}">{{ widget.value }}</span>
+            </div>
+            {% if widget.trend %}
+            <div class="widget-stat">
+                <span class="stat-label">{% trans 'Trend' %}:</span>
+                <span class="stat-value">
+                    {% if widget.trend > 0 %}
+                        <span style="color: #28a745;">▲ {{ widget.trend }}%</span>
+                    {% elif widget.trend < 0 %}
+                        <span style="color: #dc3545;">▼ {{ widget.trend|slice:"1:" }}%</span>
+                    {% else %}
+                        <span style="color: #ffc107;">{{ widget.trend }}%</span>
+                    {% endif %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.dashboard-widget {
+    background: var(--card-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.dashboard-widget h3 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.widget-icon {
+    font-size: 1.5rem;
+}
+
+.widget-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.widget-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.widget-stat:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-weight: bold;
+}
+
+.stat-value {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+</style>

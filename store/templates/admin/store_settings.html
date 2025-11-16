@@ -1,0 +1,222 @@
+{% extends "admin/custom_base.html" %}
+{% load static %}
+
+{% block title %}إعدادات المتجر{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>إعدادات المتجر</h1>
+    
+    <!-- Store Overview -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <h3>إجمالي المستخدمين</h3>
+            <div class="stat-number">{{ total_users }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <h3>إجمالي المنتجات</h3>
+            <div class="stat-number">{{ total_products }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🛒</div>
+            <h3>إجمالي الطلبات</h3>
+            <div class="stat-number">{{ total_orders }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⚙️</div>
+            <h3>الإعدادات النشطة</h3>
+            <div class="stat-number">24</div>
+        </div>
+    </div>
+    
+    <!-- User Roles Distribution -->
+    <div class="chart-container">
+        <h3>توزيع المستخدمين حسب الأدوار</h3>
+        <canvas id="userRolesChart" height="100"></canvas>
+    </div>
+    
+    <!-- Product Categories Distribution -->
+    <div class="chart-container">
+        <h3>توزيع المنتجات حسب الفئات</h3>
+        <canvas id="productCategoriesChart" height="100"></canvas>
+    </div>
+    
+    <!-- Recent Activities -->
+    <div class="chart-container">
+        <h3>أحدث الأنشطة</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>النشاط</th>
+                        <th>التفاصيل</th>
+                        <th>المستخدم</th>
+                        <th>التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>طلب جديد</td>
+                        <td>طلب #{{ order.id }} بقيمة {{ order.total_amount|floatformat:2 }} ر.س</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>مستخدم جديد</td>
+                        <td>تسجيل مستخدم {{ user.username }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Configuration Sections -->
+    <div class="chart-container">
+        <h3>إعدادات المتجر</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div class="stat-card">
+                <h3>إعدادات الدفع</h3>
+                <p>إدارة إعدادات الدفع والتحويلات</p>
+                <a href="#" class="btn-custom">إدارة</a>
+            </div>
+            
+            <div class="stat-card">
+                <h3>إعدادات الشحن</h3>
+                <p>إدارة شركات الشحن والتكاليف</p>
+                <a href="#" class="btn-custom">إدارة</a>
+            </div>
+            
+            <div class="stat-card">
+                <h3>إعدادات الضرائب</h3>
+                <p>إدارة معدلات الضرائب والcategorias</p>
+                <a href="#" class="btn-custom">إدارة</a>
+            </div>
+            
+            <div class="stat-card">
+                <h3>إعدادات الأمن</h3>
+                <p>إدارة إعدادات الأمان والتحقق</p>
+                <a href="#" class="btn-custom">إدارة</a>
+            </div>
+            
+            <div class="stat-card">
+                <h3>إعدادات التسويق</h3>
+                <p>إدارة الكوبونات والحملات التسويقية</p>
+                <a href="#" class="btn-custom">إدارة</a>
+            </div>
+            
+            <div class="stat-card">
+                <h3>إعدادات المظهر</h3>
+                <p>إدارة مظهر المتجر والقوالب</p>
+                <a href="#" class="btn-custom">إدارة</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Information -->
+    <div class="chart-container">
+        <h3>معلومات النظام</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div class="stat-card">
+                <h3>إصدار النظام</h3>
+                <p>v2.1.5</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>حالة الخادم</h3>
+                <p><span style="color: #28a745;">✓</span> يعمل</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>استخدام الذاكرة</h3>
+                <p>65%</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>آخر تحديث</h3>
+                <p>13 نوفمبر 2025</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Prepare user roles data
+    var userRolesLabels = [];
+    var userRolesData = [];
+    var userRolesColors = ['#0074D9', '#2ECC40', '#FF4136', '#FF851B', '#B10DC9'];
+    
+    // Sample data for user roles
+    userRolesLabels = ['مدير', 'بائع', 'مشتري'];
+    userRolesData = [2, 45, 1200];
+    
+    // Prepare product categories data
+    var productCategoriesLabels = [];
+    var productCategoriesData = [];
+    var productCategoriesColors = ['#1E90FF', '#32CD32', '#FFD700'];
+    
+    // Sample data for product categories
+    productCategoriesLabels = ['هواتف', 'أجهزة كمبيوتر', 'إكسسوارات'];
+    productCategoriesData = [120, 85, 210];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // User Roles Chart
+        var ctx1 = document.getElementById('userRolesChart').getContext('2d');
+        var userRolesChart = new Chart(ctx1, {
+            type: 'doughnut',
+            data: {
+                labels: userRolesLabels,
+                datasets: [{
+                    data: userRolesData,
+                    backgroundColor: userRolesColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+        
+        // Product Categories Chart
+        var ctx2 = document.getElementById('productCategoriesChart').getContext('2d');
+        var productCategoriesChart = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: productCategoriesLabels,
+                datasets: [{
+                    data: productCategoriesData,
+                    backgroundColor: productCategoriesColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

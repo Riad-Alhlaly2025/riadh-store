@@ -4,219 +4,409 @@
 {% block title %}لوحة تحكم البائع - متجر رياض الإلكتروني{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <h1>مرحباً بك في لوحة تحكم البائع</h1>
-    
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <h3>إجمالي المنتجات</h3>
-            <p class="stat-number">{{ total_products }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>إجمالي الطلبات</h3>
-            <p class="stat-number">{{ total_orders }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>إجمالي العمولات</h3>
-            <p class="stat-number">{{ total_commissions }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>قيمة العمولات</h3>
-            <p class="stat-number">{{ total_commission_amount|floatformat:2 }} 
-                {% if currency == 'USD' %}USD
-                {% elif currency == 'EUR' %}EUR
-                {% elif currency == 'SAR' %}ر.س
-                {% elif currency == 'AED' %}د.إ
-                {% elif currency == 'EGP' %}ج.م
-                {% elif currency == 'KWD' %}د.ك
-                {% elif currency == 'QAR' %}ر.ق
-                {% elif currency == 'OMR' %}ر.ع.
-                {% elif currency == 'BHD' %}د.ب
-                {% elif currency == 'JOD' %}د.أ
-                {% else %}{{ currency }}
-                {% endif %}
-            </p>
-        </div>
-    </div>
-    
-    <div class="dashboard-actions">
-        <h2>الإجراءات السريعة</h2>
-        <div class="action-buttons">
-            <a href="{% url 'seller_products' %}" class="btn-primary">إدارة المنتجات</a>
-            <a href="{% url 'seller_orders' %}" class="btn-secondary">الطلبات</a>
-            <a href="{% url 'seller_reports' %}" class="btn-secondary">التقارير</a>
-            <a href="{% url 'view_commissions' %}" class="btn-secondary">العمولات</a>
-        </div>
-    </div>
-    
-    {% if recent_commissions %}
-    <div class="recent-commissions">
-        <h2>أحدث العمولات</h2>
-        <div class="commissions-list">
-            {% for commission in recent_commissions %}
-            <div class="commission-item">
-                <span>طلب #{{ commission.order.id }}</span>
-                <span>{{ commission.amount|floatformat:2 }} 
-                    {% if currency == 'USD' %}USD
-                    {% elif currency == 'EUR' %}EUR
-                    {% elif currency == 'SAR' %}ر.س
-                    {% elif currency == 'AED' %}د.إ
-                    {% elif currency == 'EGP' %}ج.م
-                    {% elif currency == 'KWD' %}د.ك
-                    {% elif currency == 'QAR' %}ر.ق
-                    {% elif currency == 'OMR' %}ر.ع.
-                    {% elif currency == 'BHD' %}د.ب
-                    {% elif currency == 'JOD' %}د.أ
-                    {% else %}{{ currency }}
-                    {% endif %}
-                </span>
-                <span>({{ commission.rate|floatformat:2 }}%)</span>
-                <span>{{ commission.created_at|date:"d/m/Y" }}</span>
+<div class="luxury-dashboard">
+    <!-- Header Section with Welcome Message -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title">مرحباً بك، <span class="highlight">{{ request.user.first_name|default:request.user.username }}</span></h1>
+                <p class="last-login">آخر دخول: {{ request.user.last_login|date:"d/m/Y H:i" }}</p>
             </div>
-            {% endfor %}
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-medal"></i>
+                    <span class="stat-label">مستوى البائع</span>
+                    <span class="stat-value gold">ذهبي</span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-star"></i>
+                    <span class="stat-label">التقييم</span>
+                    <span class="stat-value">4.8</span>
+                </div>
+            </div>
         </div>
     </div>
-    {% endif %}
     
-    <div class="recent-orders">
-        <h2>الطلبات الأخيرة</h2>
-        <p>لا توجد طلبات حديثة.</p>
+    <!-- Key Performance Indicators -->
+    <div class="dashboard-kpis">
+        <div class="kpi-grid">
+            <div class="kpi-card luxury-card animated fadeInUp" data-delay="0.1s">
+                <div class="kpi-icon revenue">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>إجمالي المبيعات</h3>
+                    <p class="kpi-value">{{ total_commission_amount|floatformat:2 }} 
+                        {% if currency == 'USD' %}USD
+                        {% elif currency == 'EUR' %}EUR
+                        {% elif currency == 'SAR' %}ر.س
+                        {% elif currency == 'AED' %}د.إ
+                        {% elif currency == 'EGP' %}ج.م
+                        {% elif currency == 'KWD' %}د.ك
+                        {% elif currency == 'QAR' %}ر.ق
+                        {% elif currency == 'OMR' %}ر.ع.
+                        {% elif currency == 'BHD' %}د.ب
+                        {% elif currency == 'JOD' %}د.أ
+                        {% else %}{{ currency }}
+                        {% endif %}
+                    </p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>12% هذا الشهر</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="kpi-card luxury-card animated fadeInUp" data-delay="0.2s">
+                <div class="kpi-icon orders">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>إجمالي الطلبات</h3>
+                    <p class="kpi-value">{{ total_orders }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>8% هذا الشهر</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="kpi-card luxury-card animated fadeInUp" data-delay="0.3s">
+                <div class="kpi-icon products">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>عدد المنتجات</h3>
+                    <p class="kpi-value">{{ total_products }}</p>
+                    <div class="trend neutral">
+                        <i class="fas fa-equals"></i>
+                        <span>0% هذا الشهر</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="kpi-card luxury-card animated fadeInUp" data-delay="0.4s">
+                <div class="kpi-icon commissions">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>إجمالي العمولات</h3>
+                    <p class="kpi-value">{{ total_commissions }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>5% هذا الشهر</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts and Analytics Section -->
+    <div class="dashboard-charts">
+        <div class="chart-row">
+            <div class="chart-container luxury-card animated fadeInLeft">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> الأداء المالي الشهري</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn active">الإيرادات</button>
+                        <button class="chart-btn">الطلبات</button>
+                        <button class="chart-btn">المنتجات</button>
+                    </div>
+                </div>
+                <canvas id="revenueChart" height="300"></canvas>
+            </div>
+            
+            <div class="chart-container luxury-card animated fadeInRight">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie"></i> توزيع الطلبات حسب الحالة</h3>
+                    <div class="chart-actions">
+                        <button class="export-btn"><i class="fas fa-download"></i> تصدير</button>
+                    </div>
+                </div>
+                <canvas id="orderStatusChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Section -->
+    <div class="dashboard-actions">
+        <h2 class="section-title animated fadeInUp">الإجراءات السريعة</h2>
+        <div class="action-grid">
+            <a href="{% url 'seller_products' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.1s">
+                <div class="action-icon primary">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="action-content">
+                    <h3>إدارة المنتجات</h3>
+                    <p>عرض وتعديل جميع منتجاتك</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'seller_orders' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.2s">
+                <div class="action-icon secondary">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="action-content">
+                    <h3>الطلبات</h3>
+                    <p>إدارة الطلبات والشحن</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'seller_reports' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.3s">
+                <div class="action-icon success">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="action-content">
+                    <h3>التقارير</h3>
+                    <p>تحليل الأداء والمبيعات</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'view_commissions' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.4s">
+                <div class="action-icon warning">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="action-content">
+                    <h3>العمولات</h3>
+                    <p>عرض ومتابعة العمولات</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'add_product' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.5s">
+                <div class="action-icon info">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <div class="action-content">
+                    <h3>منتج جديد</h3>
+                    <p>إضافة منتج جديد للمتجر</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'seller_performance_analytics' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.6s">
+                <div class="action-icon purple">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="action-content">
+                    <h3>الأداء</h3>
+                    <p>تحليل الأداء والتحسين</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Activity and Top Products -->
+    <div class="dashboard-details">
+        <div class="details-row">
+            <!-- Recent Commissions -->
+            <div class="recent-commissions luxury-card animated fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> أحدث العمولات</h3>
+                    <a href="{% url 'view_commissions' %}" class="view-all">عرض الكل</a>
+                </div>
+                <div class="commissions-list">
+                    {% for commission in recent_commissions %}
+                    <div class="commission-item">
+                        <div class="commission-info">
+                            <span class="commission-order">طلب #{{ commission.order.id }}</span>
+                            <span class="commission-date">{{ commission.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="commission-details">
+                            <span class="commission-amount">{{ commission.amount|floatformat:2 }} 
+                                {% if currency == 'USD' %}USD
+                                {% elif currency == 'EUR' %}EUR
+                                {% elif currency == 'SAR' %}ر.س
+                                {% elif currency == 'AED' %}د.إ
+                                {% elif currency == 'EGP' %}ج.م
+                                {% elif currency == 'KWD' %}د.ك
+                                {% elif currency == 'QAR' %}ر.ق
+                                {% elif currency == 'OMR' %}ر.ع.
+                                {% elif currency == 'BHD' %}د.ب
+                                {% elif currency == 'JOD' %}د.أ
+                                {% else %}{{ currency }}
+                                {% endif %}
+                            </span>
+                            <span class="commission-status {% if commission.is_paid %}paid{% else %}pending{% endif %}">
+                                {% if commission.is_paid %}مدفوعة{% else %}معلقة{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>لا توجد عمولات حديثة</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Top Selling Products -->
+            <div class="top-products luxury-card animated fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-fire"></i> أكثر المنتجات مبيعاً</h3>
+                    <a href="{% url 'seller_products' %}" class="view-all">عرض الكل</a>
+                </div>
+                <div class="products-list">
+                    {% for product in top_products %}
+                    <div class="product-item">
+                        <div class="product-info">
+                            <h4>{{ product.name }}</h4>
+                            <p class="product-category">{{ product.get_category_display }}</p>
+                        </div>
+                        <div class="product-sales">
+                            <span class="sales-count">{{ product.total_sold }} وحدة</span>
+                            <span class="sales-revenue">{{ product.total_sold|mul:product.price|floatformat:2 }} ر.س</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-data">
+                        <i class="fas fa-box-open"></i>
+                        <p>لا توجد مبيعات بعد</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .dashboard-container h1 {
-        color: #0074D9;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-    
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-    }
-    
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .stat-card h3 {
-        color: #333;
-        margin-bottom: 15px;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #0074D9;
-        margin: 0;
-    }
-    
-    .dashboard-actions h2 {
-        color: #0074D9;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-    }
-    
-    .recent-orders, .recent-commissions {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-top: 30px;
-    }
-    
-    .recent-orders h2, .recent-commissions h2 {
-        color: #0074D9;
-        margin-top: 0;
-    }
-    
-    .commissions-list {
-        margin-top: 15px;
-    }
-    
-    .commission-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .commission-item:last-child {
-        border-bottom: none;
-    }
-    
-    .btn-primary, .btn-secondary {
-        display: inline-block;
-        padding: 12px 25px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        text-align: center;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: white;
-        border: none;
-    }
-    
-    .btn-secondary {
-        background: white;
-        color: #0074D9;
-        border: 2px solid #0074D9;
-    }
-    
-    .btn-primary:hover, .btn-secondary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,116,217,0.3);
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-stats {
-            grid-template-columns: 1fr;
-        }
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Enhanced animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add staggered animations
+        const animatedElements = document.querySelectorAll('.animated');
+        animatedElements.forEach((el, index) => {
+            const delay = el.dataset.delay || 0;
+            setTimeout(() => {
+                el.style.opacity = 1;
+                el.style.transform = 'translateY(0)';
+            }, parseFloat(delay) * 1000 || 0);
+        });
         
-        .action-buttons {
-            flex-direction: column;
-        }
+        // Revenue Chart with enhanced styling
+        var revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        var revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+                datasets: [{
+                    label: 'الإيرادات (ر.س)',
+                    data: [12000, 19000, 15000, 18000, 22000, 25000, 23000, 27000, 30000, 28000, 32000, 35000],
+                    borderColor: '#00c6ff',
+                    backgroundColor: 'rgba(0, 198, 255, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#00c6ff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                family: "'Cairo', sans-serif",
+                                size: 14
+                            },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Cairo', sans-serif"
+                            },
+                            callback: function(value) {
+                                return value.toLocaleString() + ' ر.س';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: "'Cairo', sans-serif"
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
         
-        .btn-primary, .btn-secondary {
-            width: 100%;
-        }
+        // Order Status Chart with enhanced styling
+        var orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        var orderStatusChart = new Chart(orderStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['قيد الانتظار', 'قيد المعالجة', 'تم الشحن', 'تم التسليم', 'ملغى'],
+                datasets: [{
+                    data: [12, 19, 3, 5, 2],
+                    backgroundColor: [
+                        '#ffc107',
+                        '#17a2b8',
+                        '#28a745',
+                        '#20c997',
+                        '#dc3545'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                family: "'Cairo', sans-serif",
+                                size: 14
+                            },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                cutout: '70%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true
+                }
+            }
+        });
         
-        .commission-item {
-            flex-direction: column;
-            gap: 5px;
-        }
-    }
-</style>
+        // Chart button interactions
+        const chartButtons = document.querySelectorAll('.chart-btn');
+        chartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                chartButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,103 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="chart-container">
+    <h3>{% trans 'Data Visualization' %}</h3>
+    <canvas id="dataChart" height="100"></canvas>
+</div>
+
+{{ block.super }}
+
+<div class="chart-container">
+    <h3>{% trans 'Advanced Filters' %}</h3>
+    <div class="advanced-filters">
+        <form method="get">
+            <div class="filter-content">
+                {% for spec in cl.filter_specs %}
+                    <div class="form-group">
+                        {{ spec.title }}:
+                        {% if spec.choices %}
+                            <select name="{{ spec.parameter_name }}" class="form-control">
+                                {% for choice in spec.choices %}
+                                    <option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>
+                                        {{ choice.display }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        {% else %}
+                            <input type="text" name="{{ spec.parameter_name }}" class="form-control" value="{{ spec.value }}">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <div class="form-group">
+                    <label>{% trans 'Search' %}:</label>
+                    <input type="text" name="{{ search_var }}" class="form-control" value="{{ cl.query }}">
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">{% trans 'Apply Filters' %}</button>
+                <button type="button" class="btn-filter btn-reset">{% trans 'Reset' %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="chart-container">
+    <h3>{% trans 'Export Options' %}</h3>
+    <div class="export-buttons">
+        <a href="#" class="export-btn pdf" data-format="pdf">
+            <span>📄</span> {% trans 'Export to PDF' %}
+        </a>
+        <a href="#" class="export-btn excel" data-format="excel">
+            <span>📊</span> {% trans 'Export to Excel' %}
+        </a>
+        <a href="#" class="export-btn csv" data-format="csv">
+            <span>📑</span> {% trans 'Export to CSV' %}
+        </a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize chart
+        var ctx = document.getElementById('dataChart').getContext('2d');
+        var dataChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+                datasets: [{
+                    label: '{% trans "Data Trend" %}',
+                    data: [12, 19, 3, 5, 2, 3],
+                    borderColor: '#0074D9',
+                    backgroundColor: 'rgba(0, 116, 217, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,293 +1,232 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}جميع المنتجات - متجر رياض الإلكتروني{% endblock %}
+{% block title %}جميع المنتجات - متجر رياض الإلكتروني الفاخر{% endblock %}
 
-{% block content %}
-<div class="home-container">
-
-{% block breadcrumb %}
-<li class="breadcrumb-item" aria-current="page">
-    <span><i class="fas fa-store"></i> جميع المنتجات</span>
-</li>
+{% block breadcrumb_items %}
+<a href="{% url 'product_list' %}" class="breadcrumb-item active">المنتجات</a>
 {% endblock %}
 
-    <!-- عنوان القسم -->
-    <h2 class="section-title">
-        <i class="fa-solid fa-store"></i> جميع المنتجات
-    </h2>
-
-    <!-- فلترة المنتجات -->
-    <div class="filter-box">
-        <form method="GET" action="{% url 'product_list' %}" class="filter-form">
-            <div class="filter-row">
-                <input type="text" name="q" placeholder="ابحث عن منتج..." value="{{ request.GET.q }}">
-                <select name="category">
-                    <option value="">جميع الأقسام</option>
-                    <option value="phones" {% if request.GET.category == 'phones' %}selected{% endif %}>هواتف</option>
-                    <option value="computers" {% if request.GET.category == 'computers' %}selected{% endif %}>أجهزة كمبيوتر</option>
-                    <option value="accessories" {% if request.GET.category == 'accessories' %}selected{% endif %}>إكسسوارات</option>
+{% block content %}
+<div class="grid grid-cols-1 gap-6">
+    <!-- Page Header -->
+    <div class="luxury-card">
+        <div class="luxury-card-body">
+            <h1 class="text-3xl font-bold mb-2"><i class="fas fa-store"></i> مجموعة المنتجات الفاخرة</h1>
+            <p class="text-secondary">اكتشف أحدث المنتجات المتميزة من متجر رياض الإلكتروني</p>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="luxury-card">
+        <div class="luxury-card-header">
+            <h3 class="m-0"><i class="fas fa-filter"></i> تصفية المنتجات</h3>
+        </div>
+        <div class="luxury-card-body">
+            <form method="GET" action="{% url 'product_list' %}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="form-group md:col-span-2">
+                    <label for="search" class="form-label">البحث</label>
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="search" name="q" value="{{ request.GET.q }}" class="search-input" placeholder="ابحث عن منتج...">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category" class="form-label">التصنيف</label>
+                    <select id="category" name="category" class="form-control">
+                        <option value="">جميع التصنيفات</option>
+                        <option value="electronics" {% if request.GET.category == 'electronics' %}selected{% endif %}>إلكترونيات</option>
+                        <option value="fashion" {% if request.GET.category == 'fashion' %}selected{% endif %}>أزياء</option>
+                        <option value="home" {% if request.GET.category == 'home' %}selected{% endif %}>منزل ومطبخ</option>
+                        <option value="beauty" {% if request.GET.category == 'beauty' %}selected{% endif %}>جمال وعناية</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="min_price" class="form-label">السعر الأدنى</label>
+                    <input type="number" id="min_price" name="min_price" value="{{ request.GET.min_price }}" class="form-control" placeholder="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_price" class="form-label">السعر الأقصى</label>
+                    <input type="number" id="max_price" name="max_price" value="{{ request.GET.max_price }}" class="form-control" placeholder="10000">
+                </div>
+                
+                <div class="md:col-span-4 flex gap-3">
+                    <button type="submit" class="btn btn-premium">
+                        <i class="fas fa-search"></i> تطبيق
+                    </button>
+                    <a href="{% url 'product_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> إعادة تعيين
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Product Grid -->
+    <div>
+        {% if products %}
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold"><i class="fas fa-box-open"></i> المنتجات المتوفرة</h2>
+            <div class="flex items-center gap-2">
+                <label for="sort" class="text-secondary">ترتيب حسب:</label>
+                <select id="sort" class="form-control" style="width: auto;">
+                    <option value="newest">الأحدث</option>
+                    <option value="price_low">الأقل سعراً</option>
+                    <option value="price_high">الأعلى سعراً</option>
+                    <option value="popularity">الأكثر شعبية</option>
+                    <option value="rating">الأعلى تقييماً</option>
                 </select>
             </div>
-            <div class="filter-row">
-                <input type="number" name="min_price" placeholder="السعر الأدنى" value="{{ request.GET.min_price }}">
-                <input type="number" name="max_price" placeholder="السعر الأقصى" value="{{ request.GET.max_price }}">
-            </div>
-            <div class="filter-buttons">
-                <button type="submit" class="btn">تطبيق الفلاتر</button>
-                <a href="{% url 'product_list' %}" class="btn btn-secondary">إعادة تعيين</a>
-                <a href="{% url 'advanced_search' %}" class="btn btn-advanced">بحث متقدم</a>
-            </div>
-        </form>
-    </div>
-
-    <!-- شبكة المنتجات -->
-    <div class="product-grid">
-        {% for product in products %}
+        </div>
+        
+        <div class="product-grid">
+            {% for product in products %}
             <div class="product-card">
-                <div class="product-img">
+                <div class="product-badge">فاخر</div>
+                <div class="product-image-container">
                     {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
                     {% else %}
-                        <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+                    <div class="product-image bg-surface-light flex items-center justify-center">
+                        <i class="fas fa-camera text-3xl text-secondary"></i>
+                    </div>
                     {% endif %}
                 </div>
-                <div class="product-info">
-                    <h3>{{ product.name }}</h3>
-                    <p class="price">{{ product.price }} 
-                        {% if product.currency == 'USD' %}USD
-                        {% elif product.currency == 'EUR' %}EUR
-                        {% elif product.currency == 'SAR' %}ر.س
-                        {% elif product.currency == 'AED' %}د.إ
-                        {% elif product.currency == 'EGP' %}ج.م
-                        {% elif product.currency == 'KWD' %}د.ك
-                        {% elif product.currency == 'QAR' %}ر.ق
-                        {% elif product.currency == 'OMR' %}ر.ع.
-                        {% elif product.currency == 'BHD' %}د.ب
-                        {% elif product.currency == 'JOD' %}د.أ
-                        {% else %}{{ product.currency }}
-                        {% endif %}
-                    </p>
-                    <a href="{% url 'product_detail' product.id %}" class="btn-outline">عرض التفاصيل</a>
-                    <a href="{% url 'add_to_cart' product.id %}" class="btn-add-to-cart">إضافة إلى السلة</a>
+                <div class="product-body">
+                    <h3 class="product-title">{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description|truncatewords:15 }}</p>
+                    <div class="product-meta">
+                        <div class="product-rating">
+                            <i class="fas fa-star star"></i>
+                            <i class="fas fa-star star"></i>
+                            <i class="fas fa-star star"></i>
+                            <i class="fas fa-star star"></i>
+                            <i class="fas fa-star star"></i>
+                            <span class="text-secondary text-sm">(128)</span>
+                        </div>
+                        <div class="product-price">{{ product.price }} ر.س</div>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <a href="{% url 'product_detail' product.pk %}" class="btn btn-primary flex-1">
+                            <i class="fas fa-eye"></i> عرض
+                        </a>
+                        <form method="post" action="{% url 'add_to_cart' product.pk %}" class="add-to-cart-form flex-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary w-full">
+                                <i class="fas fa-shopping-cart"></i> إضافة
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        {% empty %}
-            <p>لا توجد منتجات حالياً.</p>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        <div class="mt-8 text-center">
+            <ul class="inline-flex items-center gap-2">
+                <li>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="btn btn-premium">1</a>
+                </li>
+                <li>
+                    <a href="#" class="btn btn-secondary">2</a>
+                </li>
+                <li>
+                    <a href="#" class="btn btn-secondary">3</a>
+                </li>
+                <li>
+                    <a href="#" class="btn btn-secondary">4</a>
+                </li>
+                <li>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% else %}
+        <div class="luxury-card text-center py-12">
+            <div>
+                <i class="fas fa-box-open text-5xl text-secondary mb-4"></i>
+                <h3 class="text-2xl font-bold mb-2">لا توجد منتجات متوفرة</h3>
+                <p class="text-secondary mb-6">لم يتم العثور على منتجات تطابق معايير البحث الخاصة بك</p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> إعادة تعيين البحث
+                </a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .home-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 15px;
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add to cart functionality
+    const addToCartForms = document.querySelectorAll('.add-to-cart-form');
+    addToCartForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const productId = this.action.match(/\/cart\/add\/(\d+)\//)[1];
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart count in header
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) {
+                        const currentCount = parseInt(cartCount.textContent) || 0;
+                        cartCount.textContent = currentCount + 1;
+                    }
+                    
+                    // Show success message
+                    alert('تمت إضافة المنتج إلى السلة بنجاح!');
+                } else {
+                    alert('حدث خطأ أثناء إضافة المنتج إلى السلة');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء إضافة المنتج إلى السلة');
+            });
+        });
+    });
+    
+    // Sort functionality
+    const sortSelect = document.getElementById('sort');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            // In a real implementation, this would trigger a new search with sorting parameters
+            alert('سيتم تطبيق الترتيب المحدد');
+        });
     }
     
-    .section-title {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #0074D9;
-        font-size: 1.8rem;
+    // Search suggestions functionality
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+            // In a real implementation, this would fetch search suggestions
+            console.log('Search input focused');
+        });
     }
-    
-    .filter-box {
-        background: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-bottom: 30px;
-    }
-    
-    .filter-form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .filter-row {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-    
-    .filter-row input,
-    .filter-row select {
-        flex: 1;
-        min-width: 200px;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-family: "Cairo", sans-serif;
-    }
-    
-    .filter-buttons {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    
-    .btn {
-        padding: 12px 25px;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-family: "Cairo", sans-serif;
-        transition: all 0.3s ease;
-    }
-    
-    .btn:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-    }
-    
-    .btn-secondary {
-        background: #6c757d;
-    }
-    
-    .btn-advanced {
-        background: linear-gradient(90deg, #ff9a00, #ff6a00);
-        color: white;
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-    }
-    
-    .btn-advanced:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-    }
-    
-    .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 25px;
-    }
-    
-    .product-card {
-        background: white;
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-    }
-    
-    .product-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    }
-    
-    .product-img {
-        height: 200px;
-        overflow: hidden;
-    }
-    
-    .product-img img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    
-    .product-card:hover .product-img img {
-        transform: scale(1.05);
-    }
-    
-    .product-info {
-        padding: 20px;
-        text-align: center;
-    }
-    
-    .product-info h3 {
-        margin: 0 0 10px 0;
-        color: #333;
-        font-size: 1.2rem;
-    }
-    
-    .price {
-        color: #0074D9;
-        font-weight: bold;
-        font-size: 1.3rem;
-        margin: 10px 0;
-    }
-    
-    .btn-outline {
-        display: inline-block;
-        padding: 8px 20px;
-        border: 2px solid #0074D9;
-        color: #0074D9;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        margin-bottom: 10px;
-    }
-    
-    .btn-outline:hover {
-        background: #0074D9;
-        color: white;
-    }
-    
-    .btn-add-to-cart {
-        display: inline-block;
-        padding: 8px 20px;
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: white;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-        cursor: pointer;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    .btn-add-to-cart:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-    }
-    
-    @media (max-width: 768px) {
-        .filter-row {
-            flex-direction: column;
-        }
-        
-        .filter-row input,
-        .filter-row select {
-            min-width: 100%;
-        }
-        
-        .filter-buttons {
-            flex-direction: column;
-        }
-        
-        .btn {
-            width: 100%;
-        }
-        
-        .product-grid {
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .home-container {
-            padding: 0 10px;
-        }
-        
-        .product-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .product-info {
-            padding: 15px;
-        }
-    }
-</style>
+});
+</script>
 {% endblock %}

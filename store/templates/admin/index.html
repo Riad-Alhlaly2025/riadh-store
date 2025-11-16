@@ -1,0 +1,124 @@
+{% extends "admin/custom_base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Site administration' %}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>{% trans 'Site administration' %}</h1>
+    
+    {% if user.is_authenticated %}
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <h3>{% trans 'Users' %}</h3>
+            <div class="stat-number">{{ user_count }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <h3>{% trans 'Products' %}</h3>
+            <div class="stat-number">{{ product_count }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🛒</div>
+            <h3>{% trans 'Orders' %}</h3>
+            <div class="stat-number">{{ order_count }}</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <h3>{% trans 'Commissions' %}</h3>
+            <div class="stat-number">{{ commission_count }}</div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h3>{% trans 'Quick Actions' %}</h3>
+        <div class="quick-actions">
+            <a href="{% url 'admin:store_product_changelist' %}" class="action-card" data-action="products">
+                <div class="action-icon">📦</div>
+                <div class="action-title">{% trans 'Manage Products' %}</div>
+            </a>
+            
+            <a href="{% url 'admin:store_order_changelist' %}" class="action-card" data-action="orders">
+                <div class="action-icon">🛒</div>
+                <div class="action-title">{% trans 'Manage Orders' %}</div>
+            </a>
+            
+            <a href="{% url 'admin:store_user_changelist' %}" class="action-card" data-action="users">
+                <div class="action-icon">👥</div>
+                <div class="action-title">{% trans 'Manage Users' %}</div>
+            </a>
+            
+            <a href="{% url 'admin:custom_admin:dashboard' %}" class="action-card" data-action="dashboard">
+                <div class="action-icon">📊</div>
+                <div class="action-title">{% trans 'Advanced Dashboard' %}</div>
+            </a>
+            
+            <a href="{% url 'admin:custom_admin:commission_report' %}" class="action-card" data-action="commissions">
+                <div class="action-icon">💰</div>
+                <div class="action-title">{% trans 'Commission Reports' %}</div>
+            </a>
+            
+            <a href="{% url 'admin:custom_admin:sales_report' %}" class="action-card" data-action="sales">
+                <div class="action-icon">📈</div>
+                <div class="action-title">{% trans 'Sales Reports' %}</div>
+            </a>
+            
+            <a href="{% url 'admin:custom_admin:store_settings' %}" class="action-card" data-action="settings">
+                <div class="action-icon">⚙️</div>
+                <div class="action-title">{% trans 'Store Settings' %}</div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h3>{% trans 'Recent Activity' %}</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>{% trans 'Activity' %}</th>
+                        <th>{% trans 'Details' %}</th>
+                        <th>{% trans 'User' %}</th>
+                        <th>{% trans 'Time' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_logs %}
+                    <tr>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.details }}</td>
+                        <td>{{ log.user }}</td>
+                        <td>{{ log.timestamp|timesince }} {% trans 'ago' %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center;">{% trans 'No recent activity' %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize quick actions
+        const actionCards = document.querySelectorAll('.action-card');
+        actionCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Add visual feedback
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    });
+</script>
+{% endblock %}

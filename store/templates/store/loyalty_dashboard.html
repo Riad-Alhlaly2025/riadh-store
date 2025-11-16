@@ -1,79 +1,681 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}برنامج الولاء{% endblock %}
+{% block title %}برنامج الولاء - متجر رياض الإلكتروني الفاخر{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>برنامج الولاء</h2>
-            
-            <!-- Loyalty Points Summary -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>ملخص نقاط الولاء</h5>
+<div class="luxury-dashboard">
+    <!-- Loyalty Dashboard Header -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title"><i class="fas fa-gem"></i> برنامج الولاء الفاخر</h1>
+                <p class="last-login">مرحباً بك في برنامج الولاء الحصري لمتجر رياض الإلكتروني</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-crown"></i>
+                    <span class="stat-label">مستواك</span>
+                    <span class="stat-value">{{ loyalty_program.level|title }}</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="alert alert-info text-center">
-                                <h3>{{ loyalty_program.points }}</h3>
-                                <p>نقاطك الحالية</p>
+                <div class="stat-badge">
+                    <i class="fas fa-medal"></i>
+                    <span class="stat-label">الترتيب</span>
+                    <span class="stat-value">#{{ loyalty_rank }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loyalty Points Summary -->
+    <div class="points-summary luxury-card animated fadeInUp">
+        <div class="summary-header">
+            <h3><i class="fas fa-chart-line"></i> ملخص نقاط الولاء</h3>
+        </div>
+        <div class="summary-content">
+            <div class="points-grid">
+                <div class="points-card luxury-card">
+                    <div class="card-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>نقاطك الحالية</h4>
+                        <div class="points-value luxury-points">{{ loyalty_program.points }}</div>
+                        <div class="points-progress">
+                            <div class="progress-bar luxury-progress">
+                                <div class="progress-fill" data-points="{{ loyalty_program.points }}"></div>
                             </div>
+                            <div class="progress-text">تقدمك نحو المستوى التالي</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert alert-success text-center">
-                                <h3>{{ loyalty_program.level|title }}</h3>
-                                <p>مستواك</p>
-                            </div>
+                    </div>
+                </div>
+                
+                <div class="points-card luxury-card">
+                    <div class="card-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>مستواك</h4>
+                        <div class="level-value luxury-level">{{ loyalty_program.level|title }}</div>
+                        <div class="level-benefits">
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> خصومات حصرية</li>
+                                <li><i class="fas fa-check-circle"></i> توصيل مجاني دائم</li>
+                                <li><i class="fas fa-check-circle"></i> أولوية في الخدمة</li>
+                            </ul>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert alert-warning text-center">
-                                <h3>{{ loyalty_program.total_spent }} ر.س</h3>
-                                <p>إجمالي إنفاقك</p>
-                            </div>
+                    </div>
+                </div>
+                
+                <div class="points-card luxury-card">
+                    <div class="card-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>إجمالي إنفاقك</h4>
+                        <div class="spent-value luxury-spent">{{ loyalty_program.total_spent }} ر.س</div>
+                        <div class="spent-info">
+                            <p>أنفق {{ 1000|sub:loyalty_program.total_spent|default:0 }} ر.س أكثر للوصول للمستوى التالي</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Available Rewards -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>المكافآت المتاحة</h5>
-                </div>
-                <div class="card-body">
-                    {% if rewards %}
-                    <div class="row">
-                        {% for reward in rewards %}
-                        <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ reward.name }}</h5>
-                                    <p class="card-text">
-                                        <strong>النقاط المطلوبة:</strong> {{ reward.points_required }}<br>
-                                        <strong>نوع المكافأة:</strong> {{ reward.get_reward_type_display }}<br>
-                                        {% if reward.discount_percentage %}
-                                            <strong>نسبة الخصم:</strong> {{ reward.discount_percentage }}%
-                                        {% endif %}
-                                    </p>
-                                    <a href="{% url 'redeem_reward' reward.id %}" 
-                                       class="btn btn-primary"
-                                       onclick="return confirm('هل أنت متأكد من استبدال هذه المكافأة؟')">
-                                        استبدال المكافأة
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Available Rewards -->
+    <div class="rewards-section luxury-card animated fadeInUp">
+        <div class="rewards-header">
+            <h3><i class="fas fa-gift"></i> المكافآت المتاحة</h3>
+        </div>
+        <div class="rewards-content">
+            {% if rewards %}
+            <div class="rewards-grid">
+                {% for reward in rewards %}
+                <div class="reward-card luxury-card">
+                    <div class="reward-badge luxury-badge">
+                        <i class="fas fa-star"></i>
+                        <span>مميز</span>
                     </div>
-                    {% else %}
-                    <p>لا توجد مكافآت متاحة حالياً.</p>
-                    {% endif %}
+                    <div class="reward-content">
+                        <h4>{{ reward.name }}</h4>
+                        <div class="reward-points">
+                            <i class="fas fa-coins"></i>
+                            <span>{{ reward.points_required }} نقطة</span>
+                        </div>
+                        <div class="reward-type">
+                            <strong>نوع المكافأة:</strong> {{ reward.get_reward_type_display }}
+                        </div>
+                        {% if reward.discount_percentage %}
+                        <div class="reward-discount">
+                            <strong>نسبة الخصم:</strong> {{ reward.discount_percentage }}%
+                        </div>
+                        {% endif %}
+                        <div class="reward-actions">
+                            {% if loyalty_program.points >= reward.points_required %}
+                            <a href="{% url 'redeem_reward' reward.id %}" 
+                               class="luxury-btn primary"
+                               onclick="return confirm('هل أنت متأكد من استبدال هذه المكافأة؟')">
+                                <i class="fas fa-gift"></i> استبدال المكافأة
+                            </a>
+                            {% else %}
+                            <button class="luxury-btn secondary" disabled>
+                                <i class="fas fa-lock"></i> نقاط غير كافية
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-rewards">
+                <i class="fas fa-gift empty-icon"></i>
+                <h4>لا توجد مكافآت متاحة حالياً</h4>
+                <p>تابعنا لتكتشف المكافآت الجديدة المذهلة</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Loyalty Benefits -->
+    <div class="benefits-section luxury-card animated fadeInUp">
+        <div class="benefits-header">
+            <h3><i class="fas fa-star"></i> مزايا برنامج الولاء</h3>
+        </div>
+        <div class="benefits-content">
+            <div class="benefits-grid">
+                <div class="benefit-card luxury-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>خصومات حصرية</h4>
+                        <p>احصل على خصومات خاصة على جميع المنتجات</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-card luxury-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>توصيل مجاني</h4>
+                        <p>تمتع بالتوصيل المجاني في جميع طلباتك</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-card luxury-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>خدمة مخصصة</h4>
+                        <p>احصل على خدمة عملاء مخصصة وسريعة</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-card luxury-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>هدايا عيدية</h4>
+                        <p>هدايا خاصة في المناسبات والأعياد</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How to Earn Points -->
+    <div class="earn-points luxury-card animated fadeInUp">
+        <div class="earn-header">
+            <h3><i class="fas fa-question-circle"></i> كيف تكسب المزيد من النقاط؟</h3>
+        </div>
+        <div class="earn-content">
+            <div class="steps">
+                <div class="step luxury-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>التسوق</h4>
+                        <p>اكسب نقطة لكل 10 ر.س تنفقها</p>
+                    </div>
+                </div>
+                
+                <div class="step luxury-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>تقييم المنتجات</h4>
+                        <p>اكسب 50 نقطة لكل تقييم تضيفه</p>
+                    </div>
+                </div>
+                
+                <div class="step luxury-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>دعوة الأصدقاء</h4>
+                        <p>اكسب 100 نقطة لكل صديق تدعوه</p>
+                    </div>
+                </div>
+                
+                <div class="step luxury-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>المشاركة الاجتماعية</h4>
+                        <p>اكسب 25 نقطة عند مشاركة المنتجات</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+/* Luxury Theme Styles */
+.luxury-dashboard {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--primary-gradient), var(--secondary-gradient));
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: var(--premium-shadow);
+    color: white;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.user-greeting h1 {
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+}
+
+.last-login {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.header-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 120px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.luxury-card {
+    background: var(--glass-effect);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: var(--premium-shadow);
+}
+
+.luxury-card h3 {
+    color: var(--primary);
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.points-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.points-card {
+    display: flex;
+    gap: 20px;
+    padding: 25px;
+    background: rgba(0, 114, 255, 0.05);
+    border-radius: 15px;
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-content h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-main);
+}
+
+.points-value, .level-value, .spent-value {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 10px 0;
+}
+
+.luxury-points {
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.luxury-level {
+    color: var(--primary);
+}
+
+.luxury-spent {
+    color: #4caf50;
+}
+
+.points-progress {
+    margin-top: 20px;
+}
+
+.progress-bar {
+    height: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-gradient);
+    border-radius: 5px;
+    width: 0%;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.level-benefits ul {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+}
+
+.level-benefits li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.level-benefits li i {
+    color: #4caf50;
+}
+
+.rewards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.reward-card {
+    position: relative;
+    padding: 25px;
+    background: rgba(255, 215, 0, 0.05);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.reward-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.reward-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.reward-content h4 {
+    margin: 0 0 15px 0;
+    color: var(--text-main);
+    font-size: 1.3rem;
+}
+
+.reward-points {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffd700;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.reward-type, .reward-discount {
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.reward-actions {
+    margin-top: 20px;
+}
+
+.luxury-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.luxury-btn.primary {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.luxury-btn.secondary {
+    background: rgba(0, 114, 255, 0.1);
+    color: var(--primary);
+}
+
+.luxury-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.luxury-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.no-rewards {
+    text-align: center;
+    padding: 40px;
+}
+
+.no-rewards .empty-icon {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.benefit-card {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    background: rgba(0, 114, 255, 0.05);
+    border-radius: 15px;
+}
+
+.benefit-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.benefit-content h4 {
+    margin: 0 0 8px 0;
+    color: var(--text-main);
+}
+
+.benefit-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.step {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(0, 114, 255, 0.05);
+    border-radius: 15px;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    margin: 0 0 8px 0;
+    color: var(--text-main);
+}
+
+.step-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.animated {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.animated.fadeInDown {
+    animation: fadeInDown 0.6s ease forwards;
+}
+
+.animated.fadeInUp {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInDown {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-stats {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .points-grid, .rewards-grid, .benefits-grid, .steps {
+        grid-template-columns: 1fr;
+    }
+    
+    .points-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, parseFloat(delay) * 1000 || 0);
+    });
+    
+    // Reward card hover effects
+    const rewardCards = document.querySelectorAll('.reward-card');
+    rewardCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'var(--premium-shadow)';
+        });
+    });
+    
+    // Set progress bar width based on points
+    const progressBars = document.querySelectorAll('.progress-fill');
+    progressBars.forEach(bar => {
+        const points = parseInt(bar.dataset.points) || 0;
+        const percentage = Math.min((points / 1000) * 100, 100);
+        bar.style.width = percentage + '%';
+    });
+});
+</script>
 {% endblock %}

@@ -5,8 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.apps import apps
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Avg
 import logging
+import json
+from .utils import Cart
 
 logger = logging.getLogger(__name__)
 
@@ -28,18 +30,63 @@ def product_detail(request, pk):
 
 def view_cart(request):
     """View cart"""
-    return render(request, 'store/cart.html')
+    cart = Cart(request.session)
+    cart_items = cart.get_items()
+    total_price = cart.get_total_price()
+    
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price
+    }
+    
+    return render(request, 'store/cart.html', context)
 
 def add_to_cart(request, product_id):
     """Add product to cart"""
+    if request.method == 'POST':
+        # Get quantity from form data, default to 1
+        quantity = int(request.POST.get('quantity', 1))
+        
+        # Use Cart class to add product
+        cart = Cart(request.session)
+        cart.add(product_id, quantity)
+        
+        # Return JSON response for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'تمت إضافة المنتج إلى السلة بنجاح!'})
+    
     return redirect('view_cart')
 
 def remove_from_cart(request, product_id):
     """Remove product from cart"""
+    if request.method == 'POST':
+        # Use Cart class to remove product
+        cart = Cart(request.session)
+        cart.remove(product_id)
+        
+        # Return JSON response for AJAX requests
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'تمت إزالة المنتج من السلة بنجاح!'})
+    
     return redirect('view_cart')
 
 def update_cart(request, product_id):
     """Update cart item"""
+    if request.method == 'POST':
+        # Get quantity from JSON data
+        try:
+            data = json.loads(request.body)
+            quantity = int(data.get('quantity', 1))
+        except (json.JSONDecodeError, ValueError, TypeError):
+            quantity = 1
+        
+        # Use Cart class to update product quantity
+        cart = Cart(request.session)
+        cart.update(product_id, quantity)
+        
+        # Return JSON response
+        return JsonResponse({'success': True, 'message': 'تم تحديث السلة بنجاح!'})
+    
     return redirect('view_cart')
 
 def checkout(request):
@@ -135,6 +182,8 @@ def seller_dashboard(request):
     # Import models
     Product = apps.get_model('store', 'Product')
     Order = apps.get_model('store', 'Order')
+    OrderItem = apps.get_model('store', 'OrderItem')
+    Commission = apps.get_model('store', 'Commission')
     
     # Get seller-specific statistics
     seller_products = Product.objects.filter(seller=request.user)
@@ -145,13 +194,89 @@ def seller_dashboard(request):
     total_orders = seller_orders.count()
     pending_orders = seller_orders.filter(status='pending').count()
     
+    # Get commission data
+    seller_commissions = Commission.objects.filter(user=request.user)
+    total_commissions = seller_commissions.count()
+    total_commission_amount = seller_commissions.aggregate(
+        total=Sum('amount')
+    )['total'] or 0
+    
+    # Get recent commissions
+    recent_commissions = seller_commissions.order_by('-created_at')[:5]
+    
+    # Get sales data for charts
+    # Monthly sales data
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT 
+                EXTRACT(month FROM o.created_at) as month,
+                SUM(oi.quantity) as total_sales,
+                SUM(oi.quantity * oi.price) as total_revenue
+            FROM store_orderitem oi
+            JOIN store_order o ON oi.order_id = o.id
+            JOIN store_product p ON oi.product_id = p.id
+            WHERE p.seller_id = %s
+            GROUP BY EXTRACT(month FROM o.created_at)
+            ORDER BY month
+        """, [request.user.id])
+        monthly_sales = cursor.fetchall()
+    
+    # Top selling products
+    top_products = Product.objects.filter(seller=request.user).annotate(
+        total_sold=Sum('orderitem__quantity')
+    ).filter(total_sold__gt=0).order_by('-total_sold')[:5]
+    
+    # Order status distribution
+    order_status_data = seller_orders.values('status').annotate(
+        count=Count('id')
+    ).order_by('status')
+    
+    # Calculate seller performance metrics
+    total_revenue = 0
+    for sale in monthly_sales:
+        total_revenue += sale[2] if sale[2] else 0
+    
+    # Calculate average order value
+    if total_orders > 0:
+        avg_order_value = total_revenue / total_orders
+    else:
+        avg_order_value = 0
+    
+    # Calculate seller level based on performance
+    if total_revenue > 50000:
+        seller_level = "ذهبي"
+        seller_level_class = "gold"
+    elif total_revenue > 20000:
+        seller_level = "فضي"
+        seller_level_class = "silver"
+    else:
+        seller_level = "برونزي"
+        seller_level_class = "bronze"
+    
+    # Calculate seller rating (simulated)
+    seller_rating = 4.8  # This would be calculated from actual reviews in a real implementation
+    
     context = {
         'total_products': total_products,
         'total_orders': total_orders,
         'pending_orders': pending_orders,
+        'total_commissions': total_commissions,
+        'total_commission_amount': total_commission_amount,
+        'recent_commissions': recent_commissions,
+        'monthly_sales': monthly_sales,
+        'top_products': top_products,
+        'order_status_data': order_status_data,
+        'currency': 'SAR',  # Default currency
+        'total_revenue': total_revenue,
+        'avg_order_value': avg_order_value,
+        'seller_level': seller_level,
+        'seller_level_class': seller_level_class,
+        'seller_rating': seller_rating,
     }
     
-    return render(request, 'store/seller_dashboard.html', context)
+    # Render the luxury dashboard template
+    return render(request, 'store/seller_dashboard_luxury.html', context)
 
 @login_required
 def buyer_dashboard(request):

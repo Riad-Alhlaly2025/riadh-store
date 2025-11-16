@@ -1,222 +1,327 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}لوحة تحكم المشتري - متجر رياض الإلكتروني{% endblock %}
+{% block title %}لوحة تحكم المشتري الفاخرة - متجر رياض الإلكتروني{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <h1>مرحباً بك في لوحة تحكم المشتري</h1>
-    
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <h3>إجمالي الطلبات</h3>
-            <p class="stat-number">{{ total_orders }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>الطلبات المعلقة</h3>
-            <p class="stat-number">{{ pending_orders }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>إجمالي العمولات</h3>
-            <p class="stat-number">{{ total_commissions }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>قيمة العمولات</h3>
-            <p class="stat-number">{{ total_commission_amount|floatformat:2 }} 
-                {% if currency == 'USD' %}USD
-                {% elif currency == 'EUR' %}EUR
-                {% elif currency == 'SAR' %}ر.س
-                {% elif currency == 'AED' %}د.إ
-                {% elif currency == 'EGP' %}ج.م
-                {% elif currency == 'KWD' %}د.ك
-                {% elif currency == 'QAR' %}ر.ق
-                {% elif currency == 'OMR' %}ر.ع.
-                {% elif currency == 'BHD' %}د.ب
-                {% elif currency == 'JOD' %}د.أ
-                {% else %}{{ currency }}
-                {% endif %}
-            </p>
-        </div>
-    </div>
-    
-    <div class="dashboard-actions">
-        <h2>الإجراءات السريعة</h2>
-        <div class="action-buttons">
-            <a href="{% url 'order_history' %}" class="btn-primary">تاريخ الطلبات</a>
-            <a href="{% url 'view_cart' %}" class="btn-secondary">عرض السلة</a>
-            <a href="#" class="btn-secondary">القائمة المفضلة</a>
-            <a href="#" class="btn-secondary">حسابي</a>
-        </div>
-    </div>
-    
-    {% if recent_commissions %}
-    <div class="recent-commissions">
-        <h2>أحدث العمولات</h2>
-        <div class="commissions-list">
-            {% for commission in recent_commissions %}
-            <div class="commission-item">
-                <span>طلب #{{ commission.order.id }}</span>
-                <span>{{ commission.amount|floatformat:2 }} 
-                    {% if currency == 'USD' %}USD
-                    {% elif currency == 'EUR' %}EUR
-                    {% elif currency == 'SAR' %}ر.س
-                    {% elif currency == 'AED' %}د.إ
-                    {% elif currency == 'EGP' %}ج.م
-                    {% elif currency == 'KWD' %}د.ك
-                    {% elif currency == 'QAR' %}ر.ق
-                    {% elif currency == 'OMR' %}ر.ع.
-                    {% elif currency == 'BHD' %}د.ب
-                    {% elif currency == 'JOD' %}د.أ
-                    {% else %}{{ currency }}
-                    {% endif %}
-                </span>
-                <span>({{ commission.rate|floatformat:2 }}%)</span>
-                <span>{{ commission.created_at|date:"d/m/Y" }}</span>
+<div class="luxury-dashboard">
+    <!-- Header Section with Welcome Message -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title">مرحباً بك، <span class="highlight">{{ request.user.first_name|default:request.user.username }}</span></h1>
+                <p class="last-login">آخر دخول: {{ request.user.last_login|date:"d/m/Y H:i" }}</p>
             </div>
-            {% endfor %}
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-crown"></i>
+                    <span class="stat-label">مستوى العميل</span>
+                    <span class="stat-value gold">ذهبي</span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-star"></i>
+                    <span class="stat-label">الولاء</span>
+                    <span class="stat-value">95%</span>
+                </div>
+            </div>
         </div>
     </div>
-    {% endif %}
     
-    <div class="recent-orders">
-        <h2>الطلبات الأخيرة</h2>
-        <p>لا توجد طلبات حديثة.</p>
+    <!-- Performance Overview -->
+    <div class="performance-overview luxury-card animated fadeInUp">
+        <div class="performance-header">
+            <h2><i class="fas fa-tachometer-alt"></i> نظرة عامة على الأداء</h2>
+        </div>
+        <div class="performance-metrics">
+            <div class="metric-card">
+                <div class="metric-icon orders">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>إجمالي الطلبات</h3>
+                    <p class="metric-value">{{ total_orders }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12.5%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>الطلبات المعلقة</h3>
+                    <p class="metric-value">{{ pending_orders }}</p>
+                    <div class="trend neutral">
+                        <i class="fas fa-equals"></i>
+                        <span>0.0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon commissions">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>إجمالي العمولات</h3>
+                    <p class="metric-value">{{ total_commissions }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+8.3%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon revenue">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>قيمة العمولات</h3>
+                    <p class="metric-value">{{ total_commission_amount|floatformat:2 }} 
+                        {% if currency == 'USD' %}USD
+                        {% elif currency == 'EUR' %}EUR
+                        {% elif currency == 'SAR' %}ر.س
+                        {% elif currency == 'AED' %}د.إ
+                        {% elif currency == 'EGP' %}ج.م
+                        {% elif currency == 'KWD' %}د.ك
+                        {% elif currency == 'QAR' %}ر.ق
+                        {% elif currency == 'OMR' %}ر.ع.
+                        {% elif currency == 'BHD' %}د.ب
+                        {% elif currency == 'JOD' %}د.أ
+                        {% else %}{{ currency }}
+                        {% endif %}
+                    </p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+5.7%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Section -->
+    <div class="dashboard-actions">
+        <h2 class="section-title animated fadeInUp">الإجراءات السريعة</h2>
+        <div class="action-grid">
+            <a href="{% url 'order_history' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.1s">
+                <div class="action-icon primary">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="action-content">
+                    <h3>تاريخ الطلبات</h3>
+                    <p>عرض جميع طلباتك السابقة</p>
+                </div>
+                <div class="action-badge">{{ total_orders }}</div>
+            </a>
+            
+            <a href="{% url 'view_cart' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.2s">
+                <div class="action-icon secondary">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="action-content">
+                    <h3>عرض السلة</h3>
+                    <p>إدارة المنتجات في سلة التسوق</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.3s">
+                <div class="action-icon success">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="action-content">
+                    <h3>القائمة المفضلة</h3>
+                    <p>عرض المنتجات المحفوظة</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.4s">
+                <div class="action-icon warning">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="action-content">
+                    <h3>حسابي</h3>
+                    <p>إدارة معلومات الحساب</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.5s">
+                <div class="action-icon info">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="action-content">
+                    <h3>الإعدادات</h3>
+                    <p>تخصيص تفضيلاتك</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.6s">
+                <div class="action-icon purple">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="action-content">
+                    <h3>الجوائز</h3>
+                    <p>عرض مكافآت الولاء</p>
+                </div>
+                <div class="action-badge success">متوفر</div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Activity and Commissions -->
+    <div class="dashboard-details">
+        <div class="details-row">
+            <!-- Recent Commissions -->
+            <div class="recent-commissions luxury-card animated fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> أحدث العمولات</h3>
+                    <a href="#" class="view-all">عرض الكل</a>
+                </div>
+                <div class="commissions-list">
+                    {% if recent_commissions %}
+                        {% for commission in recent_commissions %}
+                        <div class="commission-item">
+                            <div class="commission-info">
+                                <span class="commission-order">طلب #{{ commission.order.id }}</span>
+                                <span class="commission-date">{{ commission.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="commission-details">
+                                <span class="commission-amount">{{ commission.amount|floatformat:2 }} 
+                                    {% if currency == 'USD' %}USD
+                                    {% elif currency == 'EUR' %}EUR
+                                    {% elif currency == 'SAR' %}ر.س
+                                    {% elif currency == 'AED' %}د.إ
+                                    {% elif currency == 'EGP' %}ج.م
+                                    {% elif currency == 'KWD' %}د.ك
+                                    {% elif currency == 'QAR' %}ر.ق
+                                    {% elif currency == 'OMR' %}ر.ع.
+                                    {% elif currency == 'BHD' %}د.ب
+                                    {% elif currency == 'JOD' %}د.أ
+                                    {% else %}{{ currency }}
+                                    {% endif %}
+                                </span>
+                                <span class="commission-status {% if commission.is_paid %}paid{% else %}pending{% endif %}">
+                                    {% if commission.is_paid %}مدفوعة{% else %}معلقة{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>لا توجد عمولات حديثة</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Recent Orders -->
+            <div class="recent-orders luxury-card animated fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-shopping-bag"></i> الطلبات الأخيرة</h3>
+                    <a href="{% url 'order_history' %}" class="view-all">عرض الكل</a>
+                </div>
+                <div class="orders-list">
+                    <div class="order-item">
+                        <div class="order-info">
+                            <h4>طلب #ORD-7845</h4>
+                            <p class="order-date">14/11/2025</p>
+                        </div>
+                        <div class="order-details">
+                            <span class="order-amount">1,250 ر.س</span>
+                            <span class="order-status delivered">تم التسليم</span>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="order-info">
+                            <h4>طلب #ORD-7844</h4>
+                            <p class="order-date">13/11/2025</p>
+                        </div>
+                        <div class="order-details">
+                            <span class="order-amount">890 ر.س</span>
+                            <span class="order-status shipped">تم الشحن</span>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="order-info">
+                            <h4>طلب #ORD-7843</h4>
+                            <p class="order-date">12/11/2025</p>
+                        </div>
+                        <div class="order-details">
+                            <span class="order-amount">2,100 ر.س</span>
+                            <span class="order-status processing">قيد المعالجة</span>
+                        </div>
+                    </div>
+                    <div class="order-item">
+                        <div class="order-info">
+                            <h4>طلب #ORD-7842</h4>
+                            <p class="order-date">11/11/2025</p>
+                        </div>
+                        <div class="order-details">
+                            <span class="order-amount">650 ر.س</span>
+                            <span class="order-status delivered">تم التسليم</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Insights -->
+    <div class="performance-insights luxury-card animated fadeInUp">
+        <div class="insights-header">
+            <h3><i class="fas fa-lightbulb"></i> رؤى الأداء</h3>
+        </div>
+        <div class="insights-content">
+            <div class="insight-item">
+                <div class="insight-icon">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="insight-text">
+                    <h4>مكافآت الولاء</h4>
+                    <p>لديك 250 نقطة ولاء يمكن استبدالها بمكافآت. استفد منها الآن!</p>
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="insight-text">
+                    <h4>عروض خاصة</h4>
+                    <p>احصل على خصم إضافي 10% عند إتمام طلب today. العرض لفترة محدودة!</p>
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="insight-text">
+                    <h4>توصيل مجاني</h4>
+                    <p>أضف منتجات بقيمة 100 ر.س أخرى للحصول على توصيل مجاني.</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .dashboard-container h1 {
-        color: #0074D9;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-    
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-    }
-    
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .stat-card h3 {
-        color: #333;
-        margin-bottom: 15px;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #0074D9;
-        margin: 0;
-    }
-    
-    .dashboard-actions h2 {
-        color: #0074D9;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-    }
-    
-    .recent-orders, .recent-commissions {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-top: 30px;
-    }
-    
-    .recent-orders h2, .recent-commissions h2 {
-        color: #0074D9;
-        margin-top: 0;
-    }
-    
-    .commissions-list {
-        margin-top: 15px;
-    }
-    
-    .commission-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .commission-item:last-child {
-        border-bottom: none;
-    }
-    
-    .btn-primary, .btn-secondary {
-        display: inline-block;
-        padding: 12px 25px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        text-align: center;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: white;
-        border: none;
-    }
-    
-    .btn-secondary {
-        background: white;
-        color: #0074D9;
-        border: 2px solid #0074D9;
-    }
-    
-    .btn-primary:hover, .btn-secondary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,116,217,0.3);
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-stats {
-            grid-template-columns: 1fr;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .btn-primary, .btn-secondary {
-            width: 100%;
-        }
-        
-        .commission-item {
-            flex-direction: column;
-            gap: 5px;
-        }
-    }
-</style>
+{% block extra_scripts %}
+<script>
+// Enhanced animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, parseFloat(delay) * 1000 || 0);
+    });
+});
+</script>
 {% endblock %}

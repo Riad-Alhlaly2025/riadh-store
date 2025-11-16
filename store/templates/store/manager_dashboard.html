@@ -1,137 +1,321 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}لوحة تحكم المدير - متجر رياض الإلكتروني{% endblock %}
+{% block title %}لوحة تحكم المدير الفاخرة - متجر رياض الإلكتروني{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <h1>مرحباً بك في لوحة تحكم المدير</h1>
-    
-    <div class="dashboard-stats">
-        <div class="stat-card">
-            <h3>إجمالي المنتجات</h3>
-            <p class="stat-number">{{ total_products }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>إجمالي الطلبات</h3>
-            <p class="stat-number">{{ total_orders }}</p>
-        </div>
-        
-        <div class="stat-card">
-            <h3>الطلبات المعلقة</h3>
-            <p class="stat-number">{{ pending_orders }}</p>
+<div class="luxury-dashboard">
+    <!-- Header Section with Welcome Message -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title">مرحباً بك، <span class="highlight">{{ request.user.first_name|default:request.user.username }}</span></h1>
+                <p class="last-login">آخر دخول: {{ request.user.last_login|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="stat-label">مستوى الوصول</span>
+                    <span class="stat-value admin">مدير</span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-server"></i>
+                    <span class="stat-label">حالة النظام</span>
+                    <span class="stat-value success">نشط</span>
+                </div>
+            </div>
         </div>
     </div>
     
+    <!-- Performance Overview -->
+    <div class="performance-overview luxury-card animated fadeInUp">
+        <div class="performance-header">
+            <h2><i class="fas fa-tachometer-alt"></i> نظرة عامة على الأداء</h2>
+        </div>
+        <div class="performance-metrics">
+            <div class="metric-card">
+                <div class="metric-icon products">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>إجمالي المنتجات</h3>
+                    <p class="metric-value">{{ total_products }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+15.2%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon orders">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>إجمالي الطلبات</h3>
+                    <p class="metric-value">{{ total_orders }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12.8%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon pending">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>الطلبات المعلقة</h3>
+                    <p class="metric-value">{{ pending_orders }}</p>
+                    <div class="trend negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-3.2%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon sellers">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>عدد البائعين</h3>
+                    <p class="metric-value">142</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+8.5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Section -->
     <div class="dashboard-actions">
-        <h2>الإجراءات السريعة</h2>
-        <div class="action-buttons">
-            <a href="{% url 'admin:index' %}" class="btn-primary">إدارة النظام</a>
-            <a href="{% url 'commission_report' %}" class="btn-secondary">تقارير العمولات</a>
-            <a href="#" class="btn-secondary">تقارير المبيعات</a>
-            <a href="#" class="btn-secondary">إعدادات المتجر</a>
+        <h2 class="section-title animated fadeInUp">الإجراءات السريعة</h2>
+        <div class="action-grid">
+            <a href="{% url 'admin:index' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.1s">
+                <div class="action-icon primary">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="action-content">
+                    <h3>إدارة النظام</h3>
+                    <p>الوصول إلى لوحة الإدارة</p>
+                </div>
+                <div class="action-badge">متوفر</div>
+            </a>
+            
+            <a href="{% url 'commission_report' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.2s">
+                <div class="action-icon secondary">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="action-content">
+                    <h3>تقارير العمولات</h3>
+                    <p>تحليل العمولات والمستحقات</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.3s">
+                <div class="action-icon success">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="action-content">
+                    <h3>تقارير المبيعات</h3>
+                    <p>تحليل المبيعات والأداء</p>
+                </div>
+            </a>
+            
+            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.4s">
+                <div class="action-icon warning">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="action-content">
+                    <h3>إعدادات المتجر</h3>
+                    <p>تخصيص إعدادات المتجر</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'manage_sellers' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.5s">
+                <div class="action-icon info">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="action-content">
+                    <h3>إدارة البائعين</h3>
+                    <p>إدارة حسابات البائعين</p>
+                </div>
+                <div class="action-badge">142</div>
+            </a>
+            
+            <a href="{% url 'manage_disputes' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.6s">
+                <div class="action-icon danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="action-content">
+                    <h3>إدارة النزاعات</h3>
+                    <p>حل النزاعات والشكاوى</p>
+                </div>
+                <div class="action-badge warning">5</div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Activity and System Status -->
+    <div class="dashboard-details">
+        <div class="details-row">
+            <!-- System Status -->
+            <div class="system-status luxury-card animated fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-server"></i> حالة النظام</h3>
+                    <a href="#" class="view-all">عرض التفاصيل</a>
+                </div>
+                <div class="status-list">
+                    <div class="status-item">
+                        <div class="status-info">
+                            <span class="status-name">قاعدة البيانات</span>
+                            <span class="status-time">آخر تحديث: الآن</span>
+                        </div>
+                        <div class="status-details">
+                            <span class="status-indicator success"></span>
+                            <span class="status-text">نشط</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-info">
+                            <span class="status-name">الخادم</span>
+                            <span class="status-time">آخر تحديث: الآن</span>
+                        </div>
+                        <div class="status-details">
+                            <span class="status-indicator success"></span>
+                            <span class="status-text">نشط</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-info">
+                            <span class="status-name">التخزين</span>
+                            <span class="status-time">الاستخدام: 65%</span>
+                        </div>
+                        <div class="status-details">
+                            <span class="status-indicator warning"></span>
+                            <span class="status-text">تحذير</span>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-info">
+                            <span class="status-name">الشبكة</span>
+                            <span class="status-time">السرعة: 1.2 Gbps</span>
+                        </div>
+                        <div class="status-details">
+                            <span class="status-indicator success"></span>
+                            <span class="status-text">ممتاز</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="recent-activity luxury-card animated fadeInUp">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> النشاط الأخير</h3>
+                    <a href="#" class="view-all">عرض الكل</a>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon primary">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>بائع جديد مسجل</h4>
+                            <p>تم تسجيل بائع جديد في النظام</p>
+                            <span class="activity-time">قبل 10 دقائق</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>طلب جديد</h4>
+                            <p>تم استلام طلب جديد من العميل</p>
+                            <span class="activity-time">قبل 25 دقيقة</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>نزاع جديد</h4>
+                            <p>تم فتح نزاع جديد بين بائع وعميل</p>
+                            <span class="activity-time">قبل ساعة</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>تقرير مالي شهري</h4>
+                            <p>تم إنشاء التقرير المالي للشهر الماضي</p>
+                            <span class="activity-time">قبل 3 ساعات</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Insights -->
+    <div class="performance-insights luxury-card animated fadeInUp">
+        <div class="insights-header">
+            <h3><i class="fas fa-lightbulb"></i> رؤى الأداء</h3>
+        </div>
+        <div class="insights-content">
+            <div class="insight-item">
+                <div class="insight-icon">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="insight-text">
+                    <h4>فرص لتحسين الأداء</h4>
+                    <p>زيادة عدد البائعين بنسبة 15% يمكن أن تزيد المبيعات بنسبة 25%.</p>
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="insight-text">
+                    <h4>زيادة التفاعل</h4>
+                    <p>إرسال إشعارات أسبوعية للبائعين يزيد من نشاطهم بنسبة 40%.</p>
+                </div>
+            </div>
+            <div class="insight-item">
+                <div class="insight-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="insight-text">
+                    <h4>عروض خاصة</h4>
+                    <p>إنشاء عروض موسمية يمكن أن تزيد المبيعات بنسبة 30%.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    
-    .dashboard-container h1 {
-        color: #0074D9;
-        text-align: center;
-        margin-bottom: 30px;
-    }
-    
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
-    }
-    
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .stat-card h3 {
-        color: #333;
-        margin-bottom: 15px;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #0074D9;
-        margin: 0;
-    }
-    
-    .dashboard-actions h2 {
-        color: #0074D9;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 15px;
-    }
-    
-    .btn-primary, .btn-secondary {
-        display: inline-block;
-        padding: 12px 25px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        text-align: center;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        color: white;
-        border: none;
-    }
-    
-    .btn-secondary {
-        background: white;
-        color: #0074D9;
-        border: 2px solid #0074D9;
-    }
-    
-    .btn-primary:hover, .btn-secondary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,116,217,0.3);
-    }
-    
-    @media (max-width: 768px) {
-        .dashboard-stats {
-            grid-template-columns: 1fr;
-        }
-        
-        .action-buttons {
-            flex-direction: column;
-        }
-        
-        .btn-primary, .btn-secondary {
-            width: 100%;
-        }
-    }
-</style>
+{% block extra_scripts %}
+<script>
+// Enhanced animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, parseFloat(delay) * 1000 || 0);
+    });
+});
+</script>
 {% endblock %}

@@ -21,6 +21,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from store.sitemaps import ProductSitemap, StaticViewSitemap
+# Import custom admin site
+from store.admin_custom import custom_admin_site
 
 sitemaps = {
     'products': ProductSitemap,
@@ -29,6 +31,7 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('custom-admin/', custom_admin_site.urls),
     path('', include('store.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},

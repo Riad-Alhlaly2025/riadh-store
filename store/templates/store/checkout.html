@@ -1,167 +1,299 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}إتمام الطلب - متجر رياض الإلكتروني{% endblock %}
+{% block title %}إتمام الطلب - متجر رياض الإلكتروني الفاخر{% endblock %}
 
 {% block content %}
-<div class="checkout-container">
-    <h1>إتمام الطلب</h1>
-    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
+<div class="luxury-dashboard">
+    <!-- Checkout Header -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title"><i class="fas fa-credit-card"></i> إتمام الطلب الفاخر</h1>
+                <p class="last-login">آخر خطوة لتجربة تسوق لا تُضاهى</p>
             </div>
-        {% endfor %}
-    {% endif %}
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-lock"></i>
+                    <span class="stat-label">آمن ومشفر</span>
+                    <span class="stat-value"><i class="fas fa-shield-alt"></i></span>
+                </div>
+                <div class="stat-badge">
+                    <i class="fas fa-truck"></i>
+                    <span class="stat-label">توصيل سريع</span>
+                    <span class="stat-value">24 ساعة</span>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <div class="checkout-content">
-        <div class="order-summary">
-            <h2>ملخص الطلب</h2>
-            <table class="cart-table">
-                <thead>
-                    <tr>
-                        <th>المنتج</th>
-                        <th>الكمية</th>
-                        <th>السعر الفرعي</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                        <tr>
-                            <td>{{ item.product.name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>{{ item.subtotal }} 
-                                {% if currency == 'USD' %}USD
-                                {% elif currency == 'EUR' %}EUR
-                                {% elif currency == 'SAR' %}ر.س
-                                {% elif currency == 'AED' %}د.إ
-                                {% elif currency == 'EGP' %}ج.م
-                                {% elif currency == 'KWD' %}د.ك
-                                {% elif currency == 'QAR' %}ر.ق
-                                {% elif currency == 'OMR' %}ر.ع.
-                                {% elif currency == 'BHD' %}د.ب
-                                {% elif currency == 'JOD' %}د.أ
-                                {% else %}{{ currency }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            
-            <h3 class="total-amount">الإجمالي: {{ total }} 
-                {% if currency == 'USD' %}USD
-                {% elif currency == 'EUR' %}EUR
-                {% elif currency == 'SAR' %}ر.س
-                {% elif currency == 'AED' %}د.إ
-                {% elif currency == 'EGP' %}ج.م
-                {% elif currency == 'KWD' %}د.ك
-                {% elif currency == 'QAR' %}ر.ق
-                {% elif currency == 'OMR' %}ر.ع.
-                {% elif currency == 'BHD' %}د.ب
-                {% elif currency == 'JOD' %}د.أ
-                {% else %}{{ currency }}
-                {% endif %}
-            </h3>
+    <div class="checkout-section">
+        <!-- Order Summary -->
+        <div class="order-summary luxury-card animated fadeInLeft">
+            <div class="summary-header">
+                <h3><i class="fas fa-receipt"></i> ملخص الطلب</h3>
+            </div>
+            <div class="summary-content">
+                {% for item in cart_items %}
+                <div class="summary-item luxury-item">
+                    <div class="item-image">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                        <div class="no-image">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <h4>{{ item.product.name }}</h4>
+                        <div class="item-quantity">الكمية: {{ item.quantity }}</div>
+                    </div>
+                    <div class="item-price">{{ item.total_price }} ر.س</div>
+                </div>
+                {% endfor %}
+                
+                <div class="summary-totals">
+                    <div class="total-row">
+                        <span class="label">سعر المنتجات:</span>
+                        <span class="value">{{ total_price }} ر.س</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="label">الشحن:</span>
+                        <span class="value">مجاني</span>
+                    </div>
+                    <div class="total-row">
+                        <span class="label">الضرائب:</span>
+                        <span class="value">0 ر.س</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span class="label">الإجمالي:</span>
+                        <span class="value">{{ total_price }} ر.س</span>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="shipping-info">
-            <h2>معلومات التوصيل</h2>
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="{{ form.shipping_address.id_for_label }}">{{ form.shipping_address.label }}</label>
-                    {{ form.shipping_address }}
-                    {% if form.shipping_address.errors %}
-                        <div class="error">{{ form.shipping_address.errors }}</div>
-                    {% endif %}
-                </div>
-                
-                <div class="form-group">
-                    <label for="{{ form.phone_number.id_for_label }}">{{ form.phone_number.label }}</label>
-                    {{ form.phone_number }}
-                    {% if form.phone_number.errors %}
-                        <div class="error">{{ form.phone_number.errors }}</div>
-                    {% endif %}
-                </div>
-                
-                <button type="submit" class="btn checkout">تأكيد الطلب</button>
-                <a href="{% url 'view_cart' %}" class="btn">العودة للسلة</a>
-            </form>
+        <!-- Checkout Form -->
+        <div class="checkout-form luxury-card animated fadeInRight">
+            <div class="form-header">
+                <h3><i class="fas fa-user"></i> معلومات التوصيل</h3>
+            </div>
+            <div class="form-content">
+                <form method="post" id="checkoutForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group luxury-group">
+                            <label for="full_name">الاسم الكامل *</label>
+                            <input type="text" id="full_name" name="full_name" class="luxury-input" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group luxury-group">
+                            <label for="email">البريد الإلكتروني *</label>
+                            <input type="email" id="email" name="email" class="luxury-input" required>
+                        </div>
+                        <div class="form-group luxury-group">
+                            <label for="phone">رقم الهاتف *</label>
+                            <input type="tel" id="phone" name="phone" class="luxury-input" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group luxury-group">
+                            <label for="address">العنوان الكامل *</label>
+                            <input type="text" id="address" name="address" class="luxury-input" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group luxury-group">
+                            <label for="city">المدينة *</label>
+                            <input type="text" id="city" name="city" class="luxury-input" required>
+                        </div>
+                        <div class="form-group luxury-group">
+                            <label for="postal_code">الرمز البريدي</label>
+                            <input type="text" id="postal_code" name="postal_code" class="luxury-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group luxury-group">
+                            <label for="payment_method">طريقة الدفع *</label>
+                            <select id="payment_method" name="payment_method" class="luxury-input" required>
+                                <option value="">اختر طريقة الدفع</option>
+                                <option value="credit_card">بطاقة ائتمان</option>
+                                <option value="debit_card">بطاقة مدين</option>
+                                <option value="paypal">باي بال</option>
+                                <option value="cash_on_delivery">الدفع عند الاستلام</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Details -->
+                    <div id="paymentDetails" class="payment-details luxury-details">
+                        <div class="form-header">
+                            <h4><i class="fas fa-credit-card"></i> تفاصيل الدفع</h4>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group luxury-group">
+                                <label for="card_number">رقم البطاقة *</label>
+                                <input type="text" id="card_number" name="card_number" class="luxury-input" placeholder="1234 5678 9012 3456">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group luxury-group">
+                                <label for="expiry_date">تاريخ الانتهاء *</label>
+                                <input type="text" id="expiry_date" name="expiry_date" class="luxury-input" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group luxury-group">
+                                <label for="cvv">CVV *</label>
+                                <input type="text" id="cvv" name="cvv" class="luxury-input" placeholder="123">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group luxury-group">
+                                <label for="cardholder_name">اسم حامل البطاقة *</label>
+                                <input type="text" id="cardholder_name" name="cardholder_name" class="luxury-input">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Notes -->
+                    <div class="form-group luxury-group">
+                        <label for="order_notes">ملاحظات الطلب (اختياري)</label>
+                        <textarea id="order_notes" name="order_notes" class="luxury-input" rows="3" placeholder="أي ملاحظات خاصة حول الطلب..."></textarea>
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="form-group luxury-group terms-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms_accepted" required>
+                            <span class="checkmark"></span>
+                            أوافق على <a href="#" class="luxury-link">الشروط والأحكام</a> و <a href="#" class="luxury-link">سياسة الخصوصية</a>
+                        </label>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="luxury-btn primary full-width">
+                            <i class="fas fa-check-circle"></i> تأكيد الطلب
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Luxury Features -->
+    <div class="luxury-features">
+        <div class="feature-card luxury-card animated fadeInUp">
+            <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="feature-content">
+                <h4>آمن ومشفر</h4>
+                <p>جميع بياناتك محمية بتقنيات التشفير المتقدمة</p>
+            </div>
+        </div>
+        
+        <div class="feature-card luxury-card animated fadeInUp" data-delay="0.2">
+            <div class="feature-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="feature-content">
+                <h4>توصيل سريع</h4>
+                <p>توصيل خلال 24 ساعة في جميع أنحاء المملكة</p>
+            </div>
+        </div>
+        
+        <div class="feature-card luxury-card animated fadeInUp" data-delay="0.4">
+            <div class="feature-icon">
+                <i class="fas fa-undo"></i>
+            </div>
+            <div class="feature-content">
+                <h4>إرجاع مجاني</h4>
+                <p>إرجاع خلال 30 يوم بدون رسوم إضافية</p>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_styles %}
-<style>
-.checkout-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.checkout-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-top: 20px;
-}
-
-.order-summary, .shipping-info {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.dark-mode .order-summary, 
-.dark-mode .shipping-info {
-    background: #2a2a2a;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input, 
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-family: 'Cairo', sans-serif;
-}
-
-.dark-mode .form-group input, 
-.dark-mode .form-group textarea {
-    background: #333;
-    border-color: #555;
-    color: white;
-}
-
-.total-amount {
-    text-align: left;
-    margin-top: 20px;
-    font-size: 1.5em;
-    color: #2c5aa0;
-}
-
-.dark-mode .total-amount {
-    color: #6b9bd9;
-}
-
-@media (max-width: 768px) {
-    .checkout-content {
-        grid-template-columns: 1fr;
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment method toggle
+    const paymentMethod = document.getElementById('payment_method');
+    const paymentDetails = document.getElementById('paymentDetails');
+    
+    if (paymentMethod && paymentDetails) {
+        paymentMethod.addEventListener('change', function() {
+            if (this.value === 'credit_card' || this.value === 'debit_card') {
+                paymentDetails.style.display = 'block';
+            } else {
+                paymentDetails.style.display = 'none';
+            }
+        });
     }
-}
-</style>
+    
+    // Form validation
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simple validation
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('error');
+                    isValid = false;
+                } else {
+                    field.classList.remove('error');
+                }
+            });
+            
+            if (isValid) {
+                // Show confirmation
+                if (confirm('هل تؤكد إتمام الطلب؟')) {
+                    // Submit form
+                    this.submit();
+                }
+            } else {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+            }
+        });
+    }
+    
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, parseFloat(delay) * 1000 || 0);
+    });
+    
+    // Input focus effects
+    const inputs = document.querySelectorAll('.luxury-input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+    });
+});
+</script>
 {% endblock %}

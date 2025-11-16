@@ -4,1006 +4,142 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0072ff">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="متجر رياض">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="{% static 'images/logo-192.png' %}">
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-    <title>{% block title %}متجر رياض الإلكتروني{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}متجر رياض الإلكتروني - أفضل المنتجات بأفضل الأسعار{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}متجر, إلكتروني, تسوق, منتجات, رياض{% endblock %}">
-    <meta name="author" content="متجر رياض الإلكتروني">
-    <meta name="robots" content="index, follow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}متجر رياض الإلكتروني - تجربة تسوق احترافية{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}متجر رياض الإلكتروني - أفضل المنتجات بأفضل الأسعار مع تجربة تسوق احترافية عالمية المستوى{% endblock %}">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
-    <meta property="og:title" content="{% block og_title %}متجر رياض الإلكتروني{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}متجر رياض الإلكتروني - أفضل المنتجات بأفضل الأسعار{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{% static 'images/logo.png' %}{% endblock %}">
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{% block twitter_url %}{{ request.build_absolute_uri }}{% endblock %}">
-    <meta property="twitter:title" content="{% block twitter_title %}متجر رياض الإلكتروني{% endblock %}">
-    <meta property="twitter:description" content="{% block twitter_description %}متجر رياض الإلكتروني - أفضل المنتجات بأفضل الأسعار{% endblock %}">
-    <meta property="twitter:image" content="{% block twitter_image %}{% static 'images/logo.png' %}{% endblock %}">
+    <!-- Luxury Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/luxury-theme.css' %}">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="{% static 'css/style.css' %}" as="style">
-    <link rel="preload" href="{% static 'css/dark.css' %}" as="style">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" as="style">
-    
-    <!-- 🟦 الخطوط والألوان العامة -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- 🟩 ملفات الأنماط -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dark.css' %}">
+    <!-- Responsive Enhancements CSS -->
+    <link rel="stylesheet" href="{% static 'css/responsive-enhancements.css' %}">
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Favicon -->
-    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-    
-    <!-- Modern design enhancements -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0072ff">
-
     {% block extra_head %}{% endblock %}
 </head>
 
-<body class="theme-dark">
-    <!-- ======= الشريط العلوي ======= -->
-    <div class="top-banner" id="topBanner">
-        <p class="banner-text">✨ عروض الجمعة البيضاء — خصومات تصل إلى 70% على جميع المنتجات!</p>
-        <button id="bannerClose">×</button>
-    </div>
-
-    <!-- ======= رأس الموقع ======= -->
-    <header class="site-header">
-        <div class="header-inner">
-            <div class="logo-group">
-                <div class="logo">📱</div>
-                <div class="brand-name">متجر رياض</div>
-            </div>
+<body>
+    <!-- Luxury Header -->
+    <header class="luxury-header">
+        <div class="container header-inner">
+            <a href="{% url 'home' %}" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                متجر رياض
+            </a>
             
-            <!-- Mobile menu toggle -->
-            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-                
-            <!-- Advanced Navigation -->
-            <nav class="advanced-nav" id="advancedNav">
-                <div class="nav-overlay" id="navOverlay"></div>
-                <div class="nav-container">
-                    <div class="nav-header">
-                        <h3>التنقل السريع</h3>
-                        <button class="nav-close" id="navClose">×</button>
-                    </div>
-                    <div class="nav-content">
-                        <!-- Search Bar -->
-                        <div class="nav-search">
-                            <form method="GET" action="{% url 'product_list' %}" class="nav-search-form">
-                                <input type="text" name="q" placeholder="ابحث عن منتج..." class="nav-search-input">
-                                <button type="submit" class="nav-search-btn">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </form>
-                        </div>
-                                    
-                        <div class="nav-section">
-                            <h4><i class="fas fa-shopping-bag"></i> التسوق</h4>
-                            <ul class="nav-links">
-                                <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> الرئيسية</a></li>
-                                <li><a href="{% url 'product_list' %}"><i class="fas fa-store"></i> جميع المنتجات</a></li>
-                                <li><a href="#"><i class="fas fa-tag"></i> العروض الخاصة</a></li>
-                                <li><a href="#"><i class="fas fa-heart"></i> المفضلة</a></li>
-                            </ul>
-                        </div>
-                            
-                        <div class="nav-section">
-                            <h4><i class="fas fa-user-circle"></i> الحساب</h4>
-                            <ul class="nav-links">
-                                {% if user.is_authenticated %}
-                                <li><a href="#"><i class="fas fa-user"></i> ملفي الشخصي</a></li>
-                                <li><a href="{% url 'order_history' %}"><i class="fas fa-history"></i> تاريخ الطلبات</a></li>
-                                <li><a href="{% url 'view_commissions' %}"><i class="fas fa-money-bill-wave"></i> العمولات</a></li>
-                                <li><a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
-                                {% else %}
-                                <li><a href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a></li>
-                                <li><a href="{% url 'signup' %}"><i class="fas fa-user-plus"></i> إنشاء حساب</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                            
-                        {% if user.is_authenticated %}
-                        <div class="nav-section">
-                            <h4><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h4>
-                            <ul class="nav-links">
-                                {% if user.userprofile.role == 'manager' %}
-                                <li><a href="{% url 'manager_dashboard' %}"><i class="fas fa-user-shield"></i> لوحة المدير</a></li>
-                                <li><a href="{% url 'admin:index' %}"><i class="fas fa-cogs"></i> إدارة النظام</a></li>
-                                <li><a href="{% url 'commission_report' %}"><i class="fas fa-chart-bar"></i> تقارير العمولات</a></li>
-                                {% elif user.userprofile.role == 'seller' %}
-                                <li><a href="{% url 'seller_dashboard' %}"><i class="fas fa-user-tie"></i> لوحة البائع</a></li>
-                                <li><a href="#"><i class="fas fa-box-open"></i> إدارة المنتجات</a></li>
-                                <li><a href="#"><i class="fas fa-shopping-cart"></i> الطلبات</a></li>
-                                {% elif user.userprofile.role == 'buyer' %}
-                                <li><a href="{% url 'buyer_dashboard' %}"><i class="fas fa-user"></i> لوحة المشتري</a></li>
-                                <li><a href="#"><i class="fas fa-heart"></i> القائمة المفضلة</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                            
-                        <div class="nav-section">
-                            <h4><i class="fas fa-cog"></i> الإعدادات</h4>
-                            <ul class="nav-links">
-                                <li><a href="#" id="themeToggleNav"><i class="fas fa-moon"></i> <span id="themeText">الوضع الليلي</span></a></li>
-                                <li><a href="#"><i class="fas fa-globe"></i> اللغة</a></li>
-                                <li><a href="#"><i class="fas fa-info-circle"></i> حول التطبيق</a></li>
-                            </ul>
-                        </div>
-                                        
-                        <!-- Quick Access Panel -->
-                        <div class="nav-section quick-access">
-                            <h4><i class="fas fa-bolt"></i> الوصول السريع</h4>
-                            <div class="quick-access-buttons">
-                                <a href="{% url 'view_cart' %}" class="quick-access-btn">
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <span>السلة</span>
-                                    {% if cart_count > 0 %}
-                                    <span class="quick-access-badge">{{ cart_count }}</span>
-                                    {% endif %}
-                                </a>
-                                <a href="{% url 'notifications' %}" class="quick-access-btn">
-                                    <i class="fas fa-bell"></i>
-                                    <span>الإشعارات</span>
-                                    {% if unread_notifications_count > 0 %}
-                                    <span class="quick-access-badge">{{ unread_notifications_count }}</span>
-                                    {% endif %}
-                                </a>
-                                <a href="{% url 'order_history' %}" class="quick-access-btn">
-                                    <i class="fas fa-history"></i>
-                                    <span>الطلبات</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-
-            <!-- 🔍 مربع البحث -->
-            <form method="GET" action="{% url 'product_list' %}" class="search-form">
-                <input type="text" name="q" placeholder="ابحث عن منتج..." value="{{ request.GET.q }}">
-                <button type="submit" class="search-btn">
-                    <i class="fas fa-search"></i> بحث
-                </button>
-                <a href="{% url 'advanced_search' %}" class="advanced-search-link">
-                    <i class="fas fa-sliders-h"></i> بحث متقدم
+            <div class="nav-links">
+                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    الرئيسية
                 </a>
-            </form>
-
-            <!-- 🔘 أزرار المستخدم -->
-            <div class="header-actions">
-                <a href="{% url 'view_cart' %}" class="icon-btn cart-btn" aria-label="سلة التسوق">
+                <a href="{% url 'product_list' %}" class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+                    <i class="fas fa-box"></i>
+                    المنتجات
+                </a>
+                <a href="{% url 'view_cart' %}" class="nav-link {% if request.resolver_match.url_name == 'view_cart' %}active{% endif %}">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">{{ cart_count|default:0 }}</span>
+                    <span>السلة</span>
+                    {% if cart_count %}
+                        <span class="cart-count">{{ cart_count }}</span>
+                    {% endif %}
                 </a>
+                
                 {% if user.is_authenticated %}
-                <a href="{% url 'notifications' %}" class="icon-btn" title="الإشعارات" aria-label="الإشعارات">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">{{ unread_notifications_count|default:0 }}</span>
-                </a>
-                
-                <!-- Role-specific navigation -->
-                {% if user.userprofile.role == 'manager' %}
-                <a href="{% url 'manager_dashboard' %}" class="icon-btn" title="لوحة تحكم المدير" aria-label="لوحة تحكم المدير">
-                    <i class="fas fa-user-shield"></i>
-                </a>
-                {% elif user.userprofile.role == 'seller' %}
-                <a href="{% url 'seller_dashboard' %}" class="icon-btn" title="لوحة تحكم البائع" aria-label="لوحة تحكم البائع">
-                    <i class="fas fa-user-tie"></i>
-                </a>
-                {% elif user.userprofile.role == 'buyer' %}
-                <a href="{% url 'buyer_dashboard' %}" class="icon-btn" title="لوحة تحكم المشتري" aria-label="لوحة تحكم المشتري">
-                    <i class="fas fa-user"></i>
-                </a>
-                {% endif %}
-                
-                <a href="{% url 'logout' %}" class="icon-btn" title="تسجيل خروج" aria-label="تسجيل خروج">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
+                    <a href="{% url 'logout' %}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        تسجيل الخروج
+                    </a>
                 {% else %}
-                <a href="{% url 'login' %}" class="icon-btn" title="تسجيل الدخول" aria-label="تسجيل الدخول">
-                    <i class="fas fa-sign-in-alt"></i>
-                </a>
-                <a href="{% url 'signup' %}" class="icon-btn" title="إنشاء حساب" aria-label="إنشاء حساب">
-                    <i class="fas fa-user-plus"></i>
-                </a>
+                    <a href="{% url 'login' %}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i>
+                        تسجيل الدخول
+                    </a>
                 {% endif %}
-
-                <!-- 🌙 زر تبديل الوضع -->
-                <div class="theme-toggle-container">
-                    <button id="themeToggle" class="theme-toggle-btn" title="تبديل الوضع" aria-label="تبديل الوضع">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                </div>
             </div>
         </div>
     </header>
 
-    <!-- ======= تخطيط الصفحة ======= -->
-    <div class="main-layout">
-        <!-- Breadcrumb Navigation -->
-        <nav class="breadcrumb-nav" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{% url 'home' %}"><i class="fas fa-home"></i> الرئيسية</a>
-                </li>
-                {% block breadcrumb %}
-                <!-- Breadcrumb items will be added by individual pages -->
-                {% endblock %}
-            </ol>
+    <!-- Breadcrumb Navigation -->
+    {% block breadcrumb %}
+    <div class="container mt-4">
+        <nav class="breadcrumb">
+            <a href="{% url 'home' %}" class="breadcrumb-item">
+                <i class="fas fa-home"></i> الرئيسية
+            </a>
+            <span class="breadcrumb-divider">/</span>
+            {% block breadcrumb_items %}{% endblock %}
         </nav>
-        
-        <!-- الشريط الجانبي -->
-        <aside class="sidebar">
-            <div class="filter-box">
-                <h4>تصفية المنتجات</h4>
-                <form method="GET" action="{% url 'product_list' %}">
-                    <label>السعر:</label>
-                    <input type="number" name="min_price" placeholder="من"
-                        value="{{ request.GET.min_price|default_if_none:'' }}">
-                    <input type="number" name="max_price" placeholder="إلى"
-                        value="{{ request.GET.max_price|default_if_none:'' }}">
-                    <button type="submit" class="filter-btn">
-                        <i class="fas fa-filter"></i> تطبيق
-                    </button>
-                </form>
+    </div>
+    {% endblock %}
+
+    <!-- Main Content -->
+    <main class="container mt-2 mb-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Luxury Footer -->
+    <footer class="luxury-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <h3 class="footer-heading">معلومات المتجر</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-info-circle"></i> عن المتجر</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> سياسة الخصوصية</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> شروط الاستخدام</a></li>
+                        <li><a href="#"><i class="fas fa-phone-alt"></i> اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="footer-heading">خدمة العملاء</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a></li>
+                        <li><a href="#"><i class="fas fa-truck"></i> الشحن والاستلام</a></li>
+                        <li><a href="#"><i class="fas fa-undo"></i> الإرجاع والاستبدال</a></li>
+                        <li><a href="#"><i class="fas fa-headset"></i> مركز المساعدة</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="footer-heading">حساباتنا</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fab fa-facebook"></i> فيسبوك</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> تويتر</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> إنستغرام</a></li>
+                        <li><a href="#"><i class="fab fa-linkedin"></i> لينكدإن</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="footer-heading">وسائل الدفع</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fab fa-cc-visa"></i> فيزا</a></li>
+                        <li><a href="#"><i class="fab fa-cc-mastercard"></i> ماستركارد</a></li>
+                        <li><a href="#"><i class="fab fa-cc-paypal"></i> باي بال</a></li>
+                        <li><a href="#"><i class="fas fa-money-bill-wave"></i> الدفع عند الاستلام</a></li>
+                    </ul>
+                </div>
             </div>
             
-            <!-- Role-specific sidebar menu -->
-            {% if user.is_authenticated %}
-            <div class="role-menu">
-                <h4>قائمة {{ user.userprofile.get_role_display }}</h4>
-                {% if user.userprofile.role == 'manager' %}
-                <ul class="category-list">
-                    <li><a href="{% url 'manager_dashboard' %}"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
-                    <li><a href="{% url 'admin:index' %}"><i class="fas fa-cogs"></i> إدارة النظام</a></li>
-                    <li><a href="{% url 'commission_report' %}"><i class="fas fa-chart-bar"></i> تقارير العمولات</a></li>
-                    <li><a href="#"><i class="fas fa-users"></i> إدارة المستخدمين</a></li>
-                    <li><a href="#"><i class="fas fa-chart-line"></i> تقارير المبيعات</a></li>
-                </ul>
-                {% elif user.userprofile.role == 'seller' %}
-                <ul class="category-list">
-                    <li><a href="{% url 'seller_dashboard' %}"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
-                    <li><a href="#"><i class="fas fa-box-open"></i> إدارة المنتجات</a></li>
-                    <li><a href="#"><i class="fas fa-shopping-cart"></i> الطلبات</a></li>
-                    <li><a href="{% url 'view_commissions' %}"><i class="fas fa-money-bill-wave"></i> العمولات</a></li>
-                    <li><a href="#"><i class="fas fa-chart-line"></i> التقارير</a></li>
-                </ul>
-                {% elif user.userprofile.role == 'buyer' %}
-                <ul class="category-list">
-                    <li><a href="{% url 'buyer_dashboard' %}"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
-                    <li><a href="{% url 'order_history' %}"><i class="fas fa-history"></i> تاريخ الطلبات</a></li>
-                    <li><a href="{% url 'view_commissions' %}"><i class="fas fa-money-bill-wave"></i> العمولات</a></li>
-                    <li><a href="#"><i class="fas fa-heart"></i> القائمة المفضلة</a></li>
-                    <li><a href="#"><i class="fas fa-user-circle"></i> الحساب</a></li>
-                </ul>
-                {% endif %}
-            </div>
-            {% endif %}
-        </aside>
-
-        <!-- محتوى الصفحة -->
-        <main class="content">
-            {% block content %}{% endblock %}
-        </main>
-    </div>
-
-    <!-- ======= التذييل ======= -->
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-left">
-                <h4>متجر رياض الإلكتروني</h4>
-                <p>تجربة تسوق فاخرة — توصيل سريع — خدمة عملاء مميزة</p>
-            </div>
-            <div class="footer-right">
-                <p>© 2025 جميع الحقوق محفوظة</p>
+            <div class="copyright">
+                <p>&copy; 2025 متجر رياض الإلكتروني. جميع الحقوق محفوظة.</p>
+                <p class="text-secondary text-sm mt-2">تصميم وتطوير بفخر لتقديم أفضل تجربة تسوق إلكتروني</p>
             </div>
         </div>
     </footer>
 
-    <!-- ======= سكربتات ======= -->
-    <script src="{% static 'js/theme-toggle.js' %}"></script>
-    <script src="{% static 'js/banner-slider.js' %}"></script>
-
-    {% block extra_scripts %}{% endblock %}
-
-    <!-- Google Analytics Integration -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GA_MEASUREMENT_ID');
-        
-        // Track page views
-        gtag('event', 'page_view', {
-            page_title: document.title,
-            page_location: window.location.href
-        });
-    </script>
-
-    <!-- 🔸 سكربت مدمج لتبديل الوضع -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const body = document.body;
-            const toggleBtn = document.getElementById('themeToggle');
-            
-            // التحقق من التفضيل المحفوظ في localStorage
-            const savedTheme = localStorage.getItem('themeMode') || 'dark';
-            if (savedTheme === 'light') {
-                body.classList.remove('theme-dark');
-                body.classList.add('theme-light');
-                if (toggleBtn) {
-                    toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                }
-            } else {
-                body.classList.add('theme-dark');
-                body.classList.remove('theme-light');
-                if (toggleBtn) {
-                    toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
-                }
-            }
-            
-            // Function to track analytics events
-            window.trackEvent = function(eventType, data) {
-                // Track with our internal system
-                const params = new URLSearchParams({
-                    event_type: eventType,
-                    url: window.location.href,
-                    referrer: document.referrer,
-                    ...data
-                });
-                
-                fetch('/track-analytics/?' + params.toString())
-                    .then(response => response.text())
-                    .catch(error => console.log('Analytics tracking error:', error));
-                
-                // Track with Google Analytics if available
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', eventType, data);
-                }
-            };
-            
-            // Track page view
-            trackEvent('page_view');
-            
-            // Track clicks on product links
-            document.addEventListener('click', function(e) {
-                const productLink = e.target.closest('a[href*="/product/"]');
-                if (productLink) {
-                    const productId = productLink.href.match(/\/product\/(\d+)\//);
-                    if (productId) {
-                        trackEvent('product_view', { product_id: productId[1] });
-                    }
-                }
-                
-                // Track add to cart buttons
-                const addToCartBtn = e.target.closest('form[action*="/cart/add/"]');
-                if (addToCartBtn) {
-                    const productId = addToCartBtn.action.match(/\/cart\/add\/(\d+)\//);
-                    if (productId) {
-                        trackEvent('add_to_cart', { product_id: productId[1] });
-                    }
-                }
-            });
-            
-            // Track form submissions
-            document.addEventListener('submit', function(e) {
-                if (e.target.action && e.target.action.includes('/checkout/')) {
-                    trackEvent('checkout');
-                }
-            });
-
-            // التبديل الوضع
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
-                    // إضافة تأثير انتقال
-                    toggleBtn.style.transform = 'rotate(180deg) scale(1.2)';
-                    setTimeout(() => {
-                        toggleBtn.style.transform = 'rotate(0deg) scale(1)';
-                    }, 300);
-                    
-                    // تبديل الوضع
-                    if (body.classList.contains('theme-dark')) {
-                        body.classList.remove('theme-dark');
-                        body.classList.add('theme-light');
-                        localStorage.setItem('themeMode', 'light');
-                        toggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                        // Track theme change
-                        trackEvent('theme_change', { theme: 'light' });
-                    } else {
-                        body.classList.remove('theme-light');
-                        body.classList.add('theme-dark');
-                        localStorage.setItem('themeMode', 'dark');
-                        toggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
-                        // Track theme change
-                        trackEvent('theme_change', { theme: 'dark' });
-                    }
-                });
-                
-                // إضافة تأثير عند التمرير على الزر
-                toggleBtn.addEventListener('mouseenter', () => {
-                    toggleBtn.style.transform = 'scale(1.1)';
-                });
-                
-                toggleBtn.addEventListener('mouseleave', () => {
-                    toggleBtn.style.transform = 'scale(1)';
-                });
-            }
-
-            // 🔸 الشريط العلوي
-            const closeBtn = document.getElementById('bannerClose');
-            const banner = document.getElementById('topBanner');
-            if (closeBtn && banner) {
-                closeBtn.addEventListener('click', () => {
-                    // إضافة تأثير اختفاء
-                    banner.style.opacity = 0;
-                    banner.style.transform = 'translateY(-100%)';
-                    banner.style.transition = 'all 0.5s ease-in-out';
-                    
-                    setTimeout(() => {
-                        banner.style.display = 'none';
-                        localStorage.setItem('bannerClosed', '1');
-                    }, 500);
-                });
-                if (localStorage.getItem('bannerClosed') === '1') {
-                    banner.style.display = 'none';
-                }
-            }
-
-            // 🔸 عرض عدد السلة 0 في حال فارغة
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount && cartCount.textContent.trim() === '') {
-                cartCount.textContent = '0';
-            }
-            
-            // 🔸 Modern design enhancements
-            // Add smooth scrolling
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-            
-            // Add loading animation for images
-            const images = document.querySelectorAll('img');
-            images.forEach(img => {
-                img.addEventListener('load', function() {
-                    this.style.opacity = '1';
-                });
-                
-                // Add fade-in effect
-                img.style.transition = 'opacity 0.3s ease-in-out';
-                img.style.opacity = '0';
-                
-                // If image is already loaded
-                if (img.complete) {
-                    img.style.opacity = '1';
-                }
-            });
-        });
-    </script>
+    <!-- Luxury Interactions JS -->
+    <script src="{% static 'js/luxury-interactions.js' %}"></script>
     
-    <!-- Modern design enhancements -->
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const sidebar = document.querySelector('.sidebar');
-            
-            if (mobileMenuToggle) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    this.classList.toggle('active');
-                    if (sidebar) {
-                        sidebar.classList.toggle('mobile-active');
-                    }
-                });
-            }
-            
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (mobileMenuToggle && mobileMenuToggle.classList.contains('active')) {
-                    const isClickInsideSidebar = sidebar && sidebar.contains(event.target);
-                    const isClickOnToggle = mobileMenuToggle.contains(event.target);
-                    
-                    if (!isClickInsideSidebar && !isClickOnToggle) {
-                        mobileMenuToggle.classList.remove('active');
-                        if (sidebar) {
-                            sidebar.classList.remove('mobile-active');
-                        }
-                    }
-                }
-            });
-            
-            // Staggered animations for product grid
-            const productGrid = document.querySelector('.product-grid');
-            if (productGrid) {
-                // Add delay to show loading effect
-                setTimeout(() => {
-                    productGrid.classList.add('loaded');
-                    
-                    // Add staggered animation to product cards
-                    const productCards = productGrid.querySelectorAll('.product-card');
-                    productCards.forEach((card, index) => {
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, index * 100);
-                    });
-                }, 300);
-            }
-            
-            // Advanced Navigation System
-            const advancedNav = document.getElementById('advancedNav');
-            const navOverlay = document.getElementById('navOverlay');
-            const navClose = document.getElementById('navClose');
-            
-            // Open advanced navigation
-            if (mobileMenuToggle) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    advancedNav.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
-            }
-            
-            // Close advanced navigation
-            function closeNav() {
-                advancedNav.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            
-            if (navOverlay) {
-                navOverlay.addEventListener('click', closeNav);
-            }
-            
-            if (navClose) {
-                navClose.addEventListener('click', closeNav);
-            }
-            
-            // Close with ESC key
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && advancedNav.classList.contains('active')) {
-                    closeNav();
-                }
-            });
-            
-            // Keyboard navigation support
-            document.addEventListener('keydown', function(e) {
-                if (advancedNav.classList.contains('active')) {
-                    // Focus management for navigation links
-                    const navLinks = advancedNav.querySelectorAll('.nav-links a, .quick-access-btn');
-                    const firstLink = navLinks[0];
-                    const lastLink = navLinks[navLinks.length - 1];
-                    
-                    if (e.key === 'Tab') {
-                        if (e.shiftKey && document.activeElement === firstLink) {
-                            lastLink.focus();
-                            e.preventDefault();
-                        } else if (!e.shiftKey && document.activeElement === lastLink) {
-                            firstLink.focus();
-                            e.preventDefault();
-                        }
-                    }
-                }
-            });
-            
-            // Theme toggle in navigation
-            const themeToggleNav = document.getElementById('themeToggleNav');
-            const themeText = document.getElementById('themeText');
-            
-            if (themeToggleNav) {
-                themeToggleNav.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Trigger main theme toggle
-                    const mainThemeToggle = document.getElementById('themeToggle');
-                    if (mainThemeToggle) {
-                        mainThemeToggle.click();
-                    }
-                    
-                    // Update text
-                    const body = document.body;
-                    if (body.classList.contains('theme-dark')) {
-                        themeText.textContent = 'الوضع الليلي';
-                    } else {
-                        themeText.textContent = 'الوضع النهاري';
-                    }
-                });
-            }
-        });
-        
-        // Add service worker for PWA features
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                    console.log('SW registered: ', registration);
-                }).catch(function(registrationError) {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
-        }
-        
-        // Add touch effects for mobile
-        document.addEventListener('touchstart', function() {}, { passive: true });
-    </script>
-    <style>
-        /* Mobile menu toggle */
-        .mobile-menu-toggle {
-            display: none;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 30px;
-            height: 30px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            z-index: 10;
-        }
-        
-        .mobile-menu-toggle span {
-            width: 100%;
-            height: 3px;
-            background: var(--text-main);
-            border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            position: relative;
-            transform-origin: center;
-        }
-        
-        .mobile-menu-toggle span:nth-child(1) {
-            transform: translateY(-8px);
-        }
-        
-        .mobile-menu-toggle span:nth-child(3) {
-            transform: translateY(8px);
-        }
-        
-        .mobile-menu-toggle.active span:nth-child(1) {
-            transform: translateY(0) rotate(45deg);
-        }
-        
-        .mobile-menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-            transform: scaleX(0);
-        }
-        
-        .mobile-menu-toggle.active span:nth-child(3) {
-            transform: translateY(0) rotate(-45deg);
-        }
-        
-        /* Enhanced mobile menu toggle animation */
-        .mobile-menu-toggle {
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-menu-toggle:hover {
-            transform: scale(1.1);
-        }
-        
-        .mobile-menu-toggle:active {
-            transform: scale(0.95);
-        }
-        
-        .mobile-menu-toggle span {
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        
-        .advanced-search-link {
-            display: inline-block;
-            background: rgba(0, 116, 217, 0.1);
-            color: #0074D9;
-            padding: 8px 15px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            font-size: 0.9rem;
-        }
-        
-        .dark-mode .advanced-search-link {
-            background: rgba(0, 198, 255, 0.1);
-            color: #00c6ff;
-        }
-        
-        .advanced-search-link:hover {
-            background: #0074D9;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .dark-mode .advanced-search-link:hover {
-            background: #00c6ff;
-            color: #0f1115;
-        }
-        
-        .advanced-search-link i {
-            margin-left: 5px;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: flex;
-            }
-            
-            .advanced-search-link {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-                margin-right: 5px;
-            }
-        }
-        
-        /* Advanced Navigation Styles */
-        .advanced-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .advanced-nav.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        .nav-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .advanced-nav.active .nav-overlay {
-            opacity: 1;
-        }
-        
-        .nav-container {
-            position: absolute;
-            top: 0;
-            right: -320px;
-            width: 300px;
-            height: 100%;
-            background: var(--bg-card);
-            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
-            transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid var(--border-color);
-        }
-        
-        .advanced-nav.active .nav-container {
-            right: 0;
-        }
-        
-        .nav-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .nav-header h3 {
-            margin: 0;
-            color: var(--primary);
-            font-weight: 700;
-        }
-        
-        .nav-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            color: var(--text-main);
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        
-        .nav-close:hover {
-            background: var(--bg-accent);
-            transform: rotate(90deg);
-        }
-        
-        .nav-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        
-        .nav-section {
-            margin-bottom: 25px;
-        }
-        
-        .nav-section h4 {
-            color: var(--primary);
-            margin: 0 0 15px 0;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* Navigation Search */
-        .nav-search {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .nav-search-form {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .nav-search-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            background: var(--bg-accent);
-            color: var(--text-main);
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-        }
-        
-        .nav-search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0, 198, 255, 0.3);
-        }
-        
-        .nav-search-btn {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            width: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        .nav-search-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .nav-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .nav-links li {
-            margin-bottom: 8px;
-        }
-        
-        .nav-links a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            color: var(--text-main);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: var(--transition);
-            font-weight: 500;
-        }
-        
-        .nav-links a:hover {
-            background: var(--primary-gradient);
-            color: white;
-            transform: translateX(5px);
-        }
-        
-        .nav-links a i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        /* Quick Access Panel */
-        .quick-access-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        
-        .quick-access-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 15px 5px;
-            background: var(--bg-accent);
-            border-radius: 12px;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: var(--transition);
-            position: relative;
-        }
-        
-        .quick-access-btn:hover {
-            background: var(--primary-gradient);
-            color: white;
-            transform: translateY(-3px);
-        }
-        
-        .quick-access-btn i {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-        
-        .quick-access-btn span {
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .quick-access-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: var(--danger-gradient);
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        @media (max-width: 350px) {
-            .nav-container {
-                width: 280px;
-            }
-        }
-    </style>
+    {% block extra_scripts %}{% endblock %}
 </body>
 
 </html>

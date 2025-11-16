@@ -1,107 +1,349 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}سلة التسوق{% endblock %}
+{% block title %}سلة التسوق - متجر رياض الإلكتروني الفاخر{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>سلة التسوق</h2>
-            
-            {% if cart_items %}
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>المنتج</th>
-                            <th>السعر</th>
-                            <th>الكمية</th>
-                            <th>الإجمالي</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr>
-                            <td>
-                                {% if item.product.image %}
-                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
-                                {% endif %}
-                                {{ item.product.name }}
-                            </td>
-                            <td>{{ item.product.price }} ر.س</td>
-                            <td>
-                                <form method="post" action="{% url 'update_cart' item.product.pk %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" style="width: 60px;">
-                                    <button type="submit" class="btn btn-sm btn-secondary">تحديث</button>
-                                </form>
-                            </td>
-                            <td>{{ item.subtotal }} ر.س</td>
-                            <td>
-                                <a href="{% url 'remove_from_cart' item.product.pk %}" class="btn btn-danger btn-sm">إزالة</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="luxury-dashboard">
+    <!-- Cart Header -->
+    <div class="dashboard-header luxury-card animated fadeInDown">
+        <div class="header-content">
+            <div class="user-greeting">
+                <h1 class="welcome-title"><i class="fas fa-shopping-cart"></i> سلة التسوق الفاخرة</h1>
+                <p class="last-login">منتجات مختارة بعناية من مجموعة متجر رياض الإلكتروني</p>
             </div>
-            
-            <!-- Coupon Section -->
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h5>رمز الكوبون</h5>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="fas fa-box"></i>
+                    <span class="stat-label">المنتجات</span>
+                    <span class="stat-value">{{ cart_items|length }}</span>
                 </div>
-                <div class="card-body">
-                    {% if coupon_id %}
-                        <p>لديك كوبون مطبق على السلة.</p>
-                        <a href="{% url 'remove_coupon' %}" class="btn btn-warning">إزالة الكوبون</a>
-                    {% else %}
-                        <form method="post" action="{% url 'apply_coupon' %}">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="coupon_code" placeholder="أدخل رمز الكوبون" required>
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit">تطبيق الكوبون</button>
-                                </div>
-                            </div>
-                        </form>
-                    {% endif %}
+                <div class="stat-badge">
+                    <i class="fas fa-tags"></i>
+                    <span class="stat-label">الإجمالي</span>
+                    <span class="stat-value">{{ total_price }} ر.س</span>
                 </div>
             </div>
-            
-            <!-- Cart Summary -->
-            <div class="card">
-                <div class="card-header">
-                    <h5>ملخص الطلب</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>الإجمالي الفرعي:</strong> {{ total }} ر.س</p>
-                            
-                            {% if coupon_id %}
-                                <p><strong>خصم الكوبون مطبق</strong></p>
-                            {% endif %}
-                            
-                            {% if request.session.loyalty_discount %}
-                                <p><strong>خصم برنامج الولاء مطبق</strong></p>
-                            {% endif %}
+        </div>
+    </div>
+    
+    {% if cart_items %}
+    <div class="cart-section">
+        <div class="cart-items luxury-card animated fadeInLeft">
+            <div class="cart-header">
+                <h3><i class="fas fa-list"></i> محتويات السلة</h3>
+            </div>
+            <div class="cart-content">
+                {% for item in cart_items %}
+                <div class="cart-item luxury-item animated fadeInUp" data-delay="{{ forloop.counter0 }}">
+                    <div class="item-image">
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                        <div class="no-image">
+                            <i class="fas fa-camera"></i>
                         </div>
-                        <div class="col-md-6 text-left">
-                            <a href="{% url 'checkout' %}" class="btn btn-success btn-lg">الدفع</a>
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <h4>{{ item.product.name }}</h4>
+                        <p class="item-description">{{ item.product.description|truncatewords:15 }}</p>
+                        <div class="item-price">{{ item.product.price }} ر.س</div>
+                    </div>
+                    <div class="item-quantity">
+                        <div class="quantity-control luxury-control">
+                            <button class="quantity-btn minus" data-item-id="{{ item.id }}">-</button>
+                            <input type="number" class="quantity-input luxury-input" value="{{ item.quantity }}" min="1" max="10" data-item-id="{{ item.id }}">
+                            <button class="quantity-btn plus" data-item-id="{{ item.id }}">+</button>
+                        </div>
+                    </div>
+                    <div class="item-total">
+                        <span class="total-label">الإجمالي:</span>
+                        <span class="total-value">{{ item.total_price }} ر.س</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="remove-btn luxury-btn danger" data-item-id="{{ item.id }}">
+                            <i class="fas fa-trash"></i> إزالة
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Cart Summary -->
+        <div class="cart-summary luxury-card animated fadeInRight">
+            <div class="summary-header">
+                <h3><i class="fas fa-receipt"></i> ملخص الطلب</h3>
+            </div>
+            <div class="summary-content">
+                <div class="summary-row">
+                    <span class="label">عدد المنتجات:</span>
+                    <span class="value">{{ cart_items|length }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">سعر المنتجات:</span>
+                    <span class="value">{{ total_price }} ر.س</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">الشحن:</span>
+                    <span class="value">مجاني</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">الضرائب:</span>
+                    <span class="value">0 ر.س</span>
+                </div>
+                <div class="summary-row total">
+                    <span class="label">الإجمالي:</span>
+                    <span class="value">{{ total_price }} ر.س</span>
+                </div>
+                
+                <div class="summary-actions">
+                    <a href="{% url 'checkout' %}" class="luxury-btn primary full-width">
+                        <i class="fas fa-credit-card"></i> متابعة للدفع
+                    </a>
+                    <a href="{% url 'product_list' %}" class="luxury-btn secondary full-width">
+                        <i class="fas fa-store"></i> متابعة التسوق
+                    </a>
+                </div>
+                
+                <!-- Luxury Promotions -->
+                <div class="luxury-promotions">
+                    <div class="promotion-item luxury-promo">
+                        <div class="promo-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h5>هدية مجانية</h5>
+                            <p>على الطلبات فوق 1000 ر.س</p>
+                        </div>
+                    </div>
+                    
+                    <div class="promotion-item luxury-promo">
+                        <div class="promo-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h5>ضمان شامل</h5>
+                            <p>استرجاع خلال 30 يوم</p>
                         </div>
                     </div>
                 </div>
             </div>
-            {% else %}
-            <div class="alert alert-info">
-                <p>سلة التسوق فارغة.</p>
-                <a href="{% url 'home' %}" class="btn btn-primary">متابعة التسوق</a>
-            </div>
-            {% endif %}
         </div>
     </div>
+    
+    <!-- Recommended Products -->
+    <div class="recommended-products luxury-card animated fadeInUp">
+        <div class="recommended-header">
+            <h3><i class="fas fa-star"></i> منتجات قد تعجبك</h3>
+        </div>
+        <div class="recommended-content">
+            <div class="product-grid">
+                <!-- Recommended products would be displayed here -->
+                <div class="product-card luxury-card">
+                    <div class="product-img">
+                        <img src="{% static 'images/placeholder.png' %}" alt="منتج مقترح">
+                    </div>
+                    <div class="product-info">
+                        <h3>iPhone 15 Pro</h3>
+                        <p class="price">5,200 ر.س</p>
+                        <a href="#" class="luxury-btn secondary">عرض التفاصيل</a>
+                    </div>
+                </div>
+                
+                <div class="product-card luxury-card">
+                    <div class="product-img">
+                        <img src="{% static 'images/placeholder.png' %}" alt="منتج مقترح">
+                    </div>
+                    <div class="product-info">
+                        <h3>MacBook Air M2</h3>
+                        <p class="price">7,500 ر.س</p>
+                        <a href="#" class="luxury-btn secondary">عرض التفاصيل</a>
+                    </div>
+                </div>
+                
+                <div class="product-card luxury-card">
+                    <div class="product-img">
+                        <img src="{% static 'images/placeholder.png' %}" alt="منتج مقترح">
+                    </div>
+                    <div class="product-info">
+                        <h3>AirPods Pro</h3>
+                        <p class="price">900 ر.س</p>
+                        <a href="#" class="luxury-btn secondary">عرض التفاصيل</a>
+                    </div>
+                </div>
+                
+                <div class="product-card luxury-card">
+                    <div class="product-img">
+                        <img src="{% static 'images/placeholder.png' %}" alt="منتج مقترح">
+                    </div>
+                    <div class="product-info">
+                        <h3>Apple Watch Series 9</h3>
+                        <p class="price">2,100 ر.س</p>
+                        <a href="#" class="luxury-btn secondary">عرض التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart luxury-card animated fadeInUp">
+        <div class="empty-cart-content">
+            <i class="fas fa-shopping-cart empty-cart-icon"></i>
+            <h3>سلة التسوق فارغة</h3>
+            <p>لا توجد منتجات في سلة التسوق الخاصة بك</p>
+            <a href="{% url 'product_list' %}" class="luxury-btn primary">
+                <i class="fas fa-store"></i> تصفح المنتجات
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quantity control functionality
+    const minusButtons = document.querySelectorAll('.quantity-btn.minus');
+    const plusButtons = document.querySelectorAll('.quantity-btn.plus');
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    
+    minusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const input = this.nextElementSibling;
+            let value = parseInt(input.value);
+            if (value > 1) {
+                input.value = value - 1;
+                updateCartItem(itemId, input.value);
+            }
+        });
+    });
+    
+    plusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const input = this.previousElementSibling;
+            let value = parseInt(input.value);
+            if (value < 10) {
+                input.value = value + 1;
+                updateCartItem(itemId, input.value);
+            }
+        });
+    });
+    
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.dataset.itemId;
+            let value = parseInt(this.value);
+            if (value < 1) value = 1;
+            if (value > 10) value = 10;
+            this.value = value;
+            updateCartItem(itemId, value);
+        });
+    });
+    
+    // Remove item functionality
+    const removeButtons = document.querySelectorAll('.remove-btn');
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            removeCartItem(itemId);
+        });
+    });
+    
+    // Update cart item
+    function updateCartItem(itemId, quantity) {
+        fetch(`/cart/update/${itemId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({quantity: quantity})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the cart count in header
+                const cartCount = document.querySelector('.cart-count');
+                if (cartCount) {
+                    // Recalculate total cart count
+                    let totalCount = 0;
+                    const quantityInputs = document.querySelectorAll('.quantity-input');
+                    quantityInputs.forEach(input => {
+                        totalCount += parseInt(input.value) || 0;
+                    });
+                    cartCount.textContent = totalCount;
+                }
+                
+                // Reload the page to show updated cart
+                location.reload();
+            } else {
+                alert(data.message || 'حدث خطأ أثناء تحديث الكمية');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء تحديث الكمية');
+        });
+    }
+    
+    // Remove cart item
+    function removeCartItem(itemId) {
+        if (confirm('هل أنت متأكد من إزالة هذا المنتج من السلة؟')) {
+            fetch(`/cart/remove/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the cart count in header
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount) {
+                        // Recalculate total cart count
+                        let totalCount = 0;
+                        const quantityInputs = document.querySelectorAll('.quantity-input');
+                        quantityInputs.forEach(input => {
+                            if (input.dataset.itemId != itemId) {  // Exclude the removed item
+                                totalCount += parseInt(input.value) || 0;
+                            }
+                        });
+                        cartCount.textContent = totalCount;
+                    }
+                    
+                    // Reload the page to show updated cart
+                    location.reload();
+                } else {
+                    alert(data.message || 'حدث خطأ أثناء إزالة المنتج');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء إزالة المنتج');
+            });
+        }
+    }
+    
+    // Add staggered animations
+    const animatedElements = document.querySelectorAll('.animated');
+    animatedElements.forEach((el, index) => {
+        const delay = el.dataset.delay || 0;
+        // Convert to float and divide by 10 to get proper staggered delay
+        const delayValue = parseFloat(delay) / 10;
+        setTimeout(() => {
+            el.style.opacity = 1;
+            el.style.transform = 'translateY(0)';
+        }, isNaN(delayValue) ? 0 : delayValue * 1000);
+    });
+});
+</script>
 {% endblock %}

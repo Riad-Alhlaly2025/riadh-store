@@ -93,7 +93,7 @@ class Cart:
 
 def optimize_image(image_path, max_width=800, max_height=600, quality=85):
     """
-    Optimize an image by resizing and compressing it.
+    Optimize an image by resizing and compressing it. Also creates WebP version.
     """
     if not os.path.exists(image_path):
         return
@@ -108,8 +108,12 @@ def optimize_image(image_path, max_width=800, max_height=600, quality=85):
             # Calculate new dimensions maintaining aspect ratio
             img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
             
-            # Save optimized image
+            # Save optimized image in original format
             img.save(image_path, 'JPEG', quality=quality, optimize=True)
+            
+            # Create WebP version for better compression
+            webp_path = os.path.splitext(image_path)[0] + '.webp'
+            img.save(webp_path, 'WEBP', quality=quality, optimize=True)
     except Exception as e:
         print(f"Error optimizing image {image_path}: {e}")
 

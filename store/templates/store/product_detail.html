@@ -131,10 +131,14 @@
                         {% csrf_token %}
                         <div class="quantity-selector mb-4">
                             <label for="quantity" class="block mb-2 font-medium">الكمية:</label>
-                            <div class="quantity-control flex items-center gap-2">
-                                <button type="button" class="btn btn-secondary quantity-btn minus">-</button>
-                                <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" class="form-control text-center w-20">
-                                <button type="button" class="btn btn-secondary quantity-btn plus">+</button>
+                            <div class="quantity-control flex items-center gap-2" role="group" aria-label="تحديد الكمية">
+                                <button type="button" class="btn btn-secondary quantity-btn minus" aria-label="إنقاص الكمية">
+                                    <span aria-hidden="true">-</span>
+                                </button>
+                                <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" class="form-control text-center w-20" aria-label="كمية المنتج">
+                                <button type="button" class="btn btn-secondary quantity-btn plus" aria-label="زيادة الكمية">
+                                    <span aria-hidden="true">+</span>
+                                </button>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-full add-to-cart-btn">

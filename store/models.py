@@ -29,12 +29,12 @@ class Product(models.Model):
         ('JOD', 'Jordanian Dinar'),
     ]
 
-    name = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=100, db_index=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, db_index=True)
     description = models.TextField(blank=True, default="لا يوجد وصف")
     image = models.ImageField(upload_to='products/', blank=True, null=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='phones')
-    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', verbose_name='العملة')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='phones', db_index=True)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', verbose_name='العملة', db_index=True)
     
     # Add seller field for multi-vendor support
     seller = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='البائع', null=True, blank=True)
@@ -44,9 +44,9 @@ class Product(models.Model):
     low_stock_threshold = models.PositiveIntegerField(default=5, verbose_name='حد التنبيه عند انخفاض المخزون')  # type: ignore
     
     # SEO fields
-    seo_title = models.CharField(max_length=60, blank=True, verbose_name="عنوان SEO")
-    seo_description = models.CharField(max_length=160, blank=True, verbose_name="وصف SEO")
-    seo_keywords = models.CharField(max_length=255, blank=True, verbose_name="كلمات مفتاحية SEO")
+    seo_title = models.CharField(max_length=60, blank=True, verbose_name="عنوان SEO", db_index=True)
+    seo_description = models.CharField(max_length=160, blank=True, verbose_name="وصف SEO", db_index=True)
+    seo_keywords = models.CharField(max_length=255, blank=True, verbose_name="كلمات مفتاحية SEO", db_index=True)
 
     def __str__(self) -> str:
         return str(self.name)
@@ -60,6 +60,27 @@ class Product(models.Model):
     @property
     def is_low_stock(self) -> bool:
         return self.stock_quantity <= self.low_stock_threshold and self.stock_quantity > 0
+    
+    # Get image URLs for responsive images
+    def get_responsive_image_urls(self):
+        if not self.image:
+            return None
+        
+        # Return URLs for different image sizes
+        try:
+            # Access image URL safely
+            image_field = getattr(self, 'image', None)
+            if image_field and hasattr(image_field, 'url'):
+                image_url = image_field.url
+                return {
+                    'small': image_url,
+                    'medium': image_url,
+                    'large': image_url,
+                    'webp': image_url.replace('.', '.webp') if image_url else None
+                }
+        except:
+            pass
+        return None
 
 
 class UserProfile(models.Model):

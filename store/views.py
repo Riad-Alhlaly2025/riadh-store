@@ -16,20 +16,50 @@ def home(request):
     """Home page view"""
     return render(request, 'store/home.html')
 
+from django.core.cache import cache
+
 def product_list(request):
-    """Product list view"""
-    Product = apps.get_model('store', 'Product')
-    products = Product.objects.all()
+    """Product list view with caching and pagination"""
+    # Get page number from request
+    page = request.GET.get('page', 1)
+    
+    # Try to get products from cache first
+    cache_key = f'product_list_page_{page}'
+    products = cache.get(cache_key)
+    
+    if products is None:
+        Product = apps.get_model('store', 'Product')
+        products_list = Product.objects.all().select_related('seller')
+        
+        # Implement pagination
+        from django.core.paginator import Paginator
+        paginator = Paginator(products_list, 12)  # 12 products per page
+        try:
+            products = paginator.page(page)
+        except:
+            products = paginator.page(1)
+        
+        # Cache for 15 minutes
+        cache.set(cache_key, products, 60 * 15)
+    
     return render(request, 'store/product_list.html', {'products': products})
 
 def product_detail(request, pk):
-    """Product detail view"""
-    Product = apps.get_model('store', 'Product')
-    product = get_object_or_404(Product, pk=pk)
+    """Product detail view with caching"""
+    # Try to get product from cache first
+    cache_key = f'product_detail_{pk}'
+    product = cache.get(cache_key)
+    
+    if product is None:
+        Product = apps.get_model('store', 'Product')
+        product = get_object_or_404(Product, pk=pk)
+        # Cache for 30 minutes
+        cache.set(cache_key, product, 60 * 30)
+    
     return render(request, 'store/product_detail.html', {'product': product})
 
 def view_cart(request):
-    """View cart"""
+    """View cart with optimized queries"""
     cart = Cart(request.session)
     cart_items = cart.get_items()
     total_price = cart.get_total_price()

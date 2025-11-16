@@ -88,7 +88,11 @@
                 <div class="product-badge">فاخر</div>
                 <div class="product-image-container">
                     {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <img src="{{ product.image.url }}" 
+                         srcset="{{ product.image.url }} 1x, {{ product.image.url }} 2x" 
+                         alt="{{ product.name }}" 
+                         class="product-image" 
+                         loading="lazy">
                     {% else %}
                     <div class="product-image bg-surface-light flex items-center justify-center">
                         <i class="fas fa-camera text-3xl text-secondary"></i>

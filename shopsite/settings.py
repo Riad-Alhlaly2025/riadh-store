@@ -109,6 +109,16 @@ USE_TZ = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ===========================
+# Caching Configuration
+# ===========================
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# ===========================
 # نهاية الملف
 # ===========================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

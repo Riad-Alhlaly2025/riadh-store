@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     # ضع هنا تطبيقاتك الخاصة، مثل:
     'store',
     # 'users',
+    'channels',
 ]
 
 # ===========================
@@ -36,8 +37,9 @@ INSTALLED_APPS = [
 # ===========================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # لعرض ملفات static
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Add this for internationalization
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -51,6 +53,7 @@ MIDDLEWARE = [
 # غيّر 'shopsite' إلى اسم مجلد مشروعك الرئيسي
 ROOT_URLCONF = 'shopsite.urls'
 WSGI_APPLICATION = 'shopsite.wsgi.application'
+ASGI_APPLICATION = 'shopsite.asgi.application'
 
 # ===========================
 # إعداد قاعدة البيانات
@@ -90,6 +93,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
+                'store.context_processors.cart_processor',
+                'store.context_processors.notifications_processor',
             ],
         },
     },
@@ -102,6 +108,16 @@ LANGUAGE_CODE = 'ar'
 TIME_ZONE = 'Asia/Aden'
 USE_I18N = True
 USE_TZ = True
+
+# Add internationalization settings for global support
+LANGUAGES = [
+    ('ar', 'Arabic'),
+    ('en', 'English'),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 # ===========================
 # ملفات الأمن

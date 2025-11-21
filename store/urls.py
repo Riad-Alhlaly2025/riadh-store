@@ -13,6 +13,7 @@ urlpatterns = [
     path('cart/remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('cart/update/<int:product_id>/', views.update_cart, name='update_cart'),
     path('checkout/', views.checkout, name='checkout'),
+    path('checkout/create-order/', views.create_order, name='create_order'),
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('orders/', views.order_history, name='order_history'),
     path('notifications/', views.notifications, name='notifications'),
@@ -34,9 +35,9 @@ urlpatterns = [
     path('seller/orders/<int:order_id>/', views.seller_order_detail, name='seller_order_detail'),
     path('seller/orders/<int:order_id>/update-status/', views.update_order_status, name='update_order_status'),
     path('seller/reports/', views.seller_reports, name='seller_reports'),
-    path('seller/inventory/', views.inventory_management, name='inventory_management'),  # New inventory management
-    path('manager/reports/smart-inventory/', views.smart_inventory_reports, name='smart_inventory_reports'),  # Smart inventory reports
-    path('manager/reports/seller-performance/', views.seller_performance_analytics, name='seller_performance_analytics'),  # Seller performance analytics
+    path('seller/inventory/', views.inventory_management, name='inventory_management'),
+    path('manager/reports/smart-inventory/', views.smart_inventory_reports, name='smart_inventory_reports'),
+    path('manager/reports/seller-performance/', views.seller_performance_analytics, name='seller_performance_analytics'),
     
     # Commissions URLs
     path('commissions/', views.view_commissions, name='view_commissions'),
@@ -44,12 +45,12 @@ urlpatterns = [
     path('manager/commission-report/', views.commission_report, name='commission_report'),
     
     # Advanced Features URLs
-    path('manager/sellers/', views.manage_sellers, name='manage_sellers'),  # Seller verification
-    path('order/<int:order_id>/dispute/', views.open_dispute, name='open_dispute'),  # Dispute resolution
-    path('manager/disputes/', views.manage_disputes, name='manage_disputes'),  # Dispute management
-    path('manager/reports/advanced/', views.advanced_reports, name='advanced_reports'),  # Advanced reporting
-    path('manager/reports/ai-analytics/', views.ai_analytics_dashboard, name='ai_analytics_dashboard'),  # AI-powered analytics
-    path('manager/reports/financial/', views.financial_reports, name='financial_reports'),  # Financial reporting
+    path('manager/sellers/', views.manage_sellers, name='manage_sellers'),
+    path('order/<int:order_id>/dispute/', views.open_dispute, name='open_dispute'),
+    path('manager/disputes/', views.manage_disputes, name='manage_disputes'),
+    path('manager/reports/advanced/', views.advanced_reports, name='advanced_reports'),
+    path('manager/reports/ai-analytics/', views.ai_analytics_dashboard, name='ai_analytics_dashboard'),
+    path('manager/reports/financial/', views.financial_reports, name='financial_reports'),
     
     # Wishlist URLs
     path('wishlist/', views.view_wishlist, name='view_wishlist'),
@@ -74,6 +75,9 @@ urlpatterns = [
     path('payment/create-paypal-payment/<int:order_id>/', views.create_paypal_payment, name='create_paypal_payment'),
     path('payment/execute-paypal-payment/<int:payment_id>/', views.execute_paypal_payment, name='execute_paypal_payment'),
     path('payment/webhook/stripe/', views.stripe_webhook, name='stripe_webhook'),
+    path('payment/apple-pay/<int:order_id>/', views.create_apple_pay_payment, name='create_apple_pay_payment'),
+    path('payment/google-pay/<int:order_id>/', views.create_google_pay_payment, name='create_google_pay_payment'),
+    path('payment/cash-on-delivery/<int:order_id>/', views.cash_on_delivery_payment, name='cash_on_delivery_payment'),
     
     # New URLs for missing features
     # Coupon URLs
@@ -121,6 +125,7 @@ urlpatterns = [
     # Analytics Integration URLs
     path('manager/analytics/', views.analytics_integration, name='analytics_integration'),
     path('track-analytics/', views.track_analytics_event, name='track_analytics'),
+    path('export-analytics/<str:format>/', views.export_analytics_report, name='export_analytics_report'),
     
     # New URLs for security features
     # MFA URLs
@@ -135,6 +140,7 @@ urlpatterns = [
     # Sensitive Data URLs
     path('security/sensitive-data/', views_security.sensitive_data_list, name='sensitive_data_list'),
     path('security/sensitive-data/add/', views_security.add_sensitive_data, name='add_sensitive_data'),
+    path('security/sensitive-data/<int:data_id>/', views_security.view_sensitive_data, name='view_sensitive_data'),
     path('security/sensitive-data/<int:data_id>/delete/', views_security.delete_sensitive_data, name='delete_sensitive_data'),
     
     # CMS URLs

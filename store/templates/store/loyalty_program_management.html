@@ -9,6 +9,18 @@
         <div class="col-md-12">
             <h2>إدارة برنامج الولاء</h2>
             
+            <!-- Messages -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            
             <!-- Create Reward Form -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -115,4 +127,28 @@
         </div>
     </div>
 </div>
+
+<!-- Script to show/hide discount percentage field based on reward type -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rewardTypeSelect = document.getElementById('reward_type');
+    const discountPercentageField = document.getElementById('discount_percentage');
+    
+    function toggleDiscountField() {
+        if (rewardTypeSelect.value === 'discount') {
+            discountPercentageField.parentElement.parentElement.style.display = 'block';
+            discountPercentageField.required = true;
+        } else {
+            discountPercentageField.parentElement.parentElement.style.display = 'none';
+            discountPercentageField.required = false;
+        }
+    }
+    
+    // Initial check
+    toggleDiscountField();
+    
+    // Add event listener
+    rewardTypeSelect.addEventListener('change', toggleDiscountField);
+});
+</script>
 {% endblock %}

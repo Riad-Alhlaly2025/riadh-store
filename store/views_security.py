@@ -3,6 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.contrib.auth.models import User
+from cryptography.fernet import Fernet
+from django.conf import settings
+import base64
+import os
 
 
 @login_required
@@ -132,6 +136,45 @@ def sensitive_data_list(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
+def view_sensitive_data(request: HttpRequest, data_id: int) -> HttpResponse:
+    """View decrypted sensitive data"""
+    # Import models inside the function to avoid circular imports
+    from .models import SensitiveData
+    
+    try:
+        data = SensitiveData.objects.get(id=data_id, user=request.user)
+        
+        # Decrypt the data
+        decrypted_data = ""
+        try:
+            if data.encryption_method == 'Fernet':
+                # Decrypt using Fernet
+                if hasattr(settings, 'SENSITIVE_DATA_ENCRYPTION_KEY'):
+                    from cryptography.fernet import Fernet
+                    key = settings.SENSITIVE_DATA_ENCRYPTION_KEY.encode()
+                    f = Fernet(key)
+                    decrypted_data = f.decrypt(data.encrypted_data.encode('utf-8')).decode('utf-8')
+                else:
+                    messages.error(request, 'مفتاح التشفير غير متوفر')
+                    decrypted_data = "غير قادر على فك التشفير"
+            else:
+                # Fallback to base64 decoding
+                import base64
+                decrypted_data = base64.b64decode(data.encrypted_data.encode('utf-8')).decode('utf-8')
+        except Exception as e:
+            messages.error(request, 'فشل في فك تشفير البيانات')
+            decrypted_data = "غير قادر على فك التشفير"
+        
+        return render(request, 'store/view_sensitive_data.html', {
+            'data': data,
+            'decrypted_data': decrypted_data
+        })
+    except SensitiveData.DoesNotExist:
+        messages.error(request, 'البيانات الحساسة غير موجودة')
+        return redirect('sensitive_data_list')
+
+
+@login_required
 def add_sensitive_data(request: HttpRequest) -> HttpResponse:
     """Add sensitive data"""
     # Import models inside the function to avoid circular imports
@@ -142,16 +185,28 @@ def add_sensitive_data(request: HttpRequest) -> HttpResponse:
         raw_data = request.POST.get('data', '')
         
         if data_type and raw_data:
-            # In a real implementation, you would encrypt the data
-            # For now, we'll just store it as-is (not recommended for production)
-            import base64
-            encrypted_data = base64.b64encode(raw_data.encode('utf-8')).decode('utf-8')
+            # Encrypt the data using Fernet encryption
+            try:
+                # Get or generate encryption key
+                if hasattr(settings, 'SENSITIVE_DATA_ENCRYPTION_KEY'):
+                    key = settings.SENSITIVE_DATA_ENCRYPTION_KEY.encode()
+                else:
+                    # Generate a key if not exists (in production, store this securely)
+                    key = Fernet.generate_key()
+                
+                f = Fernet(key)
+                encrypted_data = f.encrypt(raw_data.encode('utf-8')).decode('utf-8')
+                encryption_method = 'Fernet'
+            except Exception as e:
+                # Fallback to base64 if encryption fails
+                encrypted_data = base64.b64encode(raw_data.encode('utf-8')).decode('utf-8')
+                encryption_method = 'Base64 (Fallback)'
             
             SensitiveData.objects.create(
                 user=request.user,
                 data_type=data_type,
                 encrypted_data=encrypted_data,
-                encryption_method='Base64 (Demo)'
+                encryption_method=encryption_method
             )
             
             messages.success(request, 'تمت إضافة البيانات الحساسة بنجاح')

@@ -1,21 +1,28 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="متجر رياض">
-    <title>{% block title %}متجر رياض الإلكتروني - تجربة تسوق احترافية{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}متجر رياض الإلكتروني - أفضل المنتجات بأفضل الأسعار مع تجربة تسوق احترافية عالمية المستوى{% endblock %}">
+    <meta name="apple-mobile-web-app-title" content="{% trans 'RYADH Store' %}">
+    <title>{% block title %}{% trans 'RYADH Store - Professional Shopping Experience' %}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{% trans 'RYADH Store - Best products at best prices with professional global shopping experience' %}{% endblock %}">
     
     <!-- Modern Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Luxury Theme CSS -->
     <link rel="stylesheet" href="{% static 'css/luxury-theme.css' %}">
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/dark.css' %}">
+    <link rel="stylesheet" href="{% static 'css/light.css' %}">
+    
+    <!-- Mobile Enhancements CSS -->
+    <link rel="stylesheet" href="{% static 'css/mobile-enhancements.css' %}">
     
     <!-- Responsive Enhancements CSS -->
     <link rel="stylesheet" href="{% static 'css/responsive-enhancements.css' %}">
@@ -34,21 +41,44 @@
                 <div class="logo-icon">
                     <i class="fas fa-store"></i>
                 </div>
-                متجر رياض
+                {% trans 'RYADH Store' %}
             </a>
             
             <div class="nav-links">
+                <!-- Language Switcher -->
+                <div class="language-switcher">
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_to }}">
+                        <select name="language" onchange="this.form.submit();">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% get_available_languages as LANGUAGES %}
+                            {% get_language_info_list for LANGUAGES as languages %}
+                            {% for language in languages %}
+                                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
+                                    {{ language.name_local }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="nav-link theme-toggle-btn" aria-label="{% trans 'Toggle theme' %}">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
                 <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
                     <i class="fas fa-home"></i>
-                    الرئيسية
+                    {% trans 'Home' %}
                 </a>
                 <a href="{% url 'product_list' %}" class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
                     <i class="fas fa-box"></i>
-                    المنتجات
+                    {% trans 'Products' %}
                 </a>
                 <a href="{% url 'view_cart' %}" class="nav-link {% if request.resolver_match.url_name == 'view_cart' %}active{% endif %}">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>السلة</span>
+                    <span>{% trans 'Cart' %}</span>
                     {% if cart_count %}
                         <span class="cart-count">{{ cart_count }}</span>
                     {% endif %}
@@ -57,12 +87,12 @@
                 {% if user.is_authenticated %}
                     <a href="{% url 'logout' %}" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
-                        تسجيل الخروج
+                        {% trans 'Logout' %}
                     </a>
                 {% else %}
                     <a href="{% url 'login' %}" class="nav-link">
                         <i class="fas fa-sign-in-alt"></i>
-                        تسجيل الدخول
+                        {% trans 'Login' %}
                     </a>
                 {% endif %}
             </div>
@@ -74,7 +104,7 @@
     <div class="container mt-4">
         <nav class="breadcrumb">
             <a href="{% url 'home' %}" class="breadcrumb-item">
-                <i class="fas fa-home"></i> الرئيسية
+                <i class="fas fa-home"></i> {% trans 'Home' %}
             </a>
             <span class="breadcrumb-divider">/</span>
             {% block breadcrumb_items %}{% endblock %}
@@ -92,55 +122,61 @@
         <div class="container">
             <div class="footer-content">
                 <div>
-                    <h3 class="footer-heading">معلومات المتجر</h3>
+                    <h3 class="footer-heading">{% trans 'Store Information' %}</h3>
                     <ul class="footer-links">
-                        <li><a href="#"><i class="fas fa-info-circle"></i> عن المتجر</a></li>
-                        <li><a href="#"><i class="fas fa-shield-alt"></i> سياسة الخصوصية</a></li>
-                        <li><a href="#"><i class="fas fa-file-contract"></i> شروط الاستخدام</a></li>
-                        <li><a href="#"><i class="fas fa-phone-alt"></i> اتصل بنا</a></li>
+                        <li><a href="#"><i class="fas fa-info-circle"></i> {% trans 'About Store' %}</a></li>
+                        <li><a href="#"><i class="fas fa-shield-alt"></i> {% trans 'Privacy Policy' %}</a></li>
+                        <li><a href="#"><i class="fas fa-file-contract"></i> {% trans 'Terms of Use' %}</a></li>
+                        <li><a href="#"><i class="fas fa-phone-alt"></i> {% trans 'Contact Us' %}</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h3 class="footer-heading">خدمة العملاء</h3>
+                    <h3 class="footer-heading">{% trans 'Customer Service' %}</h3>
                     <ul class="footer-links">
-                        <li><a href="#"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a></li>
-                        <li><a href="#"><i class="fas fa-truck"></i> الشحن والاستلام</a></li>
-                        <li><a href="#"><i class="fas fa-undo"></i> الإرجاع والاستبدال</a></li>
-                        <li><a href="#"><i class="fas fa-headset"></i> مركز المساعدة</a></li>
+                        <li><a href="#"><i class="fas fa-question-circle"></i> {% trans 'FAQ' %}</a></li>
+                        <li><a href="#"><i class="fas fa-truck"></i> {% trans 'Shipping & Delivery' %}</a></li>
+                        <li><a href="#"><i class="fas fa-undo"></i> {% trans 'Returns & Exchanges' %}</a></li>
+                        <li><a href="#"><i class="fas fa-headset"></i> {% trans 'Help Center' %}</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h3 class="footer-heading">حساباتنا</h3>
+                    <h3 class="footer-heading">{% trans 'Our Accounts' %}</h3>
                     <ul class="footer-links">
-                        <li><a href="#"><i class="fab fa-facebook"></i> فيسبوك</a></li>
-                        <li><a href="#"><i class="fab fa-twitter"></i> تويتر</a></li>
-                        <li><a href="#"><i class="fab fa-instagram"></i> إنستغرام</a></li>
-                        <li><a href="#"><i class="fab fa-linkedin"></i> لينكدإن</a></li>
+                        <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                        <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h3 class="footer-heading">وسائل الدفع</h3>
+                    <h3 class="footer-heading">{% trans 'Payment Methods' %}</h3>
                     <ul class="footer-links">
-                        <li><a href="#"><i class="fab fa-cc-visa"></i> فيزا</a></li>
-                        <li><a href="#"><i class="fab fa-cc-mastercard"></i> ماستركارد</a></li>
-                        <li><a href="#"><i class="fab fa-cc-paypal"></i> باي بال</a></li>
-                        <li><a href="#"><i class="fas fa-money-bill-wave"></i> الدفع عند الاستلام</a></li>
+                        <li><a href="#"><i class="fab fa-cc-visa"></i> Visa</a></li>
+                        <li><a href="#"><i class="fab fa-cc-mastercard"></i> Mastercard</a></li>
+                        <li><a href="#"><i class="fab fa-cc-paypal"></i> PayPal</a></li>
+                        <li><a href="#"><i class="fas fa-money-bill-wave"></i> {% trans 'Cash on Delivery' %}</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="copyright">
-                <p>&copy; 2025 متجر رياض الإلكتروني. جميع الحقوق محفوظة.</p>
-                <p class="text-secondary text-sm mt-2">تصميم وتطوير بفخر لتقديم أفضل تجربة تسوق إلكتروني</p>
+                <p>&copy; 2025 {% trans 'RYADH Store. All rights reserved.' %}</p>
+                <p class="text-secondary text-sm mt-2">{% trans 'Designed and developed with pride to provide the best e-commerce shopping experience' %}</p>
             </div>
         </div>
     </footer>
 
     <!-- Luxury Interactions JS -->
     <script src="{% static 'js/luxury-interactions.js' %}"></script>
+    
+    <!-- Theme Toggle JS -->
+    <script src="{% static 'js/theme-toggle.js' %}"></script>
+    
+    <!-- Mobile Enhancements JS -->
+    <script src="{% static 'js/mobile-enhancements.js' %}"></script>
     
     {% block extra_scripts %}{% endblock %}
 </body>

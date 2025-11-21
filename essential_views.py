@@ -387,7 +387,34 @@ def delete_accounting_integration(request, integration_id):
 
 def analytics_integration(request):
     """Analytics integration view"""
-    return render(request, 'store/analytics_integration.html')
+    # Import models
+    from django.apps import apps
+    from django.db.models import Count, Q
+    from datetime import datetime, timedelta
+    
+    AnalyticsIntegration = apps.get_model('store', 'AnalyticsIntegration')
+    
+    # Get analytics data
+    total_events = AnalyticsIntegration.objects.count()
+    
+    # Get event types with counts
+    event_types = AnalyticsIntegration.objects.values('event_type').annotate(
+        count=Count('event_type')
+    ).order_by('-count')
+    
+    # Get recent events (last 30 days)
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+    analytics_events = AnalyticsIntegration.objects.filter(
+        timestamp__gte=thirty_days_ago
+    ).order_by('-timestamp')[:50]
+    
+    context = {
+        'total_events': total_events,
+        'event_types': event_types,
+        'analytics_events': analytics_events,
+    }
+    
+    return render(request, 'store/analytics_integration.html', context)
 
 def track_analytics_event(request):
     """Track analytics event"""

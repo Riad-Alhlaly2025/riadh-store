@@ -1,0 +1,64 @@
+{% extends 'store/base.html' %}
+
+{% block title %}عرض البيانات الحساسة{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">عرض البيانات الحساسة</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">نوع البيانات:</label>
+                        <p class="form-control-plaintext">{{ data.get_data_type_display }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">طريقة التشفير:</label>
+                        <p class="form-control-plaintext">{{ data.encryption_method }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">تاريخ الإنشاء:</label>
+                        <p class="form-control-plaintext">{{ data.created_at|date:"Y-m-d H:i" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">آخر تحديث:</label>
+                        <p class="form-control-plaintext">{{ data.updated_at|date:"Y-m-d H:i" }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">البيانات:</label>
+                        <div class="alert alert-info">
+                            <pre>{{ decrypted_data }}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'sensitive_data_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> العودة إلى القائمة
+                        </a>
+                        <a href="{% url 'delete_sensitive_data' data.id %}" class="btn btn-danger" 
+                           onclick="return confirm('هل أنت متأكد من حذف هذه البيانات الحساسة؟')">
+                            <i class="fas fa-trash"></i> حذف البيانات
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

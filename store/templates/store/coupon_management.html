@@ -9,6 +9,18 @@
         <div class="col-md-12">
             <h2>إدارة الكوبونات</h2>
             
+            <!-- Messages -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            
             <!-- Create Coupon Form -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -93,8 +105,10 @@
                                     <th>رمز الكوبون</th>
                                     <th>نوع الخصم</th>
                                     <th>قيمة الخصم</th>
+                                    <th>الحد الأدنى</th>
                                     <th>صالح من</th>
                                     <th>صالح حتى</th>
+                                    <th>الاستخدام/الحد</th>
                                     <th>الحالة</th>
                                     <th>الإجراءات</th>
                                 </tr>
@@ -111,8 +125,10 @@
                                             {{ coupon.discount_value }} ر.س
                                         {% endif %}
                                     </td>
+                                    <td>{{ coupon.minimum_amount }} ر.س</td>
                                     <td>{{ coupon.valid_from|date:"Y-m-d H:i" }}</td>
                                     <td>{{ coupon.valid_to|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ coupon.times_used }}{% if coupon.usage_limit %}/{{ coupon.usage_limit }}{% endif %}</td>
                                     <td>
                                         {% if coupon.active %}
                                             <span class="badge badge-success">مفعل</span>
@@ -140,4 +156,28 @@
         </div>
     </div>
 </div>
+
+<!-- Initialize datetime fields with current date/time -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default values for datetime fields
+    const now = new Date();
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(now.getFullYear() + 1);
+    
+    // Format dates for datetime-local input
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+    
+    // Set default values
+    document.getElementById('valid_from').value = formatDate(now);
+    document.getElementById('valid_to').value = formatDate(oneYearFromNow);
+});
+</script>
 {% endblock %}

@@ -1,154 +1,154 @@
 /* ===============================
-   Dark Theme for Luxury E-Commerce
+   Light Theme for Luxury E-Commerce
    =============================== */
 
 :root {
-    /* Dark Theme Colors */
-    --dark-bg: #0a0a0a;
-    --dark-surface: #1a1a1a;
-    --dark-surface-light: #2a2a2a;
-    --dark-text-primary: #ffffff;
-    --dark-text-secondary: #cccccc;
-    --dark-text-tertiary: #999999;
-    --dark-border: #333333;
-    --dark-accent: #64ffda;
-    --dark-gold: linear-gradient(135deg, #ffd700, #ffed4e);
-    --dark-premium: linear-gradient(135deg, #9d00ff, #5a00ff);
+    /* Light Theme Colors */
+    --light-bg: #f8f9fa;
+    --light-surface: #ffffff;
+    --light-surface-light: #f1f3f4;
+    --light-text-primary: #0a0a0a;
+    --light-text-secondary: #444444;
+    --light-text-tertiary: #777777;
+    --light-border: #e0e0e0;
+    --light-accent: #0a192f;
+    --light-gold: linear-gradient(135deg, #ffd700, #ffed4e);
+    --light-premium: linear-gradient(135deg, #9d00ff, #5a00ff);
 }
 
-.theme-dark {
-    /* Override luxury theme variables for dark mode */
-    --luxury-primary: var(--dark-bg);
-    --luxury-primary-light: #111111;
-    --luxury-primary-dark: #000000;
-    --luxury-secondary: var(--dark-accent);
-    --luxury-accent: #a0a0a0;
-    --luxury-accent-dark: #666666;
-    --luxury-background: var(--dark-bg);
-    --luxury-surface: var(--dark-surface);
-    --luxury-surface-light: var(--dark-surface-light);
-    --luxury-text-primary: var(--dark-text-primary);
-    --luxury-text-secondary: var(--dark-text-secondary);
-    --luxury-text-tertiary: var(--dark-text-tertiary);
-    --luxury-border: var(--dark-border);
-    --luxury-gold: var(--dark-gold);
-    --luxury-premium: var(--dark-premium);
+.theme-light {
+    /* Override luxury theme variables for light mode */
+    --luxury-primary: var(--light-accent);
+    --luxury-primary-light: #112240;
+    --luxury-primary-dark: #020c1b;
+    --luxury-secondary: #64ffda;
+    --luxury-accent: #ccd6f6;
+    --luxury-accent-dark: #8892b0;
+    --luxury-background: var(--light-bg);
+    --luxury-surface: var(--light-surface);
+    --luxury-surface-light: var(--light-surface-light);
+    --luxury-text-primary: var(--light-text-primary);
+    --luxury-text-secondary: var(--light-text-secondary);
+    --luxury-text-tertiary: var(--light-text-tertiary);
+    --luxury-border: var(--light-border);
+    --luxury-gold: var(--light-gold);
+    --luxury-premium: var(--light-premium);
     
-    /* Enhanced dark mode shadows */
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-    --shadow-premium: 0 0 30px rgba(100, 255, 218, 0.1);
+    /* Enhanced light mode shadows */
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-premium: 0 0 30px rgba(100, 255, 218, 0.2);
 }
 
-/* Dark mode specific styles */
-.theme-dark body {
+/* Light mode specific styles */
+.theme-light body {
     background-color: var(--luxury-background);
     color: var(--luxury-text-primary);
 }
 
-.theme-dark .luxury-header {
+.theme-light .luxury-header {
     background-color: var(--luxury-surface);
     border-bottom: 1px solid var(--luxury-border);
 }
 
-.theme-dark .luxury-footer {
+.theme-light .luxury-footer {
     background-color: var(--luxury-primary-dark);
     border-top: 1px solid var(--luxury-border);
 }
 
-.theme-dark .luxury-card {
+.theme-light .luxury-card {
     background-color: var(--luxury-surface);
     border: 1px solid var(--luxury-border);
 }
 
-.theme-dark .form-control {
+.theme-light .form-control {
     background-color: var(--luxury-surface-light);
     border: 1px solid var(--luxury-border);
     color: var(--luxury-text-primary);
 }
 
-.theme-dark .form-control:focus {
+.theme-light .form-control:focus {
     border-color: var(--luxury-secondary);
     box-shadow: var(--shadow), 0 0 0 3px rgba(100, 255, 218, 0.1);
 }
 
-.theme-dark .search-input {
+.theme-light .search-input {
     background-color: var(--luxury-surface-light);
     border: 1px solid var(--luxury-border);
     color: var(--luxury-text-primary);
 }
 
-.theme-dark .search-input:focus {
+.theme-light .search-input:focus {
     border-color: var(--luxury-secondary);
     box-shadow: var(--shadow), 0 0 0 3px rgba(100, 255, 218, 0.1);
 }
 
-.theme-dark .nav-link {
+.theme-light .nav-link {
     color: var(--luxury-text-secondary);
 }
 
-.theme-dark .nav-link:hover {
+.theme-light .nav-link:hover {
     color: var(--luxury-secondary);
     background-color: rgba(100, 255, 218, 0.1);
 }
 
-.theme-dark .nav-link.active {
+.theme-light .nav-link.active {
     color: var(--luxury-secondary);
     background-color: rgba(100, 255, 218, 0.1);
 }
 
-.theme-dark .btn {
+.theme-light .btn {
     box-shadow: var(--shadow-sm);
 }
 
-.theme-dark .btn:hover {
+.theme-light .btn:hover {
     box-shadow: var(--shadow-md);
 }
 
-.theme-dark .btn-primary {
+.theme-light .btn-primary {
     background: var(--luxury-gold);
     color: var(--luxury-primary);
 }
 
-.theme-dark .btn-primary:hover {
+.theme-light .btn-primary:hover {
     box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
 }
 
-.theme-dark .btn-premium {
+.theme-light .btn-premium {
     background: var(--luxury-premium);
     color: white;
 }
 
-.theme-dark .btn-premium:hover {
+.theme-light .btn-premium:hover {
     box-shadow: 0 10px 25px rgba(157, 0, 255, 0.3);
 }
 
-/* Enhanced dark mode for product cards */
-.theme-dark .product-card {
+/* Light mode for product cards */
+.theme-light .product-card {
     background-color: var(--luxury-surface);
     border: 1px solid var(--luxury-border);
 }
 
-.theme-dark .product-title {
+.theme-light .product-title {
     color: var(--luxury-text-primary);
 }
 
-.theme-dark .product-description {
+.theme-light .product-description {
     color: var(--luxury-text-secondary);
 }
 
-.theme-dark .product-price {
+.theme-light .product-price {
     color: var(--luxury-secondary);
 }
 
-/* Dark mode animations */
-@keyframes darkPulse {
+/* Light mode animations */
+@keyframes lightPulse {
     0% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.2);
+        box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4);
     }
     70% {
         transform: scale(1.1);
@@ -160,95 +160,95 @@
     }
 }
 
-.theme-dark .cart-count {
-    animation: darkPulse 2s infinite;
+.theme-light .cart-count {
+    animation: lightPulse 2s infinite;
 }
 
-/* Dark mode scrollbar */
-.theme-dark ::-webkit-scrollbar {
+/* Light mode scrollbar */
+.theme-light ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-.theme-dark ::-webkit-scrollbar-track {
-    background: var(--luxury-primary);
+.theme-light ::-webkit-scrollbar-track {
+    background: var(--luxury-background);
 }
 
-.theme-dark ::-webkit-scrollbar-thumb {
+.theme-light ::-webkit-scrollbar-thumb {
     background: var(--luxury-surface-light);
     border-radius: 4px;
 }
 
-.theme-dark ::-webkit-scrollbar-thumb:hover {
+.theme-light ::-webkit-scrollbar-thumb:hover {
     background: var(--luxury-secondary);
 }
 
-/* Dark mode selection */
-.theme-dark ::selection {
+/* Light mode selection */
+.theme-light ::selection {
     background: rgba(100, 255, 218, 0.3);
     color: var(--luxury-text-primary);
 }
 
-/* Dark mode code blocks */
-.theme-dark pre {
+/* Light mode code blocks */
+.theme-light pre {
     background-color: var(--luxury-surface-light);
     border: 1px solid var(--luxury-border);
     color: var(--luxury-text-primary);
 }
 
-.theme-dark code {
+.theme-light code {
     background-color: var(--luxury-surface-light);
     color: var(--luxury-secondary);
 }
 
-/* Dark mode tables */
-.theme-dark table {
+/* Light mode tables */
+.theme-light table {
     background-color: var(--luxury-surface);
     border: 1px solid var(--luxury-border);
 }
 
-.theme-dark th {
+.theme-light th {
     background-color: var(--luxury-surface-light);
     border-bottom: 1px solid var(--luxury-border);
 }
 
-.theme-dark td {
+.theme-light td {
     border-bottom: 1px solid var(--luxury-border);
 }
 
-/* Dark mode alerts */
-.theme-dark .alert {
+/* Light mode alerts */
+.theme-light .alert {
     background-color: var(--luxury-surface-light);
     border: 1px solid var(--luxury-border);
     color: var(--luxury-text-primary);
 }
 
-/* Dark mode modals */
-.theme-dark .modal-content {
+/* Light mode modals */
+.theme-light .modal-content {
     background-color: var(--luxury-surface);
     border: 1px solid var(--luxury-border);
 }
 
-/* Dark mode tooltips */
-.theme-dark .tooltip-inner {
+/* Light mode tooltips */
+.theme-light .tooltip-inner {
     background-color: var(--luxury-surface-light);
     color: var(--luxury-text-primary);
 }
 
-/* Dark mode pagination */
-.theme-dark .pagination .page-link {
+/* Light mode pagination */
+.theme-light .pagination .page-link {
     background-color: var(--luxury-surface-light);
     border: 1px solid var(--luxury-border);
     color: var(--luxury-text-primary);
 }
 
-.theme-dark .pagination .page-link:hover {
+.theme-light .pagination .page-link:hover {
     background-color: var(--luxury-surface);
     border-color: var(--luxury-secondary);
     color: var(--luxury-secondary);
 }
 
-.theme-dark .pagination .page-item.active .page-link {
+.theme-light .pagination .page-item.active .page-link {
     background-color: var(--luxury-secondary);
     border-color: var(--luxury-secondary);
     color: var(--luxury-primary);

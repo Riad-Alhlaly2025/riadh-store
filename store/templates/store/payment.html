@@ -75,6 +75,15 @@
                 <button id="paypal-payment-btn" class="payment-btn paypal">
                     🅿 الدفع عبر PayPal
                 </button>
+                <button id="apple-pay-btn" class="payment-btn apple-pay">
+                     Apple Pay
+                </button>
+                <button id="google-pay-btn" class="payment-btn google-pay">
+                    🅖 Google Pay
+                </button>
+                <button id="cod-payment-btn" class="payment-btn cod">
+                    💵 الدفع عند الاستلام
+                </button>
             </div>
             
             <div id="stripe-payment-form" class="payment-form hidden">
@@ -90,6 +99,24 @@
                 <h3>PayPal</h3>
                 <p>سيتم تحويلك إلى موقع PayPal لإتمام الدفع.</p>
                 <button id="submit-paypal-payment" class="btn pay">الدفع عبر PayPal</button>
+            </div>
+            
+            <div id="apple-pay-form" class="payment-form hidden">
+                <h3>Apple Pay</h3>
+                <p>سيتم تحويلك إلى Apple Pay لإتمام الدفع.</p>
+                <button id="submit-apple-pay" class="btn pay">الدفع عبر Apple Pay</button>
+            </div>
+            
+            <div id="google-pay-form" class="payment-form hidden">
+                <h3>Google Pay</h3>
+                <p>سيتم تحويلك إلى Google Pay لإتمام الدفع.</p>
+                <button id="submit-google-pay" class="btn pay">الدفع عبر Google Pay</button>
+            </div>
+            
+            <div id="cod-form" class="payment-form hidden">
+                <h3>الدفع عند الاستلام</h3>
+                <p>سيتم الدفع نقدًا عند استلام الطلب.</p>
+                <button id="submit-cod" class="btn pay">تأكيد الطلب</button>
             </div>
         </div>
     </div>
@@ -140,6 +167,9 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.add('active');
         document.getElementById('stripe-payment-form').classList.remove('hidden');
         document.getElementById('paypal-payment-form').classList.add('hidden');
+        document.getElementById('apple-pay-form').classList.add('hidden');
+        document.getElementById('google-pay-form').classList.add('hidden');
+        document.getElementById('cod-form').classList.add('hidden');
     });
     
     // Show PayPal payment form when button is clicked
@@ -148,6 +178,42 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.add('active');
         document.getElementById('paypal-payment-form').classList.remove('hidden');
         document.getElementById('stripe-payment-form').classList.add('hidden');
+        document.getElementById('apple-pay-form').classList.add('hidden');
+        document.getElementById('google-pay-form').classList.add('hidden');
+        document.getElementById('cod-form').classList.add('hidden');
+    });
+    
+    // Show Apple Pay form when button is clicked
+    document.getElementById('apple-pay-btn').addEventListener('click', function() {
+        document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('apple-pay-form').classList.remove('hidden');
+        document.getElementById('stripe-payment-form').classList.add('hidden');
+        document.getElementById('paypal-payment-form').classList.add('hidden');
+        document.getElementById('google-pay-form').classList.add('hidden');
+        document.getElementById('cod-form').classList.add('hidden');
+    });
+    
+    // Show Google Pay form when button is clicked
+    document.getElementById('google-pay-btn').addEventListener('click', function() {
+        document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('google-pay-form').classList.remove('hidden');
+        document.getElementById('stripe-payment-form').classList.add('hidden');
+        document.getElementById('paypal-payment-form').classList.add('hidden');
+        document.getElementById('apple-pay-form').classList.add('hidden');
+        document.getElementById('cod-form').classList.add('hidden');
+    });
+    
+    // Show COD form when button is clicked
+    document.getElementById('cod-payment-btn').addEventListener('click', function() {
+        document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('cod-form').classList.remove('hidden');
+        document.getElementById('stripe-payment-form').classList.add('hidden');
+        document.getElementById('paypal-payment-form').classList.add('hidden');
+        document.getElementById('apple-pay-form').classList.add('hidden');
+        document.getElementById('google-pay-form').classList.add('hidden');
     });
     
     // Handle Stripe form submission
@@ -233,6 +299,105 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('حدث خطأ أثناء إنشاء الدفع عبر PayPal. يرجى المحاولة مرة أخرى.');
             submitPayPalButton.disabled = false;
             submitPayPalButton.textContent = 'الدفع عبر PayPal';
+        });
+    });
+    
+    // Handle Apple Pay submission
+    const submitApplePayButton = document.getElementById('submit-apple-pay');
+    submitApplePayButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        submitApplePayButton.disabled = true;
+        submitApplePayButton.textContent = 'جارٍ المعالجة...';
+        
+        // Create Apple Pay payment
+        fetch('{% url "create_apple_pay_payment" order.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '{% url "order_detail" order.pk %}';
+            } else {
+                alert(data.message || 'حدث خطأ أثناء معالجة الدفع عبر Apple Pay.');
+                submitApplePayButton.disabled = false;
+                submitApplePayButton.textContent = 'الدفع عبر Apple Pay';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء معالجة الدفع عبر Apple Pay. يرجى المحاولة مرة أخرى.');
+            submitApplePayButton.disabled = false;
+            submitApplePayButton.textContent = 'الدفع عبر Apple Pay';
+        });
+    });
+    
+    // Handle Google Pay submission
+    const submitGooglePayButton = document.getElementById('submit-google-pay');
+    submitGooglePayButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        submitGooglePayButton.disabled = true;
+        submitGooglePayButton.textContent = 'جارٍ المعالجة...';
+        
+        // Create Google Pay payment
+        fetch('{% url "create_google_pay_payment" order.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '{% url "order_detail" order.pk %}';
+            } else {
+                alert(data.message || 'حدث خطأ أثناء معالجة الدفع عبر Google Pay.');
+                submitGooglePayButton.disabled = false;
+                submitGooglePayButton.textContent = 'الدفع عبر Google Pay';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء معالجة الدفع عبر Google Pay. يرجى المحاولة مرة أخرى.');
+            submitGooglePayButton.disabled = false;
+            submitGooglePayButton.textContent = 'الدفع عبر Google Pay';
+        });
+    });
+    
+    // Handle COD submission
+    const submitCODButton = document.getElementById('submit-cod');
+    submitCODButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        submitCODButton.disabled = true;
+        submitCODButton.textContent = 'جارٍ تأكيد الطلب...';
+        
+        // Process COD payment
+        fetch('{% url "cash_on_delivery_payment" order.pk %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '{% url "order_detail" order.pk %}';
+            } else {
+                alert(data.message || 'حدث خطأ أثناء تأكيد الطلب للدفع عند الاستلام.');
+                submitCODButton.disabled = false;
+                submitCODButton.textContent = 'تأكيد الطلب';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء تأكيد الطلب للدفع عند الاستلام. يرجى المحاولة مرة أخرى.');
+            submitCODButton.disabled = false;
+            submitCODButton.textContent = 'تأكيد الطلب';
         });
     });
 });
@@ -347,6 +512,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .dark-mode .total-amount {
     color: #6b9bd9;
+}
+
+.apple-pay {
+    background: #000;
+    color: white;
+    border-color: #000;
+}
+
+.google-pay {
+    background: #4285f4;
+    color: white;
+    border-color: #4285f4;
+}
+
+.cod {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
 }
 
 @media (max-width: 768px) {

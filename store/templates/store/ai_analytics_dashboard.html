@@ -231,6 +231,16 @@
         </div>
     </div>
     {% endif %}
+    
+    <!-- Export Options -->
+    <div class="info-section">
+        <h3>تصدير التقرير</h3>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <button class="btn-custom" onclick="exportReport('pdf')">تصدير إلى PDF</button>
+            <button class="btn-custom btn-success" onclick="exportReport('excel')">تصدير إلى Excel</button>
+            <button class="btn-custom btn-warning" onclick="exportReport('csv')">تصدير إلى CSV</button>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -412,6 +422,43 @@
         color: #28a745;
     }
     
+    /* Export button styles */
+    .btn-custom {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background: #0074D9;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-custom:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .btn-custom.btn-success {
+        background: #28a745;
+    }
+    
+    .btn-custom.btn-success:hover {
+        background: #218838;
+    }
+    
+    .btn-custom.btn-warning {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .btn-custom.btn-warning:hover {
+        background: #e0a800;
+    }
+    
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: 1fr;
@@ -443,5 +490,10 @@
             }
         });
     });
+    
+    function exportReport(format) {
+        // Redirect to export URL
+        window.location.href = '/export-analytics/' + format + '/';
+    }
 </script>
 {% endblock %}

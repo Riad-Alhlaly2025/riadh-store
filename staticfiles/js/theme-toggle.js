@@ -67,42 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('themeMode', 'dark');
                 themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
             }
-            
-            // Dispatch custom event for theme change
-            document.dispatchEvent(new CustomEvent('themeChanged', {
-                detail: {
-                    theme: body.classList.contains('theme-dark') ? 'dark' : 'light'
-                }
-            }));
-        });
-        
-        // إضافة تأثير عند التمرير على الزر
-        themeToggle.addEventListener('mouseenter', () => {
-            themeToggle.style.transform = 'scale(1.1)';
-        });
-        
-        themeToggle.addEventListener('mouseleave', () => {
-            themeToggle.style.transform = 'scale(1)';
-        });
-        
-        // Keyboard accessibility
-        themeToggle.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                themeToggle.click();
-            }
-        });
-    }
-    
-    // Modern responsive design enhancements
-    // Add touch support for mobile devices
-    if (themeToggle) {
-        themeToggle.addEventListener('touchstart', (e) => {
-            themeToggle.classList.add('touch-active');
-        });
-        
-        themeToggle.addEventListener('touchend', (e) => {
-            themeToggle.classList.remove('touch-active');
         });
     }
     

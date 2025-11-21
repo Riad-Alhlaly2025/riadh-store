@@ -1,0 +1,255 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إتمام الطلب{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>إتمام الطلب</h2>
+            
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            
+            {% if cart_items %}
+            <div class="row">
+                <!-- Order Summary -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>ملخص الطلب</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>المنتج</th>
+                                            <th>السعر</th>
+                                            <th>الكمية</th>
+                                            <th>الإجمالي</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in cart_items %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if item.product.image %}
+                                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail mr-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                                    {% endif %}
+                                                    <div>
+                                                        <h6>{{ item.product.name }}</h6>
+                                                        <p class="text-muted mb-0">{{ item.product.category }}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ item.product.price }} ر.س</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ item.total_price }} ر.س</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>معلومات التوصيل</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="checkout-form" method="post" action="{% url 'create_order' %}">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="full_name">الاسم الكامل *</label>
+                                        <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="phone">رقم الهاتف *</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="address">العنوان الكامل *</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="city">المدينة *</label>
+                                        <input type="text" class="form-control" id="city" name="city" required>
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="state">المنطقة</label>
+                                        <input type="text" class="form-control" id="state" name="state">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="zip_code">الرمز البريدي</label>
+                                        <input type="text" class="form-control" id="zip_code" name="zip_code">
+                                    </div>
+                                </div>
+                                
+                                <!-- Payment Methods -->
+                                <div class="mt-4">
+                                    <h6>طرق الدفع</h6>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="cash_on_delivery" value="cash_on_delivery" checked>
+                                        <label class="form-check-label" for="cash_on_delivery">
+                                            الدفع عند الاستلام
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="credit_card" value="credit_card">
+                                        <label class="form-check-label" for="credit_card">
+                                            البطاقة الائتمانية
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="apple_pay" value="apple_pay">
+                                        <label class="form-check-label" for="apple_pay">
+                                            Apple Pay
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="google_pay" value="google_pay">
+                                        <label class="form-check-label" for="google_pay">
+                                            Google Pay
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success btn-lg btn-block mt-3">
+                                    <i class="fas fa-shopping-cart"></i> إتمام الطلب
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Total and Payment -->
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>إجمالي الطلب</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>الإجمالي الفرعي:</span>
+                                <span>{{ subtotal }} ر.س</span>
+                            </div>
+                            
+                            {% if coupon_discount > 0 %}
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>خصم الكوبون:</span>
+                                <span>-{{ coupon_discount }} ر.س</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if loyalty_discount > 0 %}
+                            <div class="d-flex justify-content-between mb-2 text-info">
+                                <span>خصم الولاء:</span>
+                                <span>-{{ loyalty_discount }} ر.س</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if rewards_discount > 0 %}
+                            <div class="d-flex justify-content-between mb-2 text-warning">
+                                <span>خصم المكافآت:</span>
+                                <span>-{{ rewards_discount }} ر.س</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if total_discount > 0 %}
+                            <div class="d-flex justify-content-between mb-2 font-weight-bold">
+                                <span>إجمالي الخصومات:</span>
+                                <span>-{{ total_discount }} ر.س</span>
+                            </div>
+                            {% endif %}
+                            
+                            <hr>
+                            <div class="d-flex justify-content-between font-weight-bold">
+                                <span>الإجمالي:</span>
+                                <span class="text-primary">{{ final_total }} ر.س</span>
+                            </div>
+                            
+                            <a href="{% url 'view_cart' %}" class="btn btn-secondary btn-block mt-3">
+                                <i class="fas fa-arrow-right"></i> العودة للسلة
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Loyalty Rewards -->
+                    {% if available_rewards %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>مكافآت الولاء المتاحة</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for reward in available_rewards %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <strong>{{ reward.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ reward.points_required }} نقطة مطلوبة</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary apply-reward-btn" 
+                                        data-reward-id="{{ reward.id }}"
+                                        {% if reward.reward_type != 'discount' %}disabled title="يمكن استخدام هذا المكافأة في خطوة لاحقة"{% endif %}>
+                                    تطبيق
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center">
+                <h4>السلة فارغة</h4>
+                <p>أضف بعض المنتجات إلى السلة لإتمام الطلب.</p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary">تصفح المنتجات</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for checkout functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to reward buttons
+    const rewardButtons = document.querySelectorAll('.apply-reward-btn');
+    rewardButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const rewardId = this.getAttribute('data-reward-id');
+            applyReward(rewardId);
+        });
+    });
+    
+    // Function to apply reward (simplified implementation)
+    function applyReward(rewardId) {
+        alert('في تطبيق حقيقي، سيتم تطبيق المكافأة وإعادة تحميل الصفحة لعرض الخصم الجديد.');
+        // In a real implementation, you would make an AJAX call to apply the reward
+    }
+});
+</script>
+{% endblock %}

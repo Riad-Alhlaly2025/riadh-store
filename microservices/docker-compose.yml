@@ -1,0 +1,184 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: myshop_microservices
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Redis
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+      - payment-service
+      - inventory-service
+      - notification-service
+      - analytics-service
+
+  # User Service
+  user-service:
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=user_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  # Product Service
+  product-service:
+    build:
+      context: ./product_service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=product_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+
+  # Order Service
+  order-service:
+    build:
+      context: ./order_service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=order_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./payment_service
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=payment_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  # Inventory Service
+  inventory-service:
+    build:
+      context: ./inventory_service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=inventory_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./notification_service
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=notification_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      - postgres
+      - redis
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ./analytics_service
+      dockerfile: Dockerfile
+    ports:
+      - "8007:8000"
+    environment:
+      - DEBUG=1
+      - DB_HOST=postgres
+      - DB_NAME=analytics_service
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_URL=redis://redis:6379/1
+      - ELASTICSEARCH_HOST=elasticsearch:9200
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+
+volumes:
+  postgres_data:
+  elasticsearch_data:

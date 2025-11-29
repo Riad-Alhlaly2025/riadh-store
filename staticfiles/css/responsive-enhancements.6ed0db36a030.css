@@ -1,0 +1,126 @@
+/* ===============================
+   Responsive Enhancements
+   =============================== */
+
+/* Large screens */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1400px;
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+/* Medium screens */
+@media (max-width: 992px) {
+    .header-inner {
+        flex-direction: row;
+        gap: var(--spacing-md);
+    }
+    
+    .nav-links {
+        gap: var(--spacing-sm);
+    }
+    
+    .nav-link {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-sm);
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+    .header-inner {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--spacing-xs);
+    }
+    
+    .nav-link {
+        padding: var(--spacing-xs);
+        font-size: var(--font-size-xs);
+    }
+    
+    .breadcrumb {
+        font-size: var(--font-size-xs);
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--spacing-md);
+    }
+    
+    .luxury-card-body {
+        padding: var(--spacing-lg);
+    }
+    
+    .product-body {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 576px) {
+    .container {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+    }
+    
+    h1 {
+        font-size: var(--font-size-3xl);
+    }
+    
+    h2 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+    
+    .btn {
+        padding: 0.625rem 1rem;
+        font-size: var(--font-size-sm);
+    }
+    
+    .btn-xl {
+        padding: 0.875rem 1.5rem;
+        font-size: var(--font-size-base);
+    }
+}
+
+/* Print styles */
+@media print {
+    .luxury-header,
+    .luxury-footer,
+    .breadcrumb,
+    .btn {
+        display: none;
+    }
+    
+    body {
+        background-color: white;
+        color: black;
+    }
+    
+    .luxury-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}

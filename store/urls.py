@@ -23,6 +23,8 @@ urlpatterns = [
     
     # Dashboard URLs
     path('manager/dashboard/', views.manager_dashboard, name='manager_dashboard'),
+    path('manager/users/search/', views.manager_user_search, name='manager_user_search'),
+    path('manager/permissions/', views.manager_manage_permissions, name='manager_manage_permissions'),
     path('seller/dashboard/', views.seller_dashboard, name='seller_dashboard'),
     path('buyer/dashboard/', views.buyer_dashboard, name='buyer_dashboard'),
     
@@ -56,6 +58,9 @@ urlpatterns = [
     path('wishlist/', views.view_wishlist, name='view_wishlist'),
     path('wishlist/add/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('wishlist/remove/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    path('wishlist/share/', views.share_wishlist, name='share_wishlist'),
+    path('wishlist/clear/', views.clear_wishlist, name='clear_wishlist'),
+    path('wishlist/move-to-cart/', views.move_wishlist_to_cart, name='move_wishlist_to_cart'),
     
     # Review URLs
     path('product/<int:product_id>/review/', views.add_review, name='add_review'),
@@ -79,12 +84,21 @@ urlpatterns = [
     path('payment/google-pay/<int:order_id>/', views.create_google_pay_payment, name='create_google_pay_payment'),
     path('payment/cash-on-delivery/<int:order_id>/', views.cash_on_delivery_payment, name='cash_on_delivery_payment'),
     
+    # Payout Request URLs
+    path('seller/payout-requests/', views.seller_payout_requests, name='seller_payout_requests'),
+    path('seller/payout-requests/create/', views.create_payout_request, name='create_payout_request'),
+    path('manager/payout-requests/', views.manager_payout_requests, name='manager_payout_requests'),
+    path('payout-request/<int:request_id>/update-status/', views.update_payout_request_status, name='update_payout_request_status'),
+    
     # New URLs for missing features
     # Coupon URLs
     path('coupon/apply/', views.apply_coupon, name='apply_coupon'),
     path('coupon/remove/', views.remove_coupon, name='remove_coupon'),
     path('manager/coupons/', views.coupon_management, name='coupon_management'),
     path('manager/coupons/delete/<int:coupon_id>/', views.delete_coupon, name='delete_coupon'),
+    
+    # Cart API URLs
+    path('cart/data/', views.get_cart_data, name='get_cart_data'),
     
     # Loyalty Program URLs
     path('loyalty/', views.loyalty_dashboard, name='loyalty_dashboard'),
@@ -209,6 +223,9 @@ urlpatterns = [
     
     # Debug URL
     path('debug/manager-access/', views.debug_manager_access, name='debug_manager_access'),
+    
+    # Health check endpoint
+    path('health/', views.health_check, name='health_check'),
 
     # API URLs
     path('api/', include('store.api.urls')),

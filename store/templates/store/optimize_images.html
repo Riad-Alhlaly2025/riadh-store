@@ -1,0 +1,66 @@
+{% extends 'store/base.html' %}
+
+{% block title %}تحسين الصور{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">تحسين الصور</h1>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5>تحسين جميع صور المنتجات</h5>
+                </div>
+                <div class="card-body">
+                    <p>هذه الأداة تقوم بتحسين جميع صور المنتجات في المتجر من خلال:</p>
+                    <ul>
+                        <li>تغيير حجم الصور لتكون مناسبة للويب</li>
+                        <li>ضغط الصور لتقليل حجم الملف</li>
+                        <li>إنشاء نسخ بتنسيق WebP لتحسين الأداء</li>
+                        <li>إنشاء أحجام متعددة للصور لتحسين الاستجابة</li>
+                    </ul>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary" onclick="return confirm('هل أنت متأكد أنك تريد تحسين جميع صور المنتجات؟ قد يستغرق هذا بعض الوقت.')">
+                            <i class="fas fa-compress-arrows-alt"></i> بدء تحسين الصور
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>معلومات حول تحسين الصور</h5>
+                </div>
+                <div class="card-body">
+                    <h6>ما الذي يفعله تحسين الصور:</h6>
+                    <ul>
+                        <li><strong>ضغط الصور:</strong> يقلل حجم ملفات الصور دون التأثير بشكل كبير على الجودة</li>
+                        <li><strong>تنسيق WebP:</strong> ينشئ نسخ بتنسيق WebP الحديث الذي يوفر ضغطًا أفضل من JPEG وPNG</li>
+                        <li><strong>أحجام متعددة:</strong> ينشئ نسخ بأحجام مختلفة للتحميل السريع على الأجهزة المختلفة</li>
+                        <li><strong>تحسين الأداء:</strong> يحسن سرعة تحميل الموقع ويحسن تجربة المستخدم</li>
+                    </ul>
+                    
+                    <h6>متى يجب استخدام تحسين الصور:</h6>
+                    <ul>
+                        <li>بعد إضافة صور جديدة للمنتجات</li>
+                        <li>عند ملاحظة بطء في تحميل صفحات المنتجات</li>
+                        <li>بعد تحديث مجموعة كبيرة من الصور</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

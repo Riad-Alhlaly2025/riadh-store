@@ -9,14 +9,15 @@
         <div class="col-md-12">
             <h2>إدارة الحملات البريدية</h2>
             
-            <!-- Create Campaign Form -->
+            <!-- Create/Edit Campaign Form -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5>إنشاء حملة بريدية جديدة</h5>
+                    <h5 id="form-title">إنشاء حملة بريدية جديدة</h5>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="post" id="campaign-form">
                         {% csrf_token %}
+                        <input type="hidden" id="campaign-id" name="campaign_id" value="">
                         <div class="form-group">
                             <label for="subject">الموضوع:</label>
                             <input type="text" class="form-control" id="subject" name="subject" required>
@@ -30,9 +31,11 @@
                         <div class="form-group">
                             <label for="recipients">المستلمون (قائمة البريد الإلكتروني مفصولة بفواصل):</label>
                             <textarea class="form-control" id="recipients" name="recipients" rows="3" required></textarea>
+                            <small class="form-text text-muted">أدخل عناوين البريد الإلكتروني مفصولة بفواصل (example1@email.com, example2@email.com)</small>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary">إنشاء الحملة</button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">إنشاء الحملة</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-btn" style="display: none;">إلغاء</button>
                     </form>
                 </div>
             </div>
@@ -79,6 +82,15 @@
                                         {% endif %}
                                     </td>
                                     <td>
+                                        {% if campaign.status == 'draft' %}
+                                            <button class="btn btn-info btn-sm edit-btn" 
+                                                    data-id="{{ campaign.id }}"
+                                                    data-subject="{{ campaign.subject }}"
+                                                    data-content="{{ campaign.content }}"
+                                                    data-recipients="{{ campaign.recipients }}">
+                                                تعديل
+                                            </button>
+                                        {% endif %}
                                         {% if campaign.status != 'sent' %}
                                             <a href="{% url 'send_email_campaign' campaign.id %}" 
                                                class="btn btn-success btn-sm">
@@ -104,4 +116,58 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit button functionality
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const formTitle = document.getElementById('form-title');
+    const campaignIdInput = document.getElementById('campaign-id');
+    const subjectInput = document.getElementById('subject');
+    const contentInput = document.getElementById('content');
+    const recipientsInput = document.getElementById('recipients');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const campaignForm = document.getElementById('campaign-form');
+    
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const subject = this.getAttribute('data-subject');
+            const content = this.getAttribute('data-content');
+            const recipients = this.getAttribute('data-recipients');
+            
+            // Fill form with campaign data
+            campaignIdInput.value = id;
+            subjectInput.value = subject;
+            contentInput.value = content;
+            recipientsInput.value = recipients;
+            
+            // Update form for editing
+            formTitle.textContent = 'تعديل الحملة البريدية';
+            submitBtn.textContent = 'تحديث الحملة';
+            cancelBtn.style.display = 'inline-block';
+            
+            // Scroll to form
+            campaignForm.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+    
+    // Cancel button functionality
+    cancelBtn.addEventListener('click', function() {
+        // Reset form
+        campaignIdInput.value = '';
+        subjectInput.value = '';
+        contentInput.value = '';
+        recipientsInput.value = '';
+        
+        // Reset form to create mode
+        formTitle.textContent = 'إنشاء حملة بريدية جديدة';
+        submitBtn.textContent = 'إنشاء الحملة';
+        cancelBtn.style.display = 'none';
+    });
+});
+</script>
 {% endblock %}

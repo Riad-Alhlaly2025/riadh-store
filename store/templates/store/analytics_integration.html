@@ -1,127 +1,561 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}تكامل أدوات التحليل{% endblock %}
+{% block title %}تحليلات متقدمة وذكاء أعمال{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <div class="row">
-        <div class="col-md-12">
-            <h2>تكامل أدوات التحليل</h2>
+        <div class="col-12">
+            <h2>تحليلات متقدمة وذكاء أعمال</h2>
             
-            <!-- Analytics Summary -->
+            <!-- Advanced Real-time Dashboard -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5>ملخص التحليلات</h5>
+                    <h5>لوحة التحكم اللحظية المتقدمة</h5>
                 </div>
                 <div class="card-body">
+                    {% if advanced_real_time_data %}
                     <div class="row">
-                        <div class="col-md-4">
-                            <div class="alert alert-info text-center">
-                                <h3>{{ total_events }}</h3>
-                                <p>إجمالي الأحداث</p>
+                        <!-- User Activity -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>نشاط المستخدمين</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <p class="mb-1">المستخدمون النشطون (15 دقيقة)</p>
+                                            <h4>{{ advanced_real_time_data.user_activity.active_users_15min }}</h4>
+                                        </div>
+                                        <div>
+                                            <p class="mb-1">المستخدمون النشطون (ساعة)</p>
+                                            <h4>{{ advanced_real_time_data.user_activity.active_users_1hr }}</h4>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="badge badge-{% if advanced_real_time_data.user_activity.growth_rate >= 0 %}success{% else %}danger{% endif %}">
+                                            {% if advanced_real_time_data.user_activity.growth_rate >= 0 %}↑{% else %}↓{% endif %}
+                                            {{ advanced_real_time_data.user_activity.growth_rate }}%
+                                        </span>
+                                        <small>معدل النمو</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert alert-success text-center">
-                                <h3>{{ event_types|length }}</h3>
-                                <p>أنواع الأحداث</p>
+                        
+                        <!-- Orders -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>الطلبات</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <p class="mb-1">الطلبات (15 دقيقة)</p>
+                                            <h4>{{ advanced_real_time_data.order_metrics.orders_15min }}</h4>
+                                        </div>
+                                        <div>
+                                            <p class="mb-1">الطلبات (ساعة)</p>
+                                            <h4>{{ advanced_real_time_data.order_metrics.orders_1hr }}</h4>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="badge badge-{% if advanced_real_time_data.order_metrics.trend == 'up' %}success{% else %}danger{% endif %}">
+                                            {% if advanced_real_time_data.order_metrics.trend == 'up' %}↑{% else %}↓{% endif %}
+                                            اتجاه الطلبات
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert alert-warning text-center">
-                                <h3>{{ analytics_events|length }}</h3>
-                                <p>الأحداث الحديثة</p>
+                        
+                        <!-- Sales -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>المبيعات</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <p class="mb-1">المبيعات (15 دقيقة)</p>
+                                            <h4>{{ advanced_real_time_data.sales_data.sales_15min|floatformat:2 }} ر.س</h4>
+                                        </div>
+                                        <div>
+                                            <p class="mb-1">المبيعات (ساعة)</p>
+                                            <h4>{{ advanced_real_time_data.sales_data.sales_1hr|floatformat:2 }} ر.س</h4>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="badge badge-{% if advanced_real_time_data.sales_data.trend == 'up' %}success{% else %}danger{% endif %}">
+                                            {% if advanced_real_time_data.sales_data.trend == 'up' %}↑{% else %}↓{% endif %}
+                                            اتجاه المبيعات
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Event Types Chart -->
-                    <h5>توزيع الأحداث حسب النوع</h5>
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>نوع الحدث</th>
-                                    <th>العدد</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for event_type in event_types %}
-                                <tr>
-                                    <td>{{ event_type.event_type }}</td>
-                                    <td>{{ event_type.count }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    <!-- Charts Section -->
+                    <div class="row mt-4">
+                        <!-- Geographic Distribution -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>التوزيع الجغرافي</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>المنطقة</th>
+                                                    <th>عدد الطلبات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for region_data in advanced_real_time_data.geographic_distribution %}
+                                                <tr>
+                                                    <td>{{ region_data.region }}</td>
+                                                    <td>{{ region_data.orders|floatformat:0 }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Device Distribution -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>توزيع الأجهزة</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>الجهاز</th>
+                                                    <th>عدد الجلسات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for device_data in advanced_real_time_data.device_distribution %}
+                                                <tr>
+                                                    <td>{{ device_data.device }}</td>
+                                                    <td>{{ device_data.sessions|floatformat:0 }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p>لا توجد بيانات متاحة حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Predictive Analytics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>التحليلات التنبؤية</h5>
+                </div>
+                <div class="card-body">
+                    {% if predictive_data %}
+                    <!-- Sales Predictions -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6>توقعات المبيعات (الأيام القادمة 7)</h6>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>التاريخ</th>
+                                            <th>المبيعات المتوقعة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for prediction in predictive_data.sales_predictions %}
+                                        <tr>
+                                            <td>{{ prediction.date }}</td>
+                                            <td>{{ prediction.predicted_sales|floatformat:2 }} ر.س</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inventory Alerts -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>تنبيهات المخزون</h6>
+                                </div>
+                                <div class="card-body">
+                                    <h5>{{ predictive_data.inventory_alerts.low_stock_products }} منتج</h5>
+                                    <p>تحتاج إعادة التخزين</p>
+                                    {% for action in predictive_data.inventory_alerts.recommended_actions %}
+                                    <div class="alert alert-warning">
+                                        {{ action }}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Customer Behavior Predictions -->
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6>توقعات سلوك العملاء</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>خطر فقدان العملاء:</strong> {{ predictive_data.customer_behavior_predictions.churn_risk }}</p>
+                                    <p><strong>استراتيجيات الاحتفاظ:</strong></p>
+                                    <ul>
+                                        {% for strategy in predictive_data.customer_behavior_predictions.retention_strategies %}
+                                        <li>{{ strategy }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p>لا توجد بيانات تنبؤية متاحة حالياً.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Real-time Dashboard -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>لوحة التحكم اللحظية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-6 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h6>المستخدمون النشطون</h6>
+                                    <h3>{{ real_time_data.active_users|default:0 }}</h3>
+                                    <small>في الساعة الأخيرة</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h6>الطلبات الجديدة</h6>
+                                    <h3>{{ real_time_data.recent_orders|default:0 }}</h3>
+                                    <small>في الساعة الأخيرة</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h6>مشاهدات الصفحة</h6>
+                                    <h3>{{ real_time_data.recent_page_views|default:0 }}</h3>
+                                    <small>في الساعة الأخيرة</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h6>التحويلات</h6>
+                                    <h3>{{ real_time_data.recent_conversions|default:0 }}</h3>
+                                    <small>في الساعة الأخيرة</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body text-center">
+                                    <h6>المبيعات</h6>
+                                    <h3>{{ real_time_data.recent_sales|default:0 }} ر.س</h3>
+                                    <small>في الساعة الأخيرة</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-body text-center">
+                                    <h6>آخر تحديث</h6>
+                                    <h6>{{ real_time_data.timestamp|date:"H:i:s"|default:"--:--:--" }}</h6>
+                                    <small>التوقيت المحلي</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Recent Events -->
-            <div class="card">
+            <!-- AI-Powered Insights -->
+            <div class="card mb-4">
                 <div class="card-header">
-                    <h5>أحدث الأحداث</h5>
+                    <h5>رؤى مدعومة بالذكاء الاصطناعي</h5>
                 </div>
                 <div class="card-body">
-                    {% if analytics_events %}
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>المستخدم</th>
-                                    <th>نوع الحدث</th>
-                                    <th>المنتج</th>
-                                    <th>الطلب</th>
-                                    <th>الرابط</th>
-                                    <th>الطابع الزمني</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for event in analytics_events %}
-                                <tr>
-                                    <td>
-                                        {% if event.user %}
-                                            {{ event.user.username }}
-                                        {% else %}
-                                            زائر
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ event.get_event_type_display }}</td>
-                                    <td>
-                                        {% if event.product %}
-                                            {{ event.product.name }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if event.order %}
-                                            طلب #{{ event.order.id }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if event.url %}
-                                            <a href="{{ event.url }}" target="_blank">عرض</a>
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ event.timestamp|date:"Y-m-d H:i:s" }}</td>
-                                </tr>
+                    {% if ai_insights %}
+                        {% for insight in ai_insights %}
+                        <div class="alert alert-{% if insight.priority == 'high' %}danger{% elif insight.priority == 'medium' %}warning{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                            <h6>{{ insight.title }}</h6>
+                            <p>{{ insight.description }}</p>
+                            {% if insight.recommendations %}
+                            <strong>التوصيات:</strong>
+                            <ul>
+                                {% for recommendation in insight.recommendations %}
+                                <li>{{ recommendation }}</li>
                                 {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                            </ul>
+                            {% endif %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endfor %}
                     {% else %}
-                    <p>لا توجد أحداث تحليلية حالياً.</p>
+                        <p>لا توجد رؤى مدعومة بالذكاء الاصطناعي حالياً.</p>
                     {% endif %}
+                </div>
+            </div>
+            
+            <!-- Basic Analytics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>الإحصائيات الأساسية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>إجمالي الأحداث</h6>
+                                    <h3>{{ basic_data.total_events|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>إجمالي المنتجات</h6>
+                                    <h3>{{ basic_data.total_products|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>إجمالي الطلبات</h6>
+                                    <h3>{{ basic_data.total_orders|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>إجمالي المستخدمين</h6>
+                                    <h3>{{ basic_data.total_users|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>معدل التحويل</h6>
+                                    <h3>{{ basic_data.conversion_rate|default:0 }}%</h3>
+                                    <p>من الزوار إلى المشترين</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>المستخدمون النشطون</h6>
+                                    <h3>{{ basic_data.active_users|default:0 }}</h3>
+                                    <p>في آخر 30 يوم</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>الأحداث الحديثة</h6>
+                                    <h3>{{ basic_data.recent_events|default:0 }}</h3>
+                                    <p>في آخر 30 يوم</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sales Analytics -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>المبيعات حسب الفئة</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if sales_data.category_sales %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>الفئة</th>
+                                                <th>الكمية</th>
+                                                <th>المبلغ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for category, data in sales_data.category_sales.items %}
+                                            <tr>
+                                                <td>{{ data.display_name }}</td>
+                                                <td>{{ data.quantity }}</td>
+                                                <td>{{ data.amount }} ر.س</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p>لا توجد بيانات مبيعات حسب الفئة.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>أفضل المنتجات مبيعًا</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if sales_data.top_products %}
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>المنتج</th>
+                                                <th>الكمية</th>
+                                                <th>المبلغ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for product in sales_data.top_products %}
+                                            <tr>
+                                                <td>{{ product.product__name }}</td>
+                                                <td>{{ product.quantity }}</td>
+                                                <td>{{ product.amount }} ر.س</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p>لا توجد بيانات عن أفضل المنتجات.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Analytics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>تحليلات المستخدمين</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>عدد البائعين</h6>
+                                    <h3>{{ user_data.user_counts.sellers|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>عدد المشترين</h6>
+                                    <h3>{{ user_data.user_counts.buyers|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6>عدد المديرين</h6>
+                                    <h3>{{ user_data.user_counts.managers|default:0 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Options -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>تصدير التقارير</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'export_analytics_report' 'csv' %}" class="btn btn-primary mr-2">تصدير CSV</a>
+                    <a href="{% url 'export_analytics_report' 'excel' %}" class="btn btn-success mr-2">تصدير Excel</a>
+                    <a href="{% url 'export_analytics_report' 'pdf' %}" class="btn btn-danger mr-2">تصدير PDF</a>
+                    <a href="{% url 'export_analytics_report' 'json' %}" class="btn btn-info">تصدير JSON</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    .table th {
+        border-top: none;
+    }
+    
+    .badge {
+        font-size: 0.75em;
+    }
+    
+    .alert {
+        font-size: 0.9rem;
+    }
+    
+    h3, h4, h5, h6 {
+        font-weight: 600;
+    }
+</style>
 {% endblock %}

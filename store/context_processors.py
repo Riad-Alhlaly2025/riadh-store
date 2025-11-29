@@ -25,5 +25,9 @@ def cart_processor(request: Any) -> Dict[str, int]:
     Context processor to add cart count to all templates
     """
     cart = request.session.get('cart', {})
-    cart_count = sum(cart.values())
+    # Convert string values to integers before summing
+    try:
+        cart_count = sum(int(quantity) for quantity in cart.values())
+    except (ValueError, TypeError):
+        cart_count = 0
     return {'cart_count': cart_count}

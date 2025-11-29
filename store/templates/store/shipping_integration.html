@@ -1,15 +1,15 @@
 {% extends 'store/base.html' %}
 {% load static %}
 
-{% block title %}تكامل أنظمة الشحن العالمية{% endblock %}
+{% block title %}تكامل مزودي الشحن{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-12">
-            <h2>تكامل أنظمة الشحن العالمية</h2>
+            <h2>تكامل مزودي الشحن</h2>
             
-            <!-- Create Integration Form -->
+            <!-- Create Shipping Integration Form -->
             <div class="card mb-4">
                 <div class="card-header">
                     <h5>إنشاء تكامل شحن جديد</h5>
@@ -18,18 +18,18 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="order_id">الطلب:</label>
                                     <select class="form-control" id="order_id" name="order_id" required>
                                         <option value="">اختر الطلب</option>
                                         {% for order in orders %}
-                                        <option value="{{ order.id }}">طلب #{{ order.id }}</option>
+                                        <option value="{{ order.id }}">طلب #{{ order.id }} - {{ order.user.username }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="provider">مزود الشحن:</label>
                                     <select class="form-control" id="provider" name="provider" required>
@@ -42,12 +42,6 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="tracking_number">رقم التتبع (اختياري):</label>
-                                    <input type="text" class="form-control" id="tracking_number" name="tracking_number">
-                                </div>
-                            </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary">إنشاء التكامل</button>
@@ -58,7 +52,7 @@
             <!-- Integrations List -->
             <div class="card">
                 <div class="card-header">
-                    <h5>تكاملات الشحن الحالية</h5>
+                    <h5>التكاملات الحالية</h5>
                 </div>
                 <div class="card-body">
                     {% if integrations %}
@@ -69,7 +63,7 @@
                                     <th>رقم الطلب</th>
                                     <th>مزود الشحن</th>
                                     <th>رقم التتبع</th>
-                                    <th>التكلفة</th>
+                                    <th>تكلفة الشحن</th>
                                     <th>الحالة</th>
                                     <th>تاريخ الإنشاء</th>
                                     <th>الإجراءات</th>
@@ -80,17 +74,17 @@
                                 <tr>
                                     <td>طلب #{{ integration.order.id }}</td>
                                     <td>{{ integration.get_provider_display }}</td>
-                                    <td>{{ integration.tracking_number|default:"-" }}</td>
+                                    <td>{{ integration.tracking_number|default:"غير متوفر" }}</td>
                                     <td>{{ integration.shipping_cost }} ر.س</td>
                                     <td>
                                         {% if integration.status == 'pending' %}
                                             <span class="badge badge-warning">قيد الانتظار</span>
                                         {% elif integration.status == 'shipped' %}
-                                            <span class="badge badge-info">تم الشحن</span>
-                                        {% elif integration.status == 'delivered' %}
-                                            <span class="badge badge-success">تم التسليم</span>
+                                            <span class="badge badge-success">تم الشحن</span>
+                                        {% elif integration.status == 'failed' %}
+                                            <span class="badge badge-danger">فشل</span>
                                         {% else %}
-                                            <span class="badge badge-secondary">{{ integration.status }}</span>
+                                            <span class="badge badge-secondary">غير معروف</span>
                                         {% endif %}
                                     </td>
                                     <td>{{ integration.created_at|date:"Y-m-d H:i" }}</td>
@@ -107,7 +101,7 @@
                         </table>
                     </div>
                     {% else %}
-                    <p>لا توجد تكاملات شحن حالياً.</p>
+                    <p>لا توجد تكاملات حالياً.</p>
                     {% endif %}
                 </div>
             </div>

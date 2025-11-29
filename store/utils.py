@@ -94,6 +94,7 @@ class Cart:
 def optimize_image(image_path, max_width=800, max_height=600, quality=85):
     """
     Optimize an image by resizing and compressing it. Also creates WebP version.
+    Uses advanced compression techniques for better optimization.
     """
     if not os.path.exists(image_path):
         return
@@ -108,14 +109,58 @@ def optimize_image(image_path, max_width=800, max_height=600, quality=85):
             # Calculate new dimensions maintaining aspect ratio
             img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
             
-            # Save optimized image in original format
-            img.save(image_path, 'JPEG', quality=quality, optimize=True)
+            # Apply advanced compression techniques
+            # For JPEG, use progressive encoding and optimize
+            if image_path.lower().endswith(('.jpg', '.jpeg')):
+                img.save(image_path, 'JPEG', quality=quality, optimize=True, progressive=True)
+            else:
+                # For other formats, use standard optimization
+                img.save(image_path, 'JPEG', quality=quality, optimize=True)
             
             # Create WebP version for better compression
             webp_path = os.path.splitext(image_path)[0] + '.webp'
-            img.save(webp_path, 'WEBP', quality=quality, optimize=True)
+            # Use lossless compression for images with fewer colors, otherwise use lossy
+            if img.mode in ('1', 'L', 'P'):  # Black/white, grayscale, or palette
+                img.save(webp_path, 'WEBP', lossless=True, quality=quality, method=6)
+            else:
+                img.save(webp_path, 'WEBP', quality=quality, method=6, alpha_quality=quality)
+                
+            # Create additional responsive image sizes
+            create_responsive_sizes(img, image_path, quality)
     except Exception as e:
         print(f"Error optimizing image {image_path}: {e}")
+
+def create_responsive_sizes(img, original_path, quality=85):
+    """
+    Create multiple responsive image sizes for better performance on different devices.
+    """
+    # Define responsive sizes
+    sizes = [
+        (320, 240),   # Small thumbnail
+        (640, 480),   # Medium size
+        (1200, 900),  # Large size
+    ]
+    
+    base_name = os.path.splitext(original_path)[0]
+    extension = os.path.splitext(original_path)[1].lower()
+    
+    for width, height in sizes:
+        # Skip if the original image is smaller than the target size
+        if img.width <= width and img.height <= height:
+            continue
+            
+        # Create a copy and resize
+        resized_img = img.copy()
+        resized_img.thumbnail((width, height), Image.Resampling.LANCZOS)
+        
+        # Save in original format
+        if extension in ('.jpg', '.jpeg'):
+            resized_img.save(f"{base_name}_{width}w{extension}", 'JPEG', quality=quality, optimize=True)
+        else:
+            resized_img.save(f"{base_name}_{width}w.jpg", 'JPEG', quality=quality, optimize=True)
+        
+        # Save in WebP format
+        resized_img.save(f"{base_name}_{width}w.webp", 'WEBP', quality=quality, method=6)
 
 def optimize_product_images():
     """

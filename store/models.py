@@ -341,7 +341,7 @@ class Order(models.Model):
         ('dispute', 'نزاع'),  # Added for dispute resolution
     ]
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='المستخدم')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='المستخدم', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='الحالة')
@@ -361,6 +361,11 @@ class Order(models.Model):
         verbose_name = 'طلب'
         verbose_name_plural = 'الطلبات'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['user', 'status']),
+        ]
 
     def __str__(self) -> str:
         # Handle case where user might be None
@@ -399,7 +404,7 @@ class Notification(models.Model):
         ('verification_status_changed', 'تغير حالة التحقق'),  # For seller verification
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='المستخدم')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='المستخدم', null=True, blank=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, verbose_name='الطلب', null=True, blank=True)
     notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES, verbose_name='نوع الإشعار')
     message = models.TextField(verbose_name='الرسالة')
@@ -410,6 +415,11 @@ class Notification(models.Model):
         verbose_name = 'إشعار'
         verbose_name_plural = 'الإشعارات'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['is_read', '-created_at']),
+            models.Index(fields=['notification_type', '-created_at']),
+        ]
     
     def __str__(self) -> str:
         # Handle case where user might be None
@@ -430,6 +440,11 @@ class Commission(models.Model):
         verbose_name = 'عمولة'
         verbose_name_plural = 'العمولات'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['order', '-created_at']),
+            models.Index(fields=['is_paid', '-created_at']),
+        ]
     
     def __str__(self) -> str:
         # Handle case where user or order might be None
@@ -1421,6 +1436,7 @@ class SocialMediaIntegration(models.Model):
     class Meta:
         verbose_name = 'تكامل وسائل التواصل'
         verbose_name_plural = 'تكاملات وسائل التواصل'
+        unique_together = ('product', 'platform')
     
     def __str__(self) -> str:
         try:
@@ -1597,6 +1613,7 @@ class ExternalInventory(models.Model):
     class Meta:
         verbose_name = 'مخزون خارجي'
         verbose_name_plural = 'المخزونات الخارجية'
+        unique_together = ('product', 'external_id', 'system_name')
     
     def __str__(self) -> str:
         try:
@@ -2586,6 +2603,46 @@ class FAQ(models.Model):
         return str(self.question)
 
 # Enhanced Review Model
+class WithdrawalRequest(models.Model):
+    """Model for seller payout/withdrawal requests"""
+    STATUS_CHOICES = [
+        ('pending', 'قيد الانتظار'),
+        ('approved', 'موافق عليه'),
+        ('processing', 'قيد المعالجة'),
+        ('completed', 'مكتمل'),
+        ('rejected', 'مرفوض'),
+    ]
+    
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='البائع', related_name='withdrawal_requests')
+    amount = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='المبلغ')
+    currency = models.CharField(max_length=3, choices=Product.CURRENCY_CHOICES, default='USD', verbose_name='العملة')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name='الحالة')
+    payment_method = models.CharField(max_length=50, verbose_name='طريقة الدفع')
+    bank_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='اسم البنك')
+    bank_account_number = models.CharField(max_length=50, blank=True, null=True, verbose_name='رقم الحساب البنكي')
+    iban = models.CharField(max_length=50, blank=True, null=True, verbose_name='IBAN')
+    paypal_email = models.EmailField(blank=True, null=True, verbose_name='بريد باي بال')
+    notes = models.TextField(blank=True, null=True, verbose_name='ملاحظات')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاريخ الإنشاء')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='تاريخ التحديث')
+    processed_at = models.DateTimeField(null=True, blank=True, verbose_name='تاريخ المعالجة')
+    completed_at = models.DateTimeField(null=True, blank=True, verbose_name='تاريخ الإكمال')
+    
+    class Meta:
+        verbose_name = 'طلب سحب'
+        verbose_name_plural = 'طلبات السحب'
+        ordering = ['-created_at']
+    
+    def __str__(self) -> str:
+        username = getattr(self.seller, 'username', 'Unknown Seller')
+        return f"طلب سحب #{self.pk} - {username} - {self.amount} {self.currency}"
+    
+    def get_status_display_arabic(self) -> str:
+        """Get Arabic status display"""
+        status_dict = dict(self.STATUS_CHOICES)
+        return status_dict.get(self.status, self.status)
+
+
 class EnhancedReview(models.Model):
     """Enhanced model for product reviews with additional features"""
     RATINGS = [

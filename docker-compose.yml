@@ -1,45 +1,57 @@
 version: '3.8'
 
 services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - DEBUG=False
-      - SECRET_KEY=your-production-secret-key-here-change-this
-      - DB_ENGINE=django.db.backends.postgresql
-      - DB_NAME=myshop
-      - DB_USER=myshopuser
-      - DB_PASSWORD=mypassword
-      - DB_HOST=db
-      - DB_PORT=5432
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - ./media:/app/media
-      - ./staticfiles:/app/staticfiles
-      - ./logs:/app/logs
-
   db:
-    image: postgres:15
+    image: postgres:13
     environment:
-      - POSTGRES_DB=myshop
-      - POSTGRES_USER=myshopuser
-      - POSTGRES_PASSWORD=mypassword
+      POSTGRES_DB: myshop
+      POSTGRES_USER: myshop_user
+      POSTGRES_PASSWORD: myshop_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   redis:
-    image: redis:7-alpine
+    image: redis:6-alpine
     ports:
       - "6379:6379"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - redis_data:/data
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgresql://myshop_user:myshop_password@db:5432/myshop
+
+  celery:
+    build: .
+    command: celery -A shopsite worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://myshop_user:myshop_password@db:5432/myshop
+
+  celery-beat:
+    build: .
+    command: celery -A shopsite beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://myshop_user:myshop_password@db:5432/myshop
 
 volumes:
   postgres_data:
-  redis_data:

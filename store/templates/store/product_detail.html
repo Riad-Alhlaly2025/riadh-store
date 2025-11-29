@@ -62,13 +62,16 @@
                     <h2 class="text-2xl font-bold mb-3">{{ product.name }}</h2>
                     <div class="product-rating flex items-center gap-2 mb-4">
                         <div class="rating-display flex">
-                            <i class="fas fa-star star"></i>
-                            <i class="fas fa-star star"></i>
-                            <i class="fas fa-star star"></i>
-                            <i class="fas fa-star star"></i>
-                            <i class="fas fa-star star"></i>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= average_rating|floatformat:"0"|add:0 %}
+                                    <i class="fas fa-star star"></i>
+                                {% else %}
+                                    <i class="far fa-star star"></i>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-                        <span class="text-secondary">4.9 (128 تقييم)</span>
+                        <span class="text-secondary">{{ average_rating|floatformat:1 }} ({{ review_count }} تقييم)</span>
+                        <a href="{% url 'product_reviews' product.id %}" class="text-primary text-sm ml-2">عرض جميع التقييمات</a>
                     </div>
                 </div>
                 
@@ -258,14 +261,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Update cart count in header
                     const cartCount = document.querySelector('.cart-count');
                     if (cartCount) {
-                        // Recalculate total cart count
-                        let totalCount = 0;
-                        const cartItems = document.querySelectorAll('.cart-item');
-                        cartItems.forEach(item => {
-                            const quantity = parseInt(item.querySelector('.quantity-input').value);
-                            totalCount += quantity;
-                        });
-                        cartCount.textContent = totalCount;
+                        // Use the cart count from the response data
+                        if (data.cart_count !== undefined) {
+                            cartCount.textContent = data.cart_count;
+                        } else {
+                            // Fallback: increment current count by 1
+                            const currentCount = parseInt(cartCount.textContent) || 0;
+                            cartCount.textContent = currentCount + 1;
+                        }
                     }
                     
                     // Show success message

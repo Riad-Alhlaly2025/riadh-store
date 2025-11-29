@@ -70,13 +70,15 @@ class Command(BaseCommand):
         
         # Demonstrate Social Media Integration
         social_platforms = ['facebook', 'twitter', 'instagram', 'linkedin']
-        for product in products:
-            platform = random.choice(social_platforms)
-            SocialMediaIntegration.objects.create(
+        for i, product in enumerate(products):
+            platform = social_platforms[i % len(social_platforms)]
+            SocialMediaIntegration.objects.get_or_create(
                 product=product,
                 platform=platform,
-                status='posted',
-                post_id=f'post_{random.randint(1000, 9999)}'
+                defaults={
+                    'status': 'posted',
+                    'post_id': f'post_{random.randint(1000, 9999)}'
+                }
             )
             
         self.stdout.write('Demonstrated social media integration')
@@ -96,14 +98,19 @@ class Command(BaseCommand):
         
         # Demonstrate External Inventory Integration
         external_systems = ['ERPNext', 'Odoo', 'SAP']
-        for product in products:
-            ExternalInventory.objects.create(
+        # Only create external inventory for products that don't already have one
+        products_without_inventory = [p for p in products if not ExternalInventory.objects.filter(product=p).exists()]
+        for i, product in enumerate(products_without_inventory[:3]):  # Only first 3 products without inventory
+            system_name = external_systems[i % len(external_systems)]
+            ExternalInventory.objects.get_or_create(
                 product=product,
                 external_id=f'EXT{random.randint(1000, 9999)}',
-                system_name=random.choice(external_systems),
-                external_stock=random.randint(10, 100),
-                sync_status='synced',
-                last_synced=datetime.now()
+                system_name=system_name,
+                defaults={
+                    'external_stock': random.randint(10, 100),
+                    'sync_status': 'synced',
+                    'last_synced': datetime.now()
+                }
             )
             
         self.stdout.write('Demonstrated external inventory integration')

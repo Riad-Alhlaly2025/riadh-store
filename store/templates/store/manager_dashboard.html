@@ -81,10 +81,24 @@
                 </div>
                 <div class="metric-content">
                     <h3>عدد البائعين</h3>
-                    <p class="metric-value">142</p>
+                    <p class="metric-value">{{ total_sellers }}</p>
                     <div class="trend positive">
                         <i class="fas fa-arrow-up"></i>
                         <span>+8.5%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon success">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="metric-content">
+                    <h3>الأرباح</h3>
+                    <p class="metric-value">${{ total_profits|floatformat:2 }}</p>
+                    <div class="trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12.3%</span>
                     </div>
                 </div>
             </div>
@@ -94,6 +108,34 @@
     <!-- Quick Actions Section -->
     <div class="dashboard-actions">
         <h2 class="section-title animated fadeInUp">الإجراءات السريعة</h2>
+        
+        <!-- Pending/Rejected Products Summary -->
+        <div class="luxury-card animated fadeInUp" style="margin-bottom: 2rem;">
+            <div class="section-header">
+                <h3><i class="fas fa-boxes"></i> حالة المنتجات</h3>
+            </div>
+            <div class="performance-metrics" style="display: flex; justify-content: space-around;">
+                <div class="metric-card">
+                    <div class="metric-icon warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>المنتجات المعلقة</h3>
+                        <p class="metric-value">{{ pending_products }}</p>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon danger">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="metric-content">
+                        <h3>المنتجات المرفوضة</h3>
+                        <p class="metric-value">{{ rejected_products }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="action-grid">
             <a href="{% url 'admin:index' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.1s">
                 <div class="action-icon primary">
@@ -116,7 +158,7 @@
                 </div>
             </a>
             
-            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.3s">
+            <a href="{% url 'ai_analytics_dashboard' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.3s">
                 <div class="action-icon success">
                     <i class="fas fa-chart-line"></i>
                 </div>
@@ -126,17 +168,27 @@
                 </div>
             </a>
             
-            <a href="#" class="action-card luxury-card animated fadeInUp" data-delay="0.4s">
+            <a href="{% url 'email_campaigns' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.4s">
                 <div class="action-icon warning">
-                    <i class="fas fa-store"></i>
+                    <i class="fas fa-envelope"></i>
                 </div>
                 <div class="action-content">
-                    <h3>إعدادات المتجر</h3>
-                    <p>تخصيص إعدادات المتجر</p>
+                    <h3>الحملات البريدية</h3>
+                    <p>إدارة الحملات البريدية</p>
                 </div>
             </a>
             
-            <a href="{% url 'manage_sellers' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.5s">
+            <a href="{% url 'manager_user_search' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.5s">
+                <div class="action-icon info">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="action-content">
+                    <h3>البحث عن المستخدمين</h3>
+                    <p>البحث في قاعدة بيانات المستخدمين</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'manage_sellers' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.6s">
                 <div class="action-icon info">
                     <i class="fas fa-user-tie"></i>
                 </div>
@@ -147,7 +199,7 @@
                 <div class="action-badge">142</div>
             </a>
             
-            <a href="{% url 'manage_disputes' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.6s">
+            <a href="{% url 'manage_disputes' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.7s">
                 <div class="action-icon danger">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
@@ -157,6 +209,35 @@
                 </div>
                 <div class="action-badge warning">5</div>
             </a>
+            
+            <a href="{% url 'manager_manage_permissions' %}" class="action-card luxury-card animated fadeInUp" data-delay="0.8s">
+                <div class="action-icon primary">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="action-content">
+                    <h3>إدارة الصلاحيات</h3>
+                    <p>إدارة أدوار وصلاحيات المستخدمين</p>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- User Search Section -->
+    <div class="luxury-card animated fadeInUp" style="margin-bottom: 2rem;">
+        <div class="section-header">
+            <h3><i class="fas fa-search"></i> البحث عن المستخدمين</h3>
+        </div>
+        <div class="search-form-container">
+            <form method="GET" action="{% url 'manager_user_search' %}" class="search-form">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="ابحث باسم المستخدم أو البريد الإلكتروني" value="{{ search_query|default:'' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> بحث
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
     

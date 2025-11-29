@@ -271,13 +271,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update the cart count in header
                 const cartCount = document.querySelector('.cart-count');
                 if (cartCount) {
-                    // Recalculate total cart count
-                    let totalCount = 0;
-                    const quantityInputs = document.querySelectorAll('.quantity-input');
-                    quantityInputs.forEach(input => {
-                        totalCount += parseInt(input.value) || 0;
-                    });
-                    cartCount.textContent = totalCount;
+                    // Use the cart count from the response data
+                    if (data.cart_count !== undefined) {
+                        cartCount.textContent = data.cart_count;
+                    } else {
+                        // Fallback: recalculate total cart count
+                        let totalCount = 0;
+                        const quantityInputs = document.querySelectorAll('.quantity-input');
+                        quantityInputs.forEach(input => {
+                            totalCount += parseInt(input.value) || 0;
+                        });
+                        cartCount.textContent = totalCount;
+                    }
                 }
                 
                 // Reload the page to show updated cart
@@ -309,15 +314,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Update the cart count in header
                     const cartCount = document.querySelector('.cart-count');
                     if (cartCount) {
-                        // Recalculate total cart count
-                        let totalCount = 0;
-                        const quantityInputs = document.querySelectorAll('.quantity-input');
-                        quantityInputs.forEach(input => {
-                            if (input.dataset.itemId != itemId) {  // Exclude the removed item
-                                totalCount += parseInt(input.value) || 0;
-                            }
-                        });
-                        cartCount.textContent = totalCount;
+                        // Use the cart count from the response data
+                        if (data.cart_count !== undefined) {
+                            cartCount.textContent = data.cart_count;
+                        } else {
+                            // Fallback: recalculate total cart count
+                            let totalCount = 0;
+                            const quantityInputs = document.querySelectorAll('.quantity-input');
+                            quantityInputs.forEach(input => {
+                                if (input.dataset.itemId != itemId) {  // Exclude the removed item
+                                    totalCount += parseInt(input.value) || 0;
+                                }
+                            });
+                            cartCount.textContent = totalCount;
+                        }
                     }
                     
                     // Reload the page to show updated cart

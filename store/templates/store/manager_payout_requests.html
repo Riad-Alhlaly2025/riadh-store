@@ -1,0 +1,348 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}إدارة طلبات السحب - متجر رياض الإلكتروني{% endblock %}
+
+{% block content %}
+<div class="manager-payout-requests-container">
+    <h1>إدارة طلبات السحب</h1>
+    
+    {% if withdrawal_requests %}
+    <div class="requests-table-container">
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>رقم الطلب</th>
+                    <th>البائع</th>
+                    <th>المبلغ</th>
+                    <th>طريقة الدفع</th>
+                    <th>التاريخ</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in withdrawal_requests %}
+                <tr>
+                    <td>#{{ request.id }}</td>
+                    <td>{{ request.seller.username }}</td>
+                    <td>{{ request.amount|floatformat:2 }} {{ request.currency }}</td>
+                    <td>{{ request.payment_method }}</td>
+                    <td>{{ request.created_at|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if request.status == 'pending' %}
+                            <span class="status pending">قيد الانتظار</span>
+                        {% elif request.status == 'approved' %}
+                            <span class="status approved">موافق عليه</span>
+                        {% elif request.status == 'processing' %}
+                            <span class="status processing">قيد المعالجة</span>
+                        {% elif request.status == 'completed' %}
+                            <span class="status completed">مكتمل</span>
+                        {% elif request.status == 'rejected' %}
+                            <span class="status rejected">مرفوض</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn-update" onclick="openUpdateModal({{ request.id }})" data-status="{{ request.status }}">تحديث الحالة</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="no-requests">
+        <p>لا توجد طلبات سحب حالياً.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Update Status Modal -->
+<div id="updateModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeUpdateModal()">&times;</span>
+        <h2>تحديث حالة طلب السحب</h2>
+        <form id="updateForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="request_id" name="request_id">
+            <div class="form-group">
+                <label for="status">الحالة الجديدة:</label>
+                <select id="status" name="status" required>
+                    <option value="pending">قيد الانتظار</option>
+                    <option value="approved">موافق عليه</option>
+                    <option value="processing">قيد المعالجة</option>
+                    <option value="completed">مكتمل</option>
+                    <option value="rejected">مرفوض</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">تحديث الحالة</button>
+                <button type="button" class="btn-cancel" onclick="closeUpdateModal()">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .manager-payout-requests-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .manager-payout-requests-container h1 {
+        color: #0074D9;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .requests-table-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .requests-table th,
+    .requests-table td {
+        padding: 15px;
+        text-align: right;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .requests-table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .requests-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .status {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+    
+    .status.pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status.approved {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .status.processing {
+        background-color: #cce5ff;
+        color: #004085;
+    }
+    
+    .status.completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status.rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .btn-update {
+        background: #0074D9;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-update:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0,116,217,0.3);
+    }
+    
+    .no-requests {
+        background: white;
+        border-radius: 15px;
+        padding: 50px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .no-requests p {
+        font-size: 1.2rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 500px;
+        position: relative;
+    }
+    
+    .close {
+        color: #aaa;
+        float: left;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        left: 20px;
+        top: 15px;
+    }
+    
+    .close:hover {
+        color: #000;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-group select:focus {
+        outline: none;
+        border-color: #0074D9;
+        box-shadow: 0 0 0 3px rgba(0,116,217,0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(90deg, #28a745, #218838);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+        text-align: center;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+        text-align: center;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .manager-payout-requests-container {
+            padding: 15px;
+        }
+        
+        .requests-table-container {
+            padding: 15px;
+        }
+        
+        .requests-table th,
+        .requests-table td {
+            padding: 10px 5px;
+            font-size: 0.9rem;
+        }
+        
+        .modal-content {
+            margin: 20% auto;
+            width: 95%;
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    function openUpdateModal(requestId) {
+        document.getElementById('request_id').value = requestId;
+        
+        // Update form action
+        const form = document.getElementById('updateForm');
+        form.action = `/store/payout-request/${requestId}/update-status/`;
+        
+        document.getElementById('updateModal').style.display = 'block';
+    }
+    
+    function closeUpdateModal() {
+        document.getElementById('updateModal').style.display = 'none';
+    }
+    
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('updateModal');
+        if (event.target == modal) {
+            closeUpdateModal();
+        }
+    }
+</script>
+{% endblock %}

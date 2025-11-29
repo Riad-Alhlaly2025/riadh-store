@@ -1,0 +1,17 @@
+# Crontab configuration for MyShop e-commerce platform
+# This file defines scheduled tasks for backups, monitoring, and maintenance
+
+# Database backup - daily at 2 AM
+0 2 * * * /usr/local/bin/python /app/scripts/backup_db.py >> /app/logs/backup.log 2>&1
+
+# System monitoring - every 5 minutes
+*/5 * * * * /usr/local/bin/python /app/scripts/monitoring.py >> /app/logs/monitoring.log 2>&1
+
+# Cleanup old log files - weekly on Sunday at 3 AM
+0 3 * * 0 find /app/logs -name "*.log" -mtime +30 -delete
+
+# Cache cleanup - daily at 1 AM
+0 1 * * * /usr/local/bin/python /app/manage.py clear_cache >> /app/logs/cache_cleanup.log 2>&1
+
+# Session cleanup - daily at 1:30 AM
+30 1 * * * /usr/local/bin/python /app/manage.py clearsessions >> /app/logs/session_cleanup.log 2>&1

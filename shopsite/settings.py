@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'storages',  # For S3 storage
+    'django_redis',  # For Redis caching
 ]
 
 MIDDLEWARE = [
@@ -138,14 +139,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Redis cache
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
 
 # Session settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
+
+# Redis session settings
+SESSION_REDIS = {
+    'host': 'localhost',
+    'port': 6379,
+    'db': 1,
+    'password': '',
+    'prefix': 'session',
+    'socket_timeout': 1
+}
 
 # REST Framework settings
 REST_FRAMEWORK = {

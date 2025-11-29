@@ -42,6 +42,7 @@ def home(request):
     return render(request, 'store/home.html', home_data)
 
 from django.core.cache import cache
+from store.services.cache_service import cache_service
 
 def product_list(request):
     """Product list view with caching and pagination"""
@@ -1177,13 +1178,17 @@ def manager_dashboard(request):
         return redirect('home')
     
     # Try to get manager dashboard data from cache first
-    cache_key = f'manager_dashboard_data_{request.user.id}'
-    dashboard_data = cache.get(cache_key)
+    cache_key = cache_service.get_dashboard_statistics_cache_key(request.user.id)
+    dashboard_data = cache_service.get_or_set(
+        cache_key,
+        lambda: None,  # Will be computed below if None
+        cache_service.MEDIUM_TIMEOUT
+    )
     
     if dashboard_data is None:
         # Import models
         from django.apps import apps
-        from django.db.models import Sum, Count, Q
+        from django.db.models import Sum, Count, Q, Prefetch
         Product = apps.get_model('store', 'Product')
         Order = apps.get_model('store', 'Order')
         UserProfile = apps.get_model('store', 'UserProfile')
@@ -1192,8 +1197,9 @@ def manager_dashboard(request):
         ShippingIntegration = apps.get_model('store', 'ShippingIntegration')
         ExternalInventory = apps.get_model('store', 'ExternalInventory')
         AnalyticsIntegration = apps.get_model('store', 'AnalyticsIntegration')
+        OrderItem = apps.get_model('store', 'OrderItem')
         
-        # Get enhanced statistics
+        # Get enhanced statistics with optimized queries
         total_products = Product.objects.count()
         total_orders = Order.objects.count()
         pending_orders = Order.objects.filter(status='pending').count()
@@ -1208,11 +1214,38 @@ def manager_dashboard(request):
         pending_products = Product.objects.filter(verification_status='pending').count()
         rejected_products = Product.objects.filter(verification_status='rejected').count()
         
-        # Get integration data
-        social_media_integrations = SocialMediaIntegration.objects.select_related('product').all()[:10]
-        shipping_integrations = ShippingIntegration.objects.select_related('order').all()[:10]
-        external_inventories = ExternalInventory.objects.select_related('product').all()[:10]
-        analytics_events = AnalyticsIntegration.objects.select_related('user', 'product', 'order').all()[:20]
+        # Get integration data with optimized queries
+        social_media_integrations = SocialMediaIntegration.objects.select_related(
+            'product', 'product__seller'
+        ).prefetch_related(
+            'product__orderitem_set'
+        ).all()[:10]
+        
+        shipping_integrations = ShippingIntegration.objects.select_related(
+            'order', 'order__user'
+        ).prefetch_related(
+            'order__items', 'order__items__product'
+        ).all()[:10]
+        
+        external_inventories = ExternalInventory.objects.select_related(
+            'product', 'product__seller'
+        ).all()[:10]
+        
+        analytics_events = AnalyticsIntegration.objects.select_related(
+            'user', 'product', 'product__seller', 'order', 'order__user'
+        ).prefetch_related(
+            'product__orderitem_set', 'order__items', 'order__items__product'
+        ).all()[:20]
+        
+        # Get recent orders with optimized queries
+        recent_orders = Order.objects.select_related(
+            'user'
+        ).prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.select_related('product', 'product__seller')
+            )
+        ).order_by('-created_at')[:10]
         
         dashboard_data = {
             'total_products': total_products,
@@ -1226,17 +1259,18 @@ def manager_dashboard(request):
             'shipping_integrations': shipping_integrations,
             'external_inventories': external_inventories,
             'analytics_events': analytics_events,
+            'recent_orders': recent_orders,
         }
         
         # Cache for 5 minutes (since this data changes frequently)
-        cache.set(cache_key, dashboard_data, 60 * 5)
+        cache.set(cache_key, dashboard_data, cache_service.SHORT_TIMEOUT)
     
     return render(request, 'store/manager_dashboard.html', dashboard_data)
 
 
 @login_required
 def manager_user_search(request):
-    """Manager user search view"""
+    """Manager user search view with optimized queries"""
     # Check if user is staff/admin
     if not request.user.is_staff:
         messages.error(request, 'ليس لديك صلاحية الوصول إلى البحث عن المستخدمين')
@@ -1244,16 +1278,29 @@ def manager_user_search(request):
     
     # Import models
     from django.apps import apps
-    from django.db.models import Q
+    from django.db.models import Q, Prefetch
     from django.core.paginator import Paginator
+    from django.contrib.auth.models import Group
     User = apps.get_model('auth', 'User')
     UserProfile = apps.get_model('store', 'UserProfile')
+    Order = apps.get_model('store', 'Order')
     
     # Get search query
     query = request.GET.get('q', '')
     
-    # Start with all users
-    users = User.objects.all().select_related('userprofile').order_by('-date_joined')
+    # Start with all users with optimized queries
+    users = User.objects.all().select_related(
+        'userprofile'
+    ).prefetch_related(
+        Prefetch(
+            'groups',
+            queryset=Group.objects.only('name')
+        ),
+        Prefetch(
+            'order_set',
+            queryset=Order.objects.only('id', 'status', 'total_amount', 'created_at')
+        )
+    ).order_by('-date_joined')
     
     # Apply search query
     if query:
@@ -1261,7 +1308,8 @@ def manager_user_search(request):
             Q(username__icontains=query) | 
             Q(email__icontains=query) |
             Q(first_name__icontains=query) |
-            Q(last_name__icontains=query)
+            Q(last_name__icontains=query) |
+            Q(userprofile__phone_number__icontains=query)
         )
     
     # Paginate results
@@ -1279,7 +1327,7 @@ def manager_user_search(request):
 
 @login_required
 def manager_manage_permissions(request):
-    """Manager permission management view"""
+    """Manager permission management view with optimized queries"""
     # Check if user is staff/admin
     if not request.user.is_staff:
         messages.error(request, 'ليس لديك صلاحية الوصول إلى إدارة الصلاحيات')
@@ -1287,11 +1335,12 @@ def manager_manage_permissions(request):
     
     # Import models
     from django.apps import apps
-    from django.db.models import Q
+    from django.db.models import Q, Prefetch
     from django.core.paginator import Paginator
     from django.contrib.auth.models import Group, Permission
     User = apps.get_model('auth', 'User')
     UserProfile = apps.get_model('store', 'UserProfile')
+    Order = apps.get_model('store', 'Order')
     
     # Handle form submission for permission changes
     if request.method == 'POST':
@@ -1299,7 +1348,13 @@ def manager_manage_permissions(request):
         role = request.POST.get('role')
         
         try:
-            user = User.objects.get(id=user_id)
+            # Get user with optimized query
+            user = User.objects.select_related('userprofile').prefetch_related(
+                Prefetch(
+                    'order_set',
+                    queryset=Order.objects.only('id', 'status', 'total_amount')
+                )
+            ).get(id=user_id)
             
             # Update user role
             if hasattr(user, 'userprofile'):
@@ -1316,8 +1371,19 @@ def manager_manage_permissions(request):
         
         return redirect('manager_manage_permissions')
     
-    # Get all users with pagination
-    users = User.objects.all().select_related('userprofile').order_by('-date_joined')
+    # Get all users with pagination and optimized queries
+    users = User.objects.all().select_related(
+        'userprofile'
+    ).prefetch_related(
+        Prefetch(
+            'groups',
+            queryset=Group.objects.only('name')
+        ),
+        Prefetch(
+            'order_set',
+            queryset=Order.objects.only('id', 'status', 'total_amount', 'created_at')
+        )
+    ).order_by('-date_joined')
     
     # Paginate results
     paginator = Paginator(users, 20)
@@ -1336,7 +1402,7 @@ def manager_manage_permissions(request):
 
 @login_required
 def buyer_dashboard(request):
-    """Buyer dashboard view with caching"""
+    """Buyer dashboard view with caching and optimized queries"""
     # Check if user has buyer profile
     try:
         user_profile = request.user.userprofile
@@ -1348,31 +1414,49 @@ def buyer_dashboard(request):
         pass
     
     # Try to get buyer dashboard data from cache first
-    cache_key = f'buyer_dashboard_data_{request.user.id}'
-    dashboard_data = cache.get(cache_key)
+    cache_key = cache_service.get_dashboard_statistics_cache_key(request.user.id)
+    dashboard_data = cache_service.get_or_set(
+        cache_key,
+        lambda: None,  # Will be computed below if None
+        cache_service.MEDIUM_TIMEOUT
+    )
     
     if dashboard_data is None:
         # Import models
+        from django.db.models import Prefetch
         Order = apps.get_model('store', 'Order')
+        OrderItem = apps.get_model('store', 'OrderItem')
         
-        # Get buyer-specific statistics
-        user_orders = Order.objects.filter(user=request.user)
+        # Get buyer-specific statistics with optimized queries
+        user_orders = Order.objects.filter(user=request.user).select_related(
+            'user'
+        ).prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.select_related('product', 'product__seller')
+            )
+        )
+        
         total_orders = user_orders.count()
         pending_orders = user_orders.filter(status='pending').count()
+        
+        # Get recent orders with optimized queries
+        recent_orders = user_orders.order_by('-created_at')[:5]
         
         dashboard_data = {
             'total_orders': total_orders,
             'pending_orders': pending_orders,
+            'recent_orders': recent_orders,
         }
         
         # Cache for 5 minutes (since this data changes frequently)
-        cache.set(cache_key, dashboard_data, 60 * 5)
+        cache.set(cache_key, dashboard_data, cache_service.SHORT_TIMEOUT)
     
     return render(request, 'store/buyer_dashboard.html', dashboard_data)
 
 @login_required
 def seller_dashboard(request):
-    """Seller dashboard view with caching"""
+    """Seller dashboard view with caching and optimized queries"""
     # Check if user has seller profile
     try:
         user_profile = request.user.userprofile
@@ -1384,33 +1468,51 @@ def seller_dashboard(request):
         return redirect('home')
     
     # Try to get seller dashboard data from cache first
-    cache_key = f'seller_dashboard_data_{request.user.id}'
-    dashboard_data = cache.get(cache_key)
+    cache_key = cache_service.get_dashboard_statistics_cache_key(request.user.id)
+    dashboard_data = cache_service.get_or_set(
+        cache_key,
+        lambda: None,  # Will be computed below if None
+        cache_service.MEDIUM_TIMEOUT
+    )
     
     if dashboard_data is None:
         # Import models
+        from django.db.models import Prefetch
         Product = apps.get_model('store', 'Product')
         Order = apps.get_model('store', 'Order')
         OrderItem = apps.get_model('store', 'OrderItem')
         Commission = apps.get_model('store', 'Commission')
         
-        # Get seller-specific statistics
-        seller_products = Product.objects.filter(seller=request.user)
+        # Get seller-specific statistics with optimized queries
+        seller_products = Product.objects.filter(seller=request.user).select_related(
+            'seller'
+        )
         total_products = seller_products.count()
         
-        # Get orders for seller's products
-        seller_orders = Order.objects.filter(items__product__seller=request.user).distinct()
+        # Get orders for seller's products with optimized queries
+        seller_orders = Order.objects.filter(
+            items__product__seller=request.user
+        ).distinct().select_related(
+            'user'
+        ).prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.select_related('product', 'product__seller')
+            )
+        )
         total_orders = seller_orders.count()
         pending_orders = seller_orders.filter(status='pending').count()
         
-        # Get commission data
-        seller_commissions = Commission.objects.filter(user=request.user)
+        # Get commission data with optimized queries
+        seller_commissions = Commission.objects.filter(user=request.user).select_related(
+            'user', 'order'
+        )
         total_commissions = seller_commissions.count()
         total_commission_amount = seller_commissions.aggregate(
             total=Sum('amount')
         )['total'] or 0
         
-        # Get recent commissions
+        # Get recent commissions with optimized queries
         recent_commissions = seller_commissions.order_by('-created_at')[:5]
         
         # Get sales data for charts
@@ -1431,8 +1533,10 @@ def seller_dashboard(request):
             """, [request.user.id])
             monthly_sales = cursor.fetchall()
         
-        # Top selling products
-        top_products = Product.objects.filter(seller=request.user).annotate(
+        # Top selling products with optimized queries
+        top_products = Product.objects.filter(seller=request.user).select_related(
+            'seller'
+        ).annotate(
             total_sold=Sum('orderitem__quantity')
         ).filter(total_sold__gt=0).order_by('-total_sold')[:5]
         
@@ -1485,14 +1589,14 @@ def seller_dashboard(request):
         }
         
         # Cache for 5 minutes (since this data changes frequently)
-        cache.set(cache_key, dashboard_data, 60 * 5)
+        cache.set(cache_key, dashboard_data, cache_service.SHORT_TIMEOUT)
     
     # Render the luxury dashboard template
     return render(request, 'store/seller_dashboard_luxury.html', dashboard_data)
 
 @login_required
 def buyer_dashboard(request):
-    """Buyer dashboard view with caching"""
+    """Buyer dashboard view with caching and optimized queries"""
     # Check if user has buyer profile
     try:
         user_profile = request.user.userprofile
@@ -1504,25 +1608,43 @@ def buyer_dashboard(request):
         pass
     
     # Try to get buyer dashboard data from cache first
-    cache_key = f'buyer_dashboard_data_{request.user.id}'
-    dashboard_data = cache.get(cache_key)
+    cache_key = cache_service.get_dashboard_statistics_cache_key(request.user.id)
+    dashboard_data = cache_service.get_or_set(
+        cache_key,
+        lambda: None,  # Will be computed below if None
+        cache_service.MEDIUM_TIMEOUT
+    )
     
     if dashboard_data is None:
         # Import models
+        from django.db.models import Prefetch
         Order = apps.get_model('store', 'Order')
+        OrderItem = apps.get_model('store', 'OrderItem')
         
-        # Get buyer-specific statistics
-        user_orders = Order.objects.filter(user=request.user)
+        # Get buyer-specific statistics with optimized queries
+        user_orders = Order.objects.filter(user=request.user).select_related(
+            'user'
+        ).prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.select_related('product', 'product__seller')
+            )
+        )
+        
         total_orders = user_orders.count()
         pending_orders = user_orders.filter(status='pending').count()
+        
+        # Get recent orders with optimized queries
+        recent_orders = user_orders.order_by('-created_at')[:5]
         
         dashboard_data = {
             'total_orders': total_orders,
             'pending_orders': pending_orders,
+            'recent_orders': recent_orders,
         }
         
         # Cache for 5 minutes (since this data changes frequently)
-        cache.set(cache_key, dashboard_data, 60 * 5)
+        cache.set(cache_key, dashboard_data, cache_service.SHORT_TIMEOUT)
     
     return render(request, 'store/buyer_dashboard.html', dashboard_data)
 
